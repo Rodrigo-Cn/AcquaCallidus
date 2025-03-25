@@ -7,7 +7,6 @@ class CultureVegetable(models.Model):
     phase_emergence = models.FloatField()
     phase_frying = models.FloatField()
     phase_maturation = models.FloatField()
-    date = models.DateTimeField()
-
+    
     def __str__(self):
         return self.name
