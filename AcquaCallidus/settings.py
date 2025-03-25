@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'culturesvegetables',
     'accounts',
     'logs',
-    'meteorologicaldata',
+    'meteorologicaldatas',
     'irrigationvolumes',
 ]
 

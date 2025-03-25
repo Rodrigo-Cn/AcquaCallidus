@@ -1,4 +1,5 @@
 from django.db import models
+from geolocations.models import Geolocation
 
 class MeteorologicalData(models.Model):
     temperature_max = models.FloatField()
@@ -7,6 +8,7 @@ class MeteorologicalData(models.Model):
     solar_radiation = models.FloatField()
     air_speed = models.FloatField()
     date = models.DateField(auto_now=True)
+    geolocation = models.ForeignKey(Geolocation, blank=True)
 
     def __str__(self):
         return f"Dados Meteorológicos - {self.date}"
