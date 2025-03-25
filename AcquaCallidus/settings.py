@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'logs',
     'meteorologicaldatas',
     'irrigationvolumes',
+    'geolocations',
 ]
 
 MIDDLEWARE = [

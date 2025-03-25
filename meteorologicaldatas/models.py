@@ -8,7 +8,12 @@ class MeteorologicalData(models.Model):
     solar_radiation = models.FloatField()
     air_speed = models.FloatField()
     date = models.DateField(auto_now=True)
-    geolocation = models.ForeignKey(Geolocation, blank=True)
+    geolocation = models.ForeignKey(
+        Geolocation, 
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True
+    )
 
     def __str__(self):
         return f"Dados Meteorológicos - {self.date}"

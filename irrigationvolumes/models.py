@@ -9,9 +9,16 @@ class IrrigationVolume(models.Model):
     phase_frying = models.FloatField()
     phase_maturation = models.FloatField()
     date = models.DateTimeField(auto_now=True)
-    culturevegetable = models.ForeignKey(CultureVegetable, blank=False)
-    meteorologicaldata = models.OneToOneField(MeteorologicalData, blank=False)
+    culturevegetable = models.ForeignKey(
+        CultureVegetable, 
+        on_delete=models.CASCADE,
+        blank=False
+    )
+    meteorologicaldata = models.OneToOneField(
+        MeteorologicalData, 
+        on_delete=models.CASCADE,
+        blank=False
+    )
 
     def __str__(self):
-        return self.date
-
+        return f"Irrigation Volume ({self.date.strftime('%Y-%m-%d %H:%M:%S')})"
