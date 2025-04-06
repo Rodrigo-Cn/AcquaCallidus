@@ -1,4 +1,5 @@
 from django.utils import timezone
+from django.shortcuts import render
 from pytz import timezone as pytz_timezone
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -9,6 +10,9 @@ from culturesvegetables.models import CultureVegetable
 from meteorologicaldatas.models import MeteorologicalData
 from .serializers import IrrigationVolumeSerializer
 from .services import calculateReferenceEvapotranspiration
+
+def teste(request):
+    return render(request, 'teste.html')
 
 class IrrigationVolumeAPI(APIView):
     def get(self, request, geolocation_id, culture_id):
