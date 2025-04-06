@@ -49,7 +49,7 @@ class IrrigationVolumeAPI(APIView):
                 meteorologicaldata=meteorological_data,
                 phase_germination=eto * culture_vegetable.phase_germination_kc * root_area_m2,
                 phase_vegetative=eto * culture_vegetable.phase_vegetative_kc * root_area_m2,
-                phase_emergence=eto * culture_vegetable.phase_emergence_kc * root_area_m2,
+                phase_emerging=eto * culture_vegetable.phase_emerging_kc * root_area_m2,
                 phase_frying=eto * culture_vegetable.phase_frying_kc * root_area_m2,
                 phase_maturation=eto * culture_vegetable.phase_maturation_kc * root_area_m2,
             )
