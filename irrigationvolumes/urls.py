@@ -2,5 +2,5 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('fetchweather/<int:geolocation_id>/', views.fetch_weather_view, name='fetch_weather'),
+    path('api/<int:geolocation_id>/<int:culture_id>/', views.IrrigationVolumeAPI.as_view(), name='fetch_weather'),
 ]
