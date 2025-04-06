@@ -7,6 +7,7 @@ class MeteorologicalData(models.Model):
     relative_humidity = models.FloatField()
     solar_radiation = models.FloatField()
     air_speed = models.FloatField()
+    pressure = models.FloatField()
     date = models.DateField(auto_now=True)
     geolocation = models.ForeignKey(
         Geolocation, 
