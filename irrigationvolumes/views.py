@@ -12,7 +12,7 @@ from .serializers import IrrigationVolumeSerializer
 from .services import calculateReferenceEvapotranspiration
 
 def teste(request):
-    return render(request, 'teste.html')
+    return render(request, 'authentication/login.html')
 
 class IrrigationVolumeAPI(APIView):
     def get(self, request, geolocation_id, culture_id):
