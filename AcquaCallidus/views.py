@@ -3,4 +3,4 @@ from django.contrib import messages
 
 def home(request):
     ## pages/
-    return render(request, 'base.html')
+    return render(request, 'pages/home.html')
