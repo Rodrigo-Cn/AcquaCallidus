@@ -82,19 +82,19 @@
                   <!-- active & hover classes 'text-gray-700 dark:text-light' -->
                   <!-- inActive classes 'text-gray-400 dark:text-gray-400' -->
                   <a
-                    href="index.html"
+                    href="/"
                     role="menuitem"
                     class="block p-2 text-sm text-gray-700 transition-colors duration-200 rounded-md dark:text-light dark:hover:text-light hover:text-gray-700"
                   >
                     Home
                   </a>
-                  <a
-                    href="#"
+                  <button
                     role="menuitem"
                     class="block p-2 text-sm text-gray-400 transition-colors duration-200 rounded-md dark:hover:text-light hover:text-gray-700"
+                    onclick="document.getElementById('profileModal').classList.remove('hidden')"
                   >
                     Meu Perfil
-                  </a>
+                </button>
                 </div>
               </div>
 
@@ -277,14 +277,14 @@
                     role="menuitem"
                     class="block p-2 text-sm text-gray-400 transition-colors duration-200 rounded-md dark:text-gray-400 dark:hover:text-light hover:text-gray-700"
                   >
-                    Dados diários
+                    Dados Diários
                   </a>
                   <a
                     href="#"
                     role="menuitem"
                     class="block p-2 text-sm text-gray-400 transition-colors duration-200 rounded-md dark:text-gray-400 dark:hover:text-light hover:text-gray-700"
                   >
-                    Dados mensais
+                    Dados Mensais
                   </a>
                 </div>
               </div>
@@ -496,12 +496,12 @@
                     aria-orientation="vertical"
                     aria-label="User menu"
                   >
-                    <a
-                      href="#"
+                    <a                      
                       role="menuitem"
-                      class="block px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-100 dark:text-light dark:hover:bg-primary"
+                      class="block px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-100 dark:text-light dark:hover:bg-primary cursor-pointer"
+                      onclick="document.getElementById('profileModal').classList.remove('hidden')"
                     >
-                     Meu Perfil
+                      Meu Perfil
                     </a>
                     <a
                       href="#"
@@ -579,7 +579,11 @@
                       aria-orientation="vertical"
                       aria-label="User menu"
                     >
-                      <a href="#" role="menuitem" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-light dark:hover:bg-primary">Meu Perfil</a>
+                      <a href="#" role="menuitem"
+                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-light dark:hover:bg-primary cursor-pointer"
+                        onclick="document.getElementById('profileModal').classList.remove('hidden')">
+                        Meu Perfil
+                      </a>
                       <a href="#" role="menuitem" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-light dark:hover:bg-primary">Sair</a>
                     </div>
                   </div>
@@ -647,13 +651,14 @@
                     >
                       Home
                     </a>
-                    <a
+                    <button
                       href="#"
                       role="menuitem"
                       class="block p-2 text-sm text-gray-400 transition-colors duration-200 rounded-md dark:hover:text-light hover:text-gray-700"
+                      onclick="document.getElementById('profileModal').classList.remove('hidden')"
                     >
                       Meu Perfil
-                    </a>
+                  </button>
                   </div>
                 </div>
 
@@ -1044,6 +1049,60 @@
             </div>
           </div>
 
+          <!-- Modal Profile -->
+          <div
+            id="profileModal"
+            class="fixed inset-0 z-50 bg-black bg-opacity-50 hidden"
+          >
+            <div class="flex items-center justify-center min-h-screen">
+              <div class="bg-white w-full max-w-md p-6 rounded-2xl shadow-2xl relative">
+                
+                <button
+                  onclick="document.getElementById('profileModal').classList.add('hidden')"
+                  class="absolute top-3 right-3 text-gray-500 hover:text-red-600 text-2xl font-bold"
+                >
+                  &times;
+                </button>
+
+                <div class="flex justify-center items-center my-4">
+                  <div class="bg-sky-600 rounded-full p-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M6 20v-1a6 6 0 0112 0v1H6z" />
+                    </svg>
+                  </div>
+                </div>
+
+                <h2 class="text-2xl font-semibold text-center text-sky-500 py-2 rounded-lg mb-6">
+                  Meu Perfil
+                </h2>
+
+                <div class="space-y-4">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-500">Nome</label>
+                    <p class="text-gray-800 font-medium">João da Silva</p>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-500">Email</label>
+                    <p class="text-gray-800 font-medium">joao@example.com</p>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-500">Função</label>
+                    <p class="text-gray-800 font-medium">Administrador</p>
+                  </div>
+                </div>
+
+                <div class="mt-6 text-right">
+                  <button
+                    onclick="document.getElementById('profileModal').classList.add('hidden')"
+                    class="bg-red-600 text-white rounded-lg py-2 px-4 hover:bg-red-500"
+                  >
+                    Fechar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
           <div id="notification" class="fixed top-5 right-5 hidden p-4 rounded shadow-lg text-white z-[99999] pointer-events-none">
           </div>
 
