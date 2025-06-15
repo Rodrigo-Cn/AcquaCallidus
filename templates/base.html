@@ -41,7 +41,12 @@
                 <a
                   href="#"
                   @click="$event.preventDefault(); open = !open"
-                  class="flex items-center p-2 text-gray-500 transition-colors rounded-md dark:text-light hover:bg-primary-100 dark:hover:bg-primary"
+                  class="flex items-center p-2 text-gray-500 transition-colors rounded-md dark:text-light hover:bg-primary-100 dark:hover:bg-primary
+                  {% if request.path == '/' %}
+                    text-gray-700
+                  {% else %}
+                    text-gray-400 dark:text-gray-400
+                  {% endif %}"
                   :class="{'bg-primary-100 dark:bg-primary': isActive || open}"
                   role="button"
                   aria-haspopup="true"
@@ -79,12 +84,15 @@
                   </span>
                 </a>
                 <div role="menu" x-show="open" class="mt-2 space-y-2 px-7" aria-label="Dashboards">
-                  <!-- active & hover classes 'text-gray-700 dark:text-light' -->
-                  <!-- inActive classes 'text-gray-400 dark:text-gray-400' -->
                   <a
                     href="/"
                     role="menuitem"
-                    class="block p-2 text-sm text-gray-700 transition-colors duration-200 rounded-md dark:text-light dark:hover:text-light hover:text-gray-700"
+                    class="block p-2 text-sm text-gray-700 transition-colors duration-200 rounded-md dark:text-light dark:hover:text-light hover:text-gray-700
+                        {% if request.path == '/' %}
+                          text-gray-700
+                        {% else %}
+                          text-gray-400 dark:text-gray-400
+                        {% endif %}"
                   >
                     Home
                   </a>
@@ -1065,7 +1073,7 @@
                 </button>
 
                 <div class="flex justify-center items-center my-4">
-                  <div class="bg-sky-600 rounded-full p-4">
+                  <div class="bg-gray-500 rounded-full p-4">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z" />
                       <path stroke-linecap="round" stroke-linejoin="round" d="M6 20v-1a6 6 0 0112 0v1H6z" />
@@ -1073,7 +1081,7 @@
                   </div>
                 </div>
 
-                <h2 class="text-2xl font-semibold text-center text-sky-500 py-2 rounded-lg mb-6">
+                <h2 class="text-2xl font-semibold text-center text-gray-500 py-2 rounded-lg mb-6">
                   Meu Perfil
                 </h2>
 
@@ -1109,7 +1117,7 @@
         {% block content %}
         {% endblock %}
 
-          <!-- Main footer -->
+          <!-- footer -->
           <footer class="bg-white pt-4">
             <div class="mx-auto w-full max-w-screen-xl p-4 py-6 lg:py-8">
               <div class="md:flex md:justify-between">
@@ -1151,10 +1159,7 @@
           </footer>          
         </div>
 
-        <!-- Panels -->
-
         <!-- Notification panel -->
-        <!-- Backdrop -->
         <div
           x-transition:enter="transition duration-300 ease-in-out"
           x-transition:enter-start="opacity-0"
@@ -1168,7 +1173,6 @@
           style="opacity: 0.5"
           aria-hidden="true"
         ></div>
-        <!-- Panel -->
         <section
           x-transition:enter="transition duration-300 ease-in-out transform sm:duration-500"
           x-transition:enter-start="-translate-x-full"
@@ -1184,7 +1188,6 @@
           class="fixed inset-y-0 z-20 w-full max-w-xs bg-white dark:bg-darker dark:text-light sm:max-w-md focus:outline-none"
         >
           <div class="absolute right-0 p-2 transform translate-x-full">
-            <!-- Close button -->
             <button
               @click="isNotificationsPanelOpen = false"
               class="p-2 text-white rounded-md focus:outline-none focus:ring"
@@ -1201,14 +1204,12 @@
             </button>
           </div>
           <div class="flex flex-col h-screen" x-data="{ activeTabe: 'action' }">
-            <!-- Panel header -->
             <div class="flex-shrink-0">
               <div class="flex items-center justify-between px-4 pt-4 border-b dark:border-primary-darker">
                 <h2 id="notificationPanelLabel" class="pb-4 font-semibold">Logs de Erro</h2>
                 <div class="space-x-2">
                   <a href=""
                     class="px-px pb-4 transition-all duration-200 transform translate-y-px border-b focus:outline-none"
-                    :class="{'border-primary-dark dark:border-primary': activeTabe == 'action', 'border-transparent': activeTabe != 'action'}"
                   >
                     Ver Logs
                 </a>
@@ -1216,44 +1217,9 @@
               </div>
             </div>
 
-            <!-- Panel content (tabs) -->
             <div class="flex-1 pt-4 overflow-y-hidden hover:overflow-y-auto">
-              <!-- Action tab -->
+              <!-- Logs -->
               <div class="space-y-4" x-show.transition.in="activeTabe == 'action'">
-                <a href="#" class="block">
-                  <div class="flex px-4 space-x-4">
-                    <div class="relative flex-shrink-0">
-                      <span
-                        class="z-10 inline-block p-2 overflow-visible rounded-full bg-primary-50 text-primary-light dark:bg-primary-darker"
-                      >
-                        <svg
-                          class="w-7 h-7"
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-                          />
-                        </svg>
-                      </span>
-                      <div class="absolute h-24 p-px -mt-3 -ml-px bg-primary-50 left-1/2 dark:bg-primary-darker"></div>
-                    </div>
-                    <div class="flex-1 overflow-hidden">
-                      <h5 class="text-sm font-semibold text-gray-600 dark:text-light">
-                        New project "KWD Dashboard" created
-                      </h5>
-                      <p class="text-sm font-normal text-gray-400 truncate dark:text-primary-lighter">
-                        Looks like there might be a new theme soon
-                      </p>
-                      <span class="text-sm font-normal text-gray-400 dark:text-primary-light"> 9h ago </span>
-                    </div>
-                  </div>
-                </a>
                 <a href="#" class="block">
                   <div class="flex px-4 space-x-4">
                     <div class="relative flex-shrink-0">
@@ -1288,136 +1254,6 @@
                     </div>
                   </div>
                 </a>
-                <template x-for="i in 20" x-key="i">
-                  <a href="#" class="block">
-                    <div class="flex px-4 space-x-4">
-                      <div class="relative flex-shrink-0">
-                        <span
-                          class="inline-block p-2 overflow-visible rounded-full bg-primary-50 text-primary-light dark:bg-primary-darker"
-                        >
-                          <svg
-                            class="w-7 h-7"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                              stroke-width="2"
-                              d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-                            />
-                          </svg>
-                        </span>
-                        <div
-                          class="absolute h-24 p-px -mt-3 -ml-px bg-primary-50 left-1/2 dark:bg-primary-darker"
-                        ></div>
-                      </div>
-                      <div class="flex-1 overflow-hidden">
-                        <h5 class="text-sm font-semibold text-gray-600 dark:text-light">
-                          New project "KWD Dashboard" created
-                        </h5>
-                        <p class="text-sm font-normal text-gray-400 truncate dark:text-primary-lighter">
-                          Looks like there might be a new theme soon
-                        </p>
-                        <span class="text-sm font-normal text-gray-400 dark:text-primary-light"> 9h ago </span>
-                      </div>
-                    </div>
-                  </a>
-                </template>
-              </div>
-
-              <!-- User tab -->
-              <div class="space-y-4" x-show.transition.in="activeTabe == 'user'">
-                <a href="#" class="block">
-                  <div class="flex px-4 space-x-4">
-                    <div class="relative flex-shrink-0">
-                      <span class="relative z-10 inline-block overflow-visible rounded-ful">
-                        <img
-                          class="object-cover rounded-full w-9 h-9"
-                          src=""
-                          alt="Ahmed kamel"
-                        />
-                      </span>
-                      <div class="absolute h-24 p-px -mt-3 -ml-px bg-primary-50 left-1/2 dark:bg-primary-darker"></div>
-                    </div>
-                    <div class="flex-1 overflow-hidden">
-                      <h5 class="text-sm font-semibold text-gray-600 dark:text-light">Ahmed Kamel</h5>
-                      <p class="text-sm font-normal text-gray-400 truncate dark:text-primary-lighter">
-                        Shared new project "K-WD Dashboard"
-                      </p>
-                      <span class="text-sm font-normal text-gray-400 dark:text-primary-light"> 1d ago </span>
-                    </div>
-                  </div>
-                </a>
-                <a href="#" class="block">
-                  <div class="flex px-4 space-x-4">
-                    <div class="relative flex-shrink-0">
-                      <span class="relative z-10 inline-block overflow-visible rounded-ful">
-                        <img
-                          class="object-cover rounded-full w-9 h-9"
-                          src=""
-                          alt="Ahmed kamel"
-                        />
-                      </span>
-                      <div class="absolute h-24 p-px -mt-3 -ml-px bg-primary-50 left-1/2 dark:bg-primary-darker"></div>
-                    </div>
-                    <div class="flex-1 overflow-hidden">
-                      <h5 class="text-sm font-semibold text-gray-600 dark:text-light">John</h5>
-                      <p class="text-sm font-normal text-gray-400 truncate dark:text-primary-lighter">
-                        Commit new changes to K-WD Dashboard project.
-                      </p>
-                      <span class="text-sm font-normal text-gray-400 dark:text-primary-light"> 10h ago </span>
-                    </div>
-                  </div>
-                </a>
-                <a href="#" class="block">
-                  <div class="flex px-4 space-x-4">
-                    <div class="relative flex-shrink-0">
-                      <span class="relative z-10 inline-block overflow-visible rounded-ful">
-                        <img
-                          class="object-cover rounded-full w-9 h-9"
-                          src=""
-                          alt="Ahmed kamel"
-                        />
-                      </span>
-                      <div class="absolute h-24 p-px -mt-3 -ml-px bg-primary-50 left-1/2 dark:bg-primary-darker"></div>
-                    </div>
-                    <div class="flex-1 overflow-hidden">
-                      <h5 class="text-sm font-semibold text-gray-600 dark:text-light">Ahmed Kamel</h5>
-                      <p class="text-sm font-normal text-gray-400 truncate dark:text-primary-lighter">
-                        Release new version "K-WD Dashboard"
-                      </p>
-                      <span class="text-sm font-normal text-gray-400 dark:text-primary-light"> 20d ago </span>
-                    </div>
-                  </div>
-                </a>
-                <template x-for="i in 10" x-key="i">
-                  <a href="#" class="block">
-                    <div class="flex px-4 space-x-4">
-                      <div class="relative flex-shrink-0">
-                        <span class="relative z-10 inline-block overflow-visible rounded-ful">
-                          <img
-                            class="object-cover rounded-full w-9 h-9"
-                            src=""
-                            alt="Ahmed kamel"
-                          />
-                        </span>
-                        <div
-                          class="absolute h-24 p-px -mt-3 -ml-px bg-primary-50 left-1/2 dark:bg-primary-darker"
-                        ></div>
-                      </div>
-                      <div class="flex-1 overflow-hidden">
-                        <h5 class="text-sm font-semibold text-gray-600 dark:text-light">Ahmed Kamel</h5>
-                        <p class="text-sm font-normal text-gray-400 truncate dark:text-primary-lighter">
-                          Release new version "K-WD Dashboard"
-                        </p>
-                        <span class="text-sm font-normal text-gray-400 dark:text-primary-light"> 20d ago </span>
-                      </div>
-                    </div>
-                  </a>
-                </template>
               </div>
             </div>
           </div>
