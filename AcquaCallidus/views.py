@@ -4,4 +4,4 @@ from django.contrib import messages
 
 @login_required(login_url='/auth/login/') 
 def home(request):
-    return render(request, 'pages/home.html')
+    return render(request, 'pages/home.html', context={'user': request.user})

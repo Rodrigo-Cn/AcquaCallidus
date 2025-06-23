@@ -13,6 +13,7 @@ def login(request):
         
         if user is not None:
             auth_login(request, user) 
+            messages.success(request, f"Bem-vindo, {user.first_name or user.username}!")
             return redirect('home')
         else:
             messages.error(request, 'Usuário ou senha inválidos.')
