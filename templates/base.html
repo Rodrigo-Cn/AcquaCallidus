@@ -26,7 +26,7 @@
     {% if messages %}
       <div id="toast" class="fixed top-4 right-4 z-50 space-y-4 w-[300px]">
         {% for message in messages %}
-          <div class="relative p-4 rounded-lg shadow-lg text-sm flex gap-3 items-start animate-fade-in-up
+          <div class="relative p-4 rounded-lg shadow-lg text-sm flex gap-3 items-start animate-fade-in-up transition-opacity duration-500 ease-in-out
             {% if 'success' in message.tags %}
               bg-green-50 border-l-4 border-green-500 text-green-800
             {% elif 'error' in message.tags %}
@@ -1146,11 +1146,11 @@
                 <div class="space-y-4">
                   <div>
                     <label class="block text-sm font-medium text-gray-500">Nome</label>
-                    <p class="text-gray-800 font-medium">João da Silva</p>
+                    <p class="text-gray-800 font-medium">{{ user.username }}</p>
                   </div>
                   <div>
                     <label class="block text-sm font-medium text-gray-500">Email</label>
-                    <p class="text-gray-800 font-medium">joao@example.com</p>
+                    <p class="text-gray-800 font-medium">{{ user.email }}</p>
                   </div>
                   <div>
                     <label class="block text-sm font-medium text-gray-500">Função</label>
@@ -1332,42 +1332,37 @@
 
             <div class="flex-1 pt-4 overflow-y-hidden hover:overflow-y-auto">
               <!-- Logs -->
-              <div class="space-y-4" x-show.transition.in="activeTabe == 'action'">
-                <a href="#" class="block">
-                  <div class="flex px-4 space-x-4">
-                    <div class="relative flex-shrink-0">
-                      <span
-                        class="inline-block p-2 overflow-visible rounded-full bg-primary-50 text-primary-light dark:bg-primary-darker"
-                      >
-                        <svg
-                          class="w-7 h-7"
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-                          />
-                        </svg>
-                      </span>
-                      <div class="absolute h-24 p-px -mt-3 -ml-px bg-primary-50 left-1/2 dark:bg-primary-darker"></div>
-                    </div>
-                    <div class="flex-1 overflow-hidden">
-                      <h5 class="text-sm font-semibold text-gray-600 dark:text-light">
-                        KWD Dashboard v0.0.2 was released
-                      </h5>
-                      <p class="text-sm font-normal text-gray-400 truncate dark:text-primary-lighter">
-                        Successful new version was released
-                      </p>
-                      <span class="text-sm font-normal text-gray-400 dark:text-primary-light"> 2d ago </span>
-                    </div>
-                  </div>
-                </a>
-              </div>
+              {% if logs %}
+                <div class="space-y-4" x-show.transition.in="activeTabe == 'action'">
+                  {% for log in logs %}
+                    <a href="" class="block">
+                      <div class="flex px-4 space-x-4">
+                        <div class="relative flex-shrink-0">
+                          <span class="inline-block p-2 overflow-visible rounded-full bg-primary-50 text-primary-light dark:bg-primary-darker">
+                            <svg class="w-7 h-7" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                            </svg>
+                          </span>
+                          <div class="absolute h-24 p-px -mt-3 -ml-px bg-primary-50 left-1/2 dark:bg-primary-darker"></div>
+                        </div>
+
+                        <div class="flex-1 overflow-hidden">
+                          <h5 class="text-sm font-semibold text-gray-600 dark:text-light">
+                            {{ log.reference }}
+                          </h5>
+                          <span class="text-sm font-normal text-gray-400 dark:text-primary-light">
+                            {{ log.created_at|timesince }} atrás
+                          </span>
+                        </div>
+                      </div>
+                    </a>
+                  {% endfor %}
+                </div>
+              {% else %}
+                <p class="text-gray-400 text-sm">Nenhum log encontrado.</p>
+              {% endif %}
             </div>
           </div>
       </div>
