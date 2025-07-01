@@ -2,65 +2,65 @@ import math
 from .models import MeteorologicalData
 from logs.models import Log
 from django.utils import timezone
-from pytz import timezone as pytz_timezone
+from pytz import timezone as pytzTimezone
 from meteorologicaldatas.services import saveTodayWeather
 
 def getNowBrazil():
-    return timezone.now().astimezone(pytz_timezone("America/Sao_Paulo"))
+    return timezone.now().astimezone(pytzTimezone("America/Sao_Paulo"))
 
-def calculateReferenceEvapotranspiration(geolocation_id):
-    now_brazil = getNowBrazil()
-    today_brazil = now_brazil.date()
+def calculateReferenceEvapotranspiration(geolocationId):
+    nowBrazil = getNowBrazil()
+    todayBrazil = nowBrazil.date()
 
     try:
-        meteorological_data = MeteorologicalData.objects.get(date=today_brazil, geolocation_id=geolocation_id)
+        meteorologicalData = MeteorologicalData.objects.get(date=todayBrazil, geolocation_id=geolocationId)
     except MeteorologicalData.DoesNotExist:
-        save_today_weather_result = saveTodayWeather(geolocation_id)
-        if save_today_weather_result["success"] == False:
-            return save_today_weather_result
+        saveTodayWeatherResult = saveTodayWeather(geolocationId)
+        if not saveTodayWeatherResult["success"]:
+            return saveTodayWeatherResult
         try:
-            meteorological_data = MeteorologicalData.objects.get(date=today_brazil, geolocation_id=geolocation_id)
+            meteorologicalData = MeteorologicalData.objects.get(date=todayBrazil, geolocation_id=geolocationId)
         except MeteorologicalData.DoesNotExist:
             Log.objects.create(
-                reference="request_calculatereferenceevapotranspiration_services",
+                reference="request_calculateReferenceEvapotranspiration_services",
                 exception={"error": "Dados meteorológicos de hoje não encontrados!"},
-                created_at=now_brazil
+                createdAt=nowBrazil
             )
             return {"message": "Dados meteorológicos de hoje não foram encontrados!", "success": False}
 
     if not all([
-        isinstance(meteorological_data.temperature_max, (int, float)),
-        isinstance(meteorological_data.temperature_min, (int, float)),
-        isinstance(meteorological_data.relative_humidity, (int, float)),
-        isinstance(meteorological_data.solar_radiation, (int, float)),
-        isinstance(meteorological_data.air_speed, (int, float)),
-        isinstance(meteorological_data.pressure, (int, float)),
+        isinstance(meteorologicalData.temperature_max, (int, float)),
+        isinstance(meteorologicalData.temperature_min, (int, float)),
+        isinstance(meteorologicalData.relative_humidity, (int, float)),
+        isinstance(meteorologicalData.solar_radiation, (int, float)),
+        isinstance(meteorologicalData.air_speed, (int, float)),
+        isinstance(meteorologicalData.pressure, (int, float)),
     ]):
         Log.objects.create(
-            reference="request_calculatereferenceevapotranspiration_services",
+            reference="request_calculateReferenceEvapotranspiration_services",
             exception={"error": "Alguns dos atributos de dados meteorológicos são inválidos"},
-            created_at=now_brazil
+            createdAt=nowBrazil
         )
         return {"message": "Alguns dos atributos de dados meteorológicos são inválidos", "success": False}
 
-    temp_max = meteorological_data.temperature_max
-    temp_min = meteorological_data.temperature_min
-    temp_media = (temp_max + temp_min) / 2
-    umidade_relativa = meteorological_data.relative_humidity
-    rad_solar = meteorological_data.solar_radiation
-    air_speed = meteorological_data.air_speed
-    pressao = meteorological_data.pressure
+    tempMax = meteorologicalData.temperature_max
+    tempMin = meteorologicalData.temperature_min
+    tempAvg = (tempMax + tempMin) / 2
+    relativeHumidity = meteorologicalData.relative_humidity
+    solarRadiation = meteorologicalData.solar_radiation
+    airSpeed = meteorologicalData.air_speed
+    pressure = meteorologicalData.pressure
 
-    es_max = 0.6108 * math.exp((17.27 * temp_max) / (temp_max + 237.3))
-    es_min = 0.6108 * math.exp((17.27 * temp_min) / (temp_min + 237.3))
-    es = (es_max + es_min) / 2
-    ea = es * (umidade_relativa / 100)
-    deficit_vapor = es - ea
-    delta = (4098 * es) / ((temp_media + 237.3) ** 2)
-    gamma = 0.665 * 0.001 * pressao
-    Rn = rad_solar * 0.77
+    esMax = 0.6108 * math.exp((17.27 * tempMax) / (tempMax + 237.3))
+    esMin = 0.6108 * math.exp((17.27 * tempMin) / (tempMin + 237.3))
+    es = (esMax + esMin) / 2
+    ea = es * (relativeHumidity / 100)
+    vaporDeficit = es - ea
+    delta = (4098 * es) / ((tempAvg + 237.3) ** 2)
+    gamma = 0.665 * 0.001 * pressure
+    rn = solarRadiation * 0.77
 
-    eto_result = (0.408 * delta * Rn + gamma * (900 / (temp_media + 273)) * air_speed * deficit_vapor) / \
-          (delta + gamma * (1 + 0.34 * air_speed))
+    etoResult = (0.408 * delta * rn + gamma * (900 / (tempAvg + 273)) * airSpeed * vaporDeficit) / \
+          (delta + gamma * (1 + 0.34 * airSpeed))
 
-    return {"data_eto": eto_result, "success": True}
+    return {"dataEto": etoResult, "success": True}
