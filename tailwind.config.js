@@ -33,4 +33,7 @@ module.exports = {
     },
   },
   plugins: [],
+  fontFamily: {
+    cinzel: ['Cinzel', 'serif'],
+  },
 }

@@ -4,7 +4,7 @@ from django.utils.timezone import now
 from django.db.models.functions import TruncMonth
 from logs.models import Log
 from irrigationvolumes.models import IrrigationVolume
-from meteorologicaldatas.models import MeteorologicalData
+from geolocations.models import Geolocation
 from culturesvegetables.models import CultureVegetable
 from django.db.models import Count
 from collections import OrderedDict
@@ -22,7 +22,7 @@ def home(request):
     today = now()
 
     irrigationCount = IrrigationVolume.objects.count()
-    meteorologicalCount = MeteorologicalData.objects.count()
+    geolocationCount = Geolocation.objects.count()
     cultureCount = CultureVegetable.objects.count()
 
     months = OrderedDict()
@@ -75,6 +75,6 @@ def home(request):
         'chart_labels_irrigation': list(monthsIrrigation.keys()),
         'chart_data_irrigation': list(monthsIrrigation.values()),
         'irrigation_count': irrigationCount,
-        'meteorological_count': meteorologicalCount,
+        'geolocation_count': geolocationCount,
         'culture_count': cultureCount
     })
