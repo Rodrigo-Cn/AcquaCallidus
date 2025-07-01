@@ -20,6 +20,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.bundle.min.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   </head>
   <body>
@@ -474,7 +475,7 @@
                   class="h-6" 
                   alt="AcquaCallidus Logo"
                 />
-                <span>AcquaCallidus</span>
+                <span class="font-cinzel">AcquaCallidus</span>
               </a>              
 
               <!-- Mobile sub menu button -->
@@ -1335,7 +1336,7 @@
               {% if logs %}
                 <div class="space-y-4" x-show.transition.in="activeTabe == 'action'">
                   {% for log in logs %}
-                    <a href="" class="block">
+                    <a class="block">
                       <div class="flex px-4 space-x-4">
                         <div class="relative flex-shrink-0">
                           <span class="inline-block p-2 overflow-visible rounded-full bg-primary-50 text-primary-light dark:bg-primary-darker">
