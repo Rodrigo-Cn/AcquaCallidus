@@ -3,10 +3,10 @@ from culturesvegetables.models import CultureVegetable
 from meteorologicaldatas.models import MeteorologicalData
 
 class IrrigationVolume(models.Model):
-    phase_germination = models.FloatField()
+    phase_initial = models.FloatField() 
     phase_vegetative = models.FloatField()
-    phase_emerging = models.FloatField()
-    phase_frying = models.FloatField()
+    phase_flowering = models.FloatField()
+    phase_fruiting = models.FloatField() 
     phase_maturation = models.FloatField()
     date = models.DateField(auto_now=True)
     culturevegetable = models.ForeignKey(
