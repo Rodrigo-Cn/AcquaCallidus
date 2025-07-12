@@ -1,29 +1,20 @@
 {% extends "base.html" %}
 {% load static %}
-
 {% block title %}Geolocalizações{% endblock %}
-
 {% block content %}
-<!-- Leaflet CSS -->
 <link
   rel="stylesheet"
   href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
   integrity="sha256-sA+z0ymFu3ISzF5JZF/Sp4BbN1TtQ7Hc3uK9xF0Cz14="
   crossorigin=""
 />
-
-<style>
-  .leaflet-container {
-    z-index: 0 !important;
-  }
-</style>
-
+<link href="{% static 'css/geolocation/style.css' %}" rel="stylesheet" />
+<script src="{% static 'js/geolocation/map.js' %}"></script>
 <script
   src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
   integrity="sha256-o9N1j8Mk3RY6hHVDiGZo7OqX+vHco90LkMjAz1N6zGk="
   crossorigin=""
 ></script>
-
 <div class="antialiased font-sans min-h-[800px] bg-gray-100">
   <div class="container mx-auto py-4 px-4 sm:px-8">
     <div class="py-8">
@@ -103,30 +94,6 @@
           <p class="text-gray-700 text-center">Nenhuma geolocalização encontrada.</p>
         {% endfor %}
       </div>
-
-      <script>
-        document.addEventListener("DOMContentLoaded", function () {
-          const mapContainers = document.querySelectorAll(".map-instance");
-          mapContainers.forEach(container => {
-            if (container && !container._leaflet_id) {
-              const lat = parseFloat(container.dataset.lat.replace(',', '.'));
-              const lon = parseFloat(container.dataset.lon.replace(',', '.'));
-              const map = L.map(container.id).setView([lat, lon], 10);
-
-              L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-                attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-                maxZoom: 19,
-              }).addTo(map);
-
-              L.marker([lat, lon]).addTo(map);
-
-              setTimeout(() => {
-                map.invalidateSize();
-              }, 100);
-            }
-          });
-        });
-      </script>
 
       <div class="flex justify-center mt-8 space-x-4">
         <a href="{% if page_obj.has_previous %}?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% else %}#{% endif %}"
