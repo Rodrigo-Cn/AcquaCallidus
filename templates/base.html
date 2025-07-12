@@ -402,7 +402,7 @@
                     role="menuitem"
                     class="block p-2 text-sm text-gray-400 transition-colors duration-200 rounded-md dark:text-gray-400 dark:hover:text-light hover:text-gray-700"
                   >
-                    Dados de Irrigações
+                    Dados de Irrigações (Kc)
                   </a>
                   <a
                     href="#"
@@ -1171,62 +1171,57 @@
             </div>
           </div>
 
-          <!-- Modal Logout -->
-          <div id="logout-modal" tabindex="-1"
-            class="hidden fixed inset-0 z-50 bg-black bg-opacity-50">   
-            <div class="flex items-center justify-center w-full h-full px-4"> <!-- adicionado padding lateral -->
-              <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-sm p-6 relative"> <!-- max-w-sm ao invés de max-w-md -->
-                <button type="button"
-                  class="absolute top-3 right-3 text-gray-400 hover:text-gray-900 dark:hover:text-white"
-                  data-modal-hide="logout-modal">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M6 18L18 6M6 6l12 12"/>
-                  </svg>
-                </button>
-              <div class="flex justify-center mb-4">
-                  <div class="w-28 h-28 rounded-full bg-red-100 flex items-center justify-center">
-                      <svg xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke-width="1.5"
-                          stroke="currentColor"
-                          class="w-14 h-14 text-red-600">
-                      <path stroke-linecap="round"
-                              stroke-linejoin="round"
-                              d="M15.75 9V5.25A2.25 2.25 0 0013.5 3H6.75A2.25 
-                              2.25 0 004.5 5.25v13.5A2.25 2.25 0 006.75 21h6.75a2.25 
-                              2.25 0 002.25-2.25V15M18 12H9m9 0l-3-3m3 3l-3 3" />
-                      </svg>
-                  </div>
-              </div>
+        <!-- Modal Logout -->
+        <div id="logout-modal" tabindex="-1"
+          class="hidden fixed inset-0 z-[9999] bg-black bg-opacity-50 flex items-center justify-center px-4">
+          
+          <div class="bg-white rounded-lg shadow-lg w-full max-w-sm p-6 relative z-[10000]">
+            <button type="button"
+              class="absolute top-3 right-3 text-gray-400 hover:text-gray-900"
+              data-modal-hide="logout-modal">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
 
-                <h3 class="text-lg font-semibold text-center text-gray-800 dark:text-gray-200 mb-4">
-                  Deseja realmente sair?
-                </h3>
-                <form method="POST" action="{% url 'logout' %}" class="flex justify-center gap-4 mt-4">
-                  {% csrf_token %}
-                  <button type="submit"
-                    class="text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:outline-none 
-                          focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 
-                          dark:bg-red-500 dark:hover:bg-red-600 dark:focus:ring-red-800">
-                    Sair
-                  </button>
-                  <button type="button"
-                    class="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 
-                          rounded-lg hover:bg-gray-100 hover:text-blue-600 focus:outline-none 
-                          focus:ring-2 focus:ring-gray-200 dark:bg-gray-700 dark:text-gray-300 
-                          dark:border-gray-500 dark:hover:bg-gray-600 dark:hover:text-white"
-                    data-modal-hide="logout-modal">
-                    Cancelar
-                  </button>
-                </form>
+            <div class="flex justify-center mb-4">
+              <div class="w-28 h-28 rounded-full bg-red-100 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg"
+                    fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor" class="w-14 h-14 text-red-600">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M15.75 9V5.25A2.25 2.25 0 0013.5 3H6.75A2.25 
+                        2.25 0 004.5 5.25v13.5A2.25 2.25 0 006.75 21h6.75a2.25 
+                        2.25 0 002.25-2.25V15M18 12H9m9 0l-3-3m3 3l-3 3" />
+                </svg>
               </div>
             </div>
-          </div>
 
-          <div id="notification" class="fixed top-5 right-5 hidden p-4 rounded shadow-lg text-white z-[99999] pointer-events-none">
+            <h3 class="text-lg font-semibold text-center text-gray-800 mb-4">
+              Deseja realmente sair?
+            </h3>
+
+            <form method="POST" action="{% url 'logout' %}" class="flex justify-center gap-4 mt-4">
+              {% csrf_token %}
+              <button type="submit"
+                class="text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:outline-none 
+                      focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5">
+                Sair
+              </button>
+              <button type="button"
+                class="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 
+                      rounded-lg hover:bg-gray-100 hover:text-blue-600 focus:outline-none 
+                      focus:ring-2 focus:ring-gray-200"
+                data-modal-hide="logout-modal">
+                Cancelar
+              </button>
+            </form>
           </div>
+        </div>
+
+        <div id="notification" class="fixed top-5 right-5 hidden p-4 rounded shadow-lg text-white z-[99999] pointer-events-none">
+        </div>
 
         {% block content %}
         {% endblock %}
