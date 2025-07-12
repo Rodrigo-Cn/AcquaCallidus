@@ -6,7 +6,7 @@ from logs.models import Log
 def list(request):
     logs = Log.objects.order_by('-created_at')[:10]
 
-    return render(request, 'meteorologicaldata/listforgeolocation.html', context={
+    return render(request, 'culturevegetable/list.html', context={
         'user': request.user,
         'logs': logs,
     })
