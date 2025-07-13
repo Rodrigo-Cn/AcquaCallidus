@@ -14,7 +14,7 @@ class IrrigationVolume(models.Model):
         on_delete=models.CASCADE,
         blank=False
     )
-    meteorologicaldata = models.OneToOneField(
+    meteorologicaldata = models.ForeignKey(
         MeteorologicalData, 
         on_delete=models.CASCADE,
         blank=False
