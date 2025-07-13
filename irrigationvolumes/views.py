@@ -1,6 +1,4 @@
-from django.utils import timezone
 from django.shortcuts import render
-from pytz import timezone as pytzTimezone
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -12,6 +10,8 @@ from .serializers import IrrigationVolumeSerializer
 from .services import calculateReferenceEvapotranspiration
 from django.contrib.auth.decorators import login_required
 from culturesvegetables.forms import CultureVegetableForm
+from pytz import timezone as pytzTimezone
+from django.utils import timezone
 
 class IrrigationVolumeAPI(APIView):
     def get(self, request, geolocationId, cultureId):

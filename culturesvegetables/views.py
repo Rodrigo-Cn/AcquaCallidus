@@ -1,9 +1,14 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
 from django.core.paginator import Paginator
 from logs.models import Log
 from .models import CultureVegetable
 from .forms import CultureVegetableForm
+from django.contrib import messages
+from pytz import timezone as pytzTimezone
+from django.utils import timezone
+
 
 @login_required(login_url='/auth/login/') 
 def list(request):
@@ -28,13 +33,25 @@ def list(request):
         'form_culture_vegetable': form_culture_vegetable
     })
 
-
+@require_POST
+@login_required(login_url='/auth/login/')
 def create(request):
-    if request.method == 'POST':
+    todayWithHour = timezone.now().astimezone(pytzTimezone("America/Sao_Paulo"))
+
+    try:
         form = CultureVegetableForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('nome-da-sua-listagem-ou-sucesso')
-    else:
-        form = CultureVegetableForm()
-    return render(request, 'seu_template.html', {'form': form})
+            messages.success(request, "Cultura cadastrada com sucesso!")
+            return redirect('culturevegetable_list')
+        messages.error(request, "Dados inválidos! Verifique os campos.")
+        return redirect('culturevegetable_list')
+        
+    except Exception as e:
+        Log.objects.create(
+            reference="create_culturevegetable_controller",
+            exception={"error": str(e)},
+            created_at=todayWithHour
+        )
+        messages.error(request, "Ocorreu um erro ao criar a cultura!")
+        return redirect('culturevegetable_list')
