@@ -11,20 +11,18 @@
         </h2>
       </div>
       <div class="my-4 flex sm:flex-row flex-col">
-        <form class="flex max-w-md w-full">
+        <form class="flex max-w-md w-full" method="GET" action="{% url 'culturevegetable_list' %}">
           <label for="simple-search" class="sr-only">Search</label>
 
           <div class="relative w-full">
             <div
               class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none"
             >
-              <svg
-                class="w-4 h-4 text-gray-500"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 18 20"
-              >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
+              <path fill-rule="evenodd" d="M11.25 4.434V2.25a.75.75 0 0 1 1.5 0v2.184l.175-.054A2.25 2.25 0 0 1 15 6.75v1.5a.75.75 0 0 1-1.5 0v-1.5a.75.75 0 0 0-.75-.75h-.34l.183.551A3.75 3.75 0 0 1 15.75 9h.75a.75.75 0 0 1 0 1.5h-.75a2.25 2.25 0 0 0-2.249 2.232l.094.843a.75.75 0 0 1-1.482.172l-.093-.843A3.75 3.75 0 0 1 9 9.75H7.5a.75.75 0 0 1 0-1.5h1.5A2.25 2.25 0 0 0 11.25 6h.091l-.183-.551A3.75 3.75 0 0 1 8.25 4.5h-.75a.75.75 0 0 1 0-1.5h.75a2.25 2.25 0 0 1 2.249 2.232l.094.268Z" clip-rule="evenodd" />
+              <path d="M6.555 6.42a.75.75 0 0 1 .163-.664l.3-.3a.75.75 0 0 1 1.06 0l.3.3a.75.75 0 0 1-.9 1.224l-.14-.139-.14.14a.75.75 0 0 1-1.06 0l-.3-.3a.75.75 0 0 1 .162-1.06l.001-.001ZM16.34 6.584a.75.75 0 0 1 .14-.14l.14.14a.75.75 0 0 1-1.224.9l-.3-.3a.75.75 0 0 1 0-1.06l.3-.3a.75.75 0 0 1 1.06 0l.3.3a.75.75 0 0 1-.664.163v.001Z" />
+              <path fill-rule="evenodd" d="M12 21a.75.75 0 0 1-.75-.75v-6a.75.75 0 0 1 1.5 0v6a.75.75 0 0 1-.75.75Z" clip-rule="evenodd" />
+            </svg>
                 <path
                   stroke="currentColor"
                   stroke-linecap="round"
@@ -39,6 +37,8 @@
               id="simple-search"
               class="bg-white border border-gray-300 text-gray-700 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 placeholder-gray-400"
               placeholder="Pesquisar..."
+              name="name"
+              value="{{ name_query }}"
               required
             />
           </div>
@@ -66,6 +66,7 @@
         </form>
       </div>
       <div class="-mx-4 sm:-mx-8 px-4 sm:px-8 py-4 overflow-x-auto">
+      {% if page_obj %}
         <div class="inline-block min-w-full shadow rounded-lg overflow-hidden">
           <table class="min-w-full leading-normal">
             <thead>
@@ -90,22 +91,22 @@
                 >
                   Fase Vegetativa
                 </th>
-                                <th
+                <th
                   class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"
                 >
                   Fase de Floração
                 </th>
-                                <th
+               <th
                   class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"
                 >
                   Fase de Frutificação
                 </th>
-                                <th
+                <th
                   class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"
                 >
                   Fase de Maturação
                 </th>
-                                <th
+                <th
                   class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"
                 >
                   Ações
@@ -113,12 +114,13 @@
               </tr>
             </thead>
             <tbody>
+              {% for culturevegetable in page_obj %}
               <tr>
                 <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                  <p class="text-gray-900 whitespace-no-wrap">1</p>
+                  <p class="text-gray-900 whitespace-no-wrap">{{ culturevegetable.id }}</p>
                 </td>
                 <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                  <p class="text-gray-900 whitespace-no-wrap">Banana</p>
+                  <p class="text-gray-900 whitespace-no-wrap">{{ culturevegetable.name }}</p>
                 </td>
                 <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                   <div class="flex items-center gap-2">
@@ -126,7 +128,7 @@
                       <path d="M12 20 C9 16, 6 10, 8 6 C10 3, 14 3, 16 6 C18 10, 15 16, 12 20 Z" fill="green"/>
                       <circle cx="12" cy="5" r="1" fill="green"/>
                     </svg>
-                    <p class="text-gray-900 whitespace-no-wrap">0,40</p>
+                    <p class="text-gray-900 whitespace-no-wrap">{{ culturevegetable.phase_initial_kc }}</p>
                   </div>
                 </td>
                 <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
@@ -136,7 +138,7 @@
                       <path d="M12 10 C14 6, 18 6, 18 10 C18 14, 14 14, 12 10 Z" fill="green"/>
                       <path d="M12 14 C10 18, 6 18, 6 14 C6 10, 10 10, 12 14 Z" fill="green"/>
                     </svg>
-                    <p class="text-gray-900 whitespace-no-wrap">0,60</p>
+                    <p class="text-gray-900 whitespace-no-wrap">{{ culturevegetable.phase_vegetative_kc }}</p>
                   </div>
                 </td>
                 <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
@@ -148,7 +150,7 @@
                       <circle cx="5" cy="12" r="3" fill="green" fill-opacity="0.6"/>
                       <circle cx="19" cy="12" r="3" fill="green" fill-opacity="0.6"/>
                     </svg>
-                    <p class="text-gray-900 whitespace-no-wrap">0,80</p>
+                    <p class="text-gray-900 whitespace-no-wrap">{{ culturevegetable.phase_flowering_kc }}</p>
                   </div>
                 </td>
                 <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
@@ -158,7 +160,7 @@
                       <path d="M12 14 L14 10 Q15 8, 13 6" stroke="green" stroke-width="2" fill="none"/>
                       <circle cx="13" cy="6" r="1" fill="green"/>
                     </svg>
-                    <p class="text-gray-900 whitespace-no-wrap">0,40</p>
+                    <p class="text-gray-900 whitespace-no-wrap">{{ culturevegetable.phase_fruiting_kc }}</p>
                   </div>
                 </td>
                 <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
@@ -167,19 +169,18 @@
                       <path d="M8 4 Q12 2 16 4 Q20 6 16 14 Q12 22 8 14 Q4 6 8 4 Z" fill="green"/>
                       <line x1="12" y1="2" x2="12" y2="22" stroke="green" stroke-width="1"/>
                     </svg>
-                    <p class="text-gray-900 whitespace-no-wrap">0,30</p>
+                    <p class="text-gray-900 whitespace-no-wrap">{{ culturevegetable.phase_maturation_kc }}</p>
                   </div>
                 </td>
                 <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                   <div class="flex items-center gap-4">
-                    <!-- Botão Editar -->
+
                     <button title="Editar" class="text-blue-600 hover:text-blue-800 cursor-pointer" aria-label="Editar">
                       <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1.003 1.003 0 0 0 0-1.42l-2.34-2.34a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.82z"/>
                       </svg>
                     </button>
 
-                    <!-- Botão Deletar -->
                     <button title="Deletar" class="text-red-600 hover:text-red-800 cursor-pointer" aria-label="Deletar">
                       <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M3 6h18v2H3V6zm2 3h14v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V9zm5 3v6h2v-6H10zm4 0v6h2v-6h-2zM9 4h6v2H9V4z"/>
@@ -188,54 +189,94 @@
                   </div>
                 </td>
               </tr>
+              {% endfor %}
             </tbody>
           </table>
         </div>
+
+        {% else %}
+
+        <div
+          class="flex flex-col items-center justify-center py-16 px-4 text-center"
+        >
+          <svg
+            class="w-16 h-16 text-gray-400 mb-4"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"
+            ></path>
+          </svg>
+          <h3 class="text-lg font-semibold text-gray-700">
+            Nenhum registro encontrado
+          </h3>
+          <p class="mt-2 text-sm text-gray-500">
+            Tente ajustar a busca ou adicionar novos registros para
+            visualizá-lo aqui.
+          </p>
+        </div>
+
+        {% endif %}
+
       </div>
+      {% if page_obj %}
       <div class="flex justify-center mb-8">
-        <a
-          href="#"
-          class="flex items-center justify-center px-3 h-8 me-3 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700"
-        >
-          <svg
-            class="w-3.5 h-3.5 me-2 rtl:rotate-180"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 14 10"
+        {% if page_obj.has_previous %}
+          <a
+            href="?page={{ page_obj.previous_page_number }}{% if name_query %}&name={{ name_query }}{% endif %}"
+            class="flex items-center justify-center px-3 h-8 me-3 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700"
           >
-            <path
-              stroke="currentColor"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M13 5H1m0 0 4 4M1 5l4-4"
-            />
-          </svg>
-          Previous
-        </a>
-        <a
-          href="#"
-          class="flex items-center justify-center px-3 h-8 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700"
-        >
-          Next
-          <svg
-            class="w-3.5 h-3.5 ms-2 rtl:rotate-180"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 14 10"
+            <svg class="w-3.5 h-3.5 me-2 rtl:rotate-180" fill="none" viewBox="0 0 14 10">
+              <path d="M13 5H1m0 0 4 4M1 5l4-4" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+            </svg>
+            Anterior
+          </a>
+        {% else %}
+          <button
+            class="flex items-center justify-center px-3 h-8 me-3 text-sm font-medium text-gray-400 bg-gray-100 border border-gray-200 rounded-lg cursor-not-allowed"
+            disabled
           >
-            <path
-              stroke="currentColor"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M1 5h12m0 0L9 1m4 4L9 9"
-            />
-          </svg>
-        </a>
+            <svg class="w-3.5 h-3.5 me-2 rtl:rotate-180" fill="none" viewBox="0 0 14 10">
+              <path d="M13 5H1m0 0 4 4M1 5l4-4" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+            </svg>
+            Anterior
+          </button>
+        {% endif %}
+
+        <span class="flex items-center text-gray-700 text-sm font-medium select-none me-3">
+          Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+        </span>
+
+        {% if page_obj.has_next %}
+          <a
+            href="?page={{ page_obj.next_page_number }}{% if name_query %}&name={{ name_query }}{% endif %}"
+            class="flex items-center justify-center px-3 h-8 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700"
+          >
+            Próxima
+            <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" fill="none" viewBox="0 0 14 10">
+              <path d="M1 5h12m0 0L9 1m4 4L9 9" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+            </svg>
+          </a>
+        {% else %}
+          <button
+            class="flex items-center justify-center px-3 h-8 text-sm font-medium text-gray-400 bg-gray-100 border border-gray-200 rounded-lg cursor-not-allowed"
+            disabled
+          >
+            Próxima
+            <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" fill="none" viewBox="0 0 14 10">
+              <path d="M1 5h12m0 0L9 1m4 4L9 9" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+            </svg>
+          </button>
+        {% endif %}
       </div>
+      {% endif %}
     </div>
   </div>
 </div>
