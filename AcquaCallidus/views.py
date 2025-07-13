@@ -6,6 +6,7 @@ from logs.models import Log
 from irrigationvolumes.models import IrrigationVolume
 from geolocations.models import Geolocation
 from culturesvegetables.models import CultureVegetable
+from culturesvegetables.forms import CultureVegetableForm
 from django.db.models import Count
 from collections import OrderedDict
 from datetime import timedelta
@@ -21,6 +22,7 @@ def home(request):
     logs = Log.objects.order_by('-created_at')[:10]
     today = now()
 
+    form_culture_vegetable = CultureVegetableForm()
     irrigationCount = IrrigationVolume.objects.count()
     geolocationCount = Geolocation.objects.count()
     cultureCount = CultureVegetable.objects.count()
@@ -76,5 +78,6 @@ def home(request):
         'chart_data_irrigation': list(monthsIrrigation.values()),
         'irrigation_count': irrigationCount,
         'geolocation_count': geolocationCount,
-        'culture_count': cultureCount
+        'culture_count': cultureCount,
+        'form_culture_vegetable': form_culture_vegetable
     })
