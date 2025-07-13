@@ -26,17 +26,18 @@ $(document).ready(function () {
     }
     });
 
-    $("#city-select").select2({
+    $("#geolocation-select").select2({
     placeholder: "Selecione uma cidade",
     allowClear: true,
     });
 
-    $("#city-form").on("submit", function (e) {
+    $("#geolocation-form").on("submit", function (e) {
     e.preventDefault();
-    const selectedCityId = $("#city-select").val();
+    const selectedGeolocationId = $("#geolocation-select").val();
 
-    if (selectedCityId) {
-        openModal("Cidade ID selecionado: " + selectedCityId);
+    if (selectedGeolocationId) {
+        document.getElementById('geolocation-select').value = selectedGeolocationId;
+        document.getElementById('geolocation-form').submit();
     } else {
         openModal("Por favor, selecione uma cidade.");
     }
