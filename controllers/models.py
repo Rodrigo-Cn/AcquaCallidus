@@ -79,14 +79,16 @@ class Controller(models.Model):
 
     culturevegetable = models.ForeignKey(
         CultureVegetable,
-        on_delete=models.CASCADE,
-        blank=False
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
     )
     
     geolocation = models.ForeignKey(
         Geolocation,
-        on_delete=models.CASCADE,
-        blank=False
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
     )
 
     def __str__(self):
@@ -134,14 +136,16 @@ class IrrigationController(models.Model):
     
     culturevegetable = models.ForeignKey(
         CultureVegetable,
-        on_delete=models.CASCADE,
-        blank=False
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
     )
     
     geolocation = models.ForeignKey(
         Geolocation,
-        on_delete=models.CASCADE,
-        blank=False
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
     )
 
     def __str__(self):
