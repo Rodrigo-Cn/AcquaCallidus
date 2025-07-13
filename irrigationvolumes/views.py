@@ -10,6 +10,7 @@ from culturesvegetables.models import CultureVegetable
 from meteorologicaldatas.models import MeteorologicalData
 from .serializers import IrrigationVolumeSerializer
 from .services import calculateReferenceEvapotranspiration
+from django.contrib.auth.decorators import login_required
 
 class IrrigationVolumeAPI(APIView):
     def get(self, request, geolocationId, cultureId):
@@ -58,3 +59,21 @@ class IrrigationVolumeAPI(APIView):
 
             serializer = IrrigationVolumeSerializer(irrigationVolume)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+@login_required(login_url='/auth/login/') 
+def listForCulture(request):
+    logs = Log.objects.order_by('-created_at')[:10]
+
+    return render(request, 'irrigationvolume/listforculture.html', context={
+        'user': request.user,
+        'logs': logs,
+    })
+
+@login_required(login_url='/auth/login/') 
+def listForDate(request):
+    logs = Log.objects.order_by('-created_at')[:10]
+
+    return render(request, 'irrigationvolume/listfordate.html', context={
+        'user': request.user,
+        'logs': logs,
+    })

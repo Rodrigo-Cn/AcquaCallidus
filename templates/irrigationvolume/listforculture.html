@@ -1,0 +1,259 @@
+{% extends "base.html" %}
+{% load static %} 
+{% block title %}Volumes de Irrigações{% endblock %}
+{% block content %}
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<link
+  href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css"
+  rel="stylesheet"
+/>
+<link href="{% static 'css/irrigationvolume/style.css' %}" rel="stylesheet" />
+<script src="{% static 'js/irrigationvolume/select2.js' %}"></script>
+<div class="antialiased font-sans min-h-[800px] bg-gray-200">
+  <div class="container mx-auto py-2 px-4 sm:px-8">
+    <div class="py-12">
+      <div>
+        <h2 class="text-2xl font-semibold leading-tight text-gray-800">
+          Volumes Registrados para Irrigação (Kc)
+        </h2>
+      </div>
+
+      <div class="my-4 flex sm:flex-row flex-col">
+        <form
+          id="culture-form"
+          class="flex max-w-md w-full relative"
+          autocomplete="off"
+        >
+          <div class="relative w-full">
+            <select id="culture-select" name="culture_id">
+              <option></option>
+              <option value="1">Milho</option>
+              <option value="2">Soja</option>
+              <option value="3">Arroz</option>
+              <option value="4">Cana-de-açúcar</option>
+              <option value="5">Café</option>
+            </select>
+          </div>
+          <button
+            type="submit"
+            class="p-2.5 ms-2 text-sm font-medium text-white bg-sky-500 rounded-full border border-sky-500 hover:bg-sky-600 focus:ring-4 focus:outline-none focus:ring-sky-300"
+          >
+            <svg
+              class="w-4 h-4"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 20 20"
+            >
+              <path
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+              />
+            </svg>
+            <span class="sr-only">Pesquisar</span>
+          </button>
+        </form>
+      </div>
+
+      <div
+        id="alert-modal"
+        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden"
+      >
+        <div class="bg-white rounded-lg shadow-xl max-w-sm w-full">
+          <div class="flex justify-between items-center p-4 border-b">
+            <h3 class="text-lg font-semibold text-gray-800">Atenção</h3>
+            <button
+              id="close-modal-btn"
+              class="text-gray-400 text-3xl leading-none hover:text-gray-600"
+            >
+              &times;
+            </button>
+          </div>
+          <div class="p-6">
+            <p id="modal-message" class="text-gray-700"></p>
+          </div>
+          <div class="flex justify-end p-4 bg-gray-50 rounded-b-lg">
+            <button
+              id="ok-modal-btn"
+              class="bg-sky-500 text-white px-4 py-2 rounded-lg hover:bg-sky-600 focus:outline-none focus:ring-2 focus:ring-sky-400"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-12">
+
+        <div
+          class="bg-gradient-to-br from-white to-sky-50 rounded-2xl shadow-xl p-8 border border-sky-200 h-full flex flex-col"
+        >
+          <div class="flex flex-col items-center justify-center text-center flex-grow">
+            <div class="mb-4 text-sky-500">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="w-16 h-16"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M12 2.25c-2.485 3.305-5.25 6.908-5.25 9.75a5.25 5.25 0 0010.5 0c0-2.842-2.765-6.445-5.25-9.75z"
+                />
+              </svg>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-800">
+              Gerar Dados Diários Para Irrigação
+            </h2>
+            <p class="text-sm text-gray-500 mt-1 mb-6">
+              Dados para hoje, 3 de julho de 2025
+            </p>
+          </div>
+
+          <div class="my-4 flex flex-col sm:flex-row items-center justify-center gap-3 w-full max-w-md mx-auto">
+            <form id="city-form" class="flex flex-col w-full" autocomplete="off">
+              <select
+                id="city-select"
+                name="city_id"
+                class="rounded-lg border border-gray-300 bg-white py-2 px-4 text-gray-700 shadow-sm
+                      focus:border-sky-500 focus:ring focus:ring-sky-200 focus:ring-opacity-50 transition"
+                required
+              >
+                <option value="" disabled selected>Selecione a cidade</option>
+                <option value="1">Salvador</option>
+                <option value="2">Feira de Santana</option>
+                <option value="3">Vitória da Conquista</option>
+                <option value="4">Ilhéus</option>
+                <option value="5">Jequié</option>
+              </select>
+
+              <button
+                type="submit"
+                class="mt-4 inline-flex items-center justify-center px-3 py-3 font-semibold text-white bg-sky-500 rounded-full shadow-lg
+                      transition-transform transform hover:scale-105 hover:bg-sky-600 focus:outline-none focus:ring-4 focus:ring-sky-300 w-auto max-w-[180px] mx-auto"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-5 w-5 mr-2"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.899 2.101A1 1 0 0116 8a5 5 0 00-9.582-1.425a1 1 0 01-1.789-.85A7.002 7.002 0 014 4.101V3a1 1 0 01-1-1H2a1 1 0 01-1-1v2a1 1 0 011 1h1V3a1 1 0 011-1zm14 15a1 1 0 01-1-1v-2.101a7.002 7.002 0 01-11.899-2.101A1 1 0 014 12a5 5 0 009.582 1.425a1 1 0 011.789.85A7.002 7.002 0 0116 15.899V17a1 1 0 011 1h1a1 1 0 011-1v-2a1 1 0 01-1-1h-1v2a1 1 0 01-1 1z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+                Atualizar Agora
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <div class="bg-gradient-to-br from-white to-sky-50 rounded-2xl shadow-lg p-6 border border-sky-100 hover:shadow-2xl transition-shadow duration-300 w-full max-w-md mx-auto">
+          <div class="flex items-center justify-between mb-5">
+            <div>
+              <h2 class="text-2xl font-extrabold text-gray-700 italic tracking-tight">Milho</h2>
+              <p class="text-sm text-gray-500 italic mt-1 flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-sky-500" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2C8.14 2 5 5.14 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.86-3.14-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/>
+                </svg>
+                <strong>Barreiras - BA</strong>
+              </p>
+              <p class="text-sm text-gray-500 italic flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-sky-500" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-1.99.9-1.99 2L3 20c0 1.1.89 2 1.99 2H19c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/>
+                </svg>
+                <strong>01/07/2025</strong>
+              </p>
+              <p class="text-sm text-gray-500 italic mt-1">Estágios de Desenvolvimento</p>
+            </div>
+            <div class="text-5xl text-emerald-500">🌾</div>
+          </div>
+
+          <div class="grid gap-3 text-sm text-gray-800">
+            <div class="flex items-center bg-white border border-gray-200 px-4 py-2 rounded-lg shadow-sm hover:shadow-md transition">
+              <span class="mr-3 text-lg">🌱</span>
+              <span>Inicial: <strong class="text-gray-900">0.30 Litros</strong></span>
+            </div>
+            <div class="flex items-center bg-white border border-gray-200 px-4 py-2 rounded-lg shadow-sm hover:shadow-md transition">
+              <span class="mr-3 text-lg">🌿</span>
+              <span>Vegetativo: <strong class="text-gray-900">0.70 Litros</strong></span>
+            </div>
+            <div class="flex items-center bg-white border border-gray-200 px-4 py-2 rounded-lg shadow-sm hover:shadow-md transition">
+              <span class="mr-3 text-lg">🌸</span>
+              <span>Floração: <strong class="text-gray-900">1.15 Litros</strong></span>
+            </div>
+            <div class="flex items-center bg-white border border-gray-200 px-4 py-2 rounded-lg shadow-sm hover:shadow-md transition">
+              <span class="mr-3 text-lg">🍎</span>
+              <span>Frutificação: <strong class="text-gray-900">0.95 Litros</strong></span>
+            </div>
+            <div class="flex items-center bg-white border border-gray-200 px-4 py-2 rounded-lg shadow-sm hover:shadow-md transition">
+              <span class="mr-3 text-lg">🍂</span>
+              <span>Maturação: <strong class="text-gray-900">0.80 Litros</strong></span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="flex justify-center mt-12">
+        <a
+          href="#"
+          class="flex items-center justify-center px-3 h-8 me-3 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700"
+        >
+          <svg
+            class="w-3.5 h-3.5 me-2 rtl:rotate-180"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 14 10"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M13 5H1m0 0 4 4M1 5l4-4"
+            />
+          </svg>
+          Anterior
+        </a>
+
+        <span class="flex items-center text-gray-700 text-sm font-medium select-none me-3">
+          Página 1 de 1
+        </span>
+
+        <a
+          href="#"
+          class="flex items-center justify-center px-3 h-8 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700"
+        >
+          Próximo
+          <svg
+            class="w-3.5 h-3.5 ms-2 rtl:rotate-180"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 14 10"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M1 5h12m0 0L9 1m4 4L9 9"
+            />
+          </svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     toasts.forEach(toast => {
     setTimeout(() => {
         toast.style.opacity = '0';
-        setTimeout(() => toast.remove(), 400);
+        setTimeout(() => toast.remove(), 300);
     }, 5000);
     });
 });
