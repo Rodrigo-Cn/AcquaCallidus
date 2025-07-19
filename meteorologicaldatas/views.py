@@ -5,11 +5,13 @@ from django.utils.dateparse import parse_date
 from django.core.paginator import Paginator
 from .models import MeteorologicalData
 from datetime import date
+from geolocations.models import Geolocation
 from logs.models import Log
 
 @login_required(login_url='/auth/login/') 
 def listForGeolocation(request):
     logs = Log.objects.order_by('-created_at')[:10]
+    geolocations = Geolocation.objects.all()
     geolocation_id = request.GET.get('geolocation_id', '')
     form_culture_vegetable = CultureVegetableForm()
     has_today_data = False
@@ -30,6 +32,7 @@ def listForGeolocation(request):
     return render(request, 'meteorologicaldata/listforgeolocation.html', context={
         'user': request.user,
         'logs': logs,
+        'geolocations': geolocations,
         'page_obj': page_obj,
         'geolocation_id': geolocation_id,
         'form_culture_vegetable': form_culture_vegetable,

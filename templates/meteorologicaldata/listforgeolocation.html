@@ -30,11 +30,11 @@
           <div class="relative w-full">
             <select id="geolocation-select" name="geolocation_id">
               <option value="">Selecione a cidade</option>
-              <option value="1" {% if geolocation_id == '1' %}selected{% endif %}>Guanambi</option>
-              <option value="2" {% if geolocation_id == '2' %}selected{% endif %}>Feira de Santana</option>
-              <option value="3" {% if geolocation_id == '3' %}selected{% endif %}>Vitória da Conquista</option>
-              <option value="4" {% if geolocation_id == '4' %}selected{% endif %}>Ilhéus</option>
-              <option value="5" {% if geolocation_id == '5' %}selected{% endif %}>Jequié</option>
+              {% for geolocation in geolocations %}
+                <option value="{{ geolocation.id }}" {% if geolocation_id|stringformat:"s" == geolocation.id|stringformat:"s" %}selected{% endif %}>
+                  {{ geolocation.city }} - {{ geolocation.state }}
+                </option>
+              {% endfor %}
             </select>
           </div>
           <button
