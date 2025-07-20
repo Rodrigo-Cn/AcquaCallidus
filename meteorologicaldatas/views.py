@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from culturesvegetables.forms import CultureVegetableForm
 from django.utils.dateparse import parse_date
@@ -16,7 +16,7 @@ from logs.models import Log
 def listForGeolocation(request):
     logs = Log.objects.order_by('-created_at')[:10]
     geolocationList = Geolocation.objects.all()
-    geolocationId = request.GET.get('geolocation_id', '')  # mantém nome da chave original
+    geolocationId = request.GET.get('geolocation_id', '')
     formCultureVegetable = CultureVegetableForm()
     hasTodayData = False
     meteorologicalDataList = MeteorologicalData.objects.all()
@@ -88,16 +88,17 @@ def createForGeolocation(request, geolocationId):
         return redirect(f'{reverse("meteorologicaldata_list_geolocation")}?geolocation_id={geolocationId}')
     
 @login_required(login_url='/auth/login/')
-def deleteForGeolocation(request, geolocationId):
-    if geolocationId:
-        response = saveTodayWeather(geolocationId)
+def deleteForGeolocation(request, meteorologicalDataId):
+    try:
+        meteorologicalData = get_object_or_404(MeteorologicalData, id=meteorologicalDataId)
+        geolocationId = meteorologicalData.geolocation_id
+        geolocation = meteorologicalData.geolocation.city + ' - ' + meteorologicalData.geolocation.state
+        meteorologicalData.delete()
+        messages.success(
+            request,
+            f"Dados meteorológicos de hoje para {geolocation} deletados com sucesso!"
+        )
+    except Exception as e:
+        messages.error(request, "Ocorreu um erro ao deletar os dados meteorológicos.")
 
-        if response.get("success"):
-            messages.success(request, response.get("message", "Dados meteorológicos de hoje gerados com sucesso!"))
-        else:
-            messages.error(request, response.get("message", "Ocorreu um erro ao gerar os dados meteorológicos!"))
-        
-        return redirect(f'{reverse("meteorologicaldata_list_geolocation")}?geolocation_id={geolocationId}')
-    else:
-        messages.error(request, "Geolocalização não selecionada!")
-        return redirect(f'{reverse("meteorologicaldata_list_geolocation")}?geolocation_id={geolocationId}')
+    return redirect(f'{reverse("meteorologicaldata_list_geolocation")}?geolocation_id={geolocationId}')

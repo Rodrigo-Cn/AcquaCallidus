@@ -107,8 +107,11 @@
                   <p class="text-sm text-gray-500 mt-1 mb-6">
                     Dados para hoje, {{ today|date:"d \\d\\e F \\d\\e Y" }}
                   </p>
-                  <a href="{%  url 'meteorologicaldata_create' geolocation_id %}"
-                    class="inline-flex items-center justify-center px-6 py-3 font-semibold text-white bg-sky-500 rounded-full shadow-lg transition-transform transform hover:scale-105 hover:bg-sky-600 focus:outline-none focus:ring-4 focus:ring-sky-300">
+                  <button
+                    data-modal-target="generate-modal"
+                    data-modal-toggle="generate-modal"
+                    class="inline-flex items-center justify-center px-6 py-3 font-semibold text-white bg-sky-500 rounded-full shadow-lg transition-transform transform hover:scale-105 hover:bg-sky-600 focus:outline-none focus:ring-4 focus:ring-sky-300"
+                  >
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                       <path fill-rule="evenodd"
                         d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.899 2.101A1 1 0 0116 8a5 5 0 00-9.582-1.425
@@ -116,13 +119,60 @@
                           011 1h1V3a1 1 0 011-1zm14 15a1 1 0 01-1-1v-2.101a7.002 7.002 0 01-11.899-2.101A1 1
                           0 014 12a5 5 0 009.582 1.425 1 1 0 011.789.85A7.002 7.002 0 0116 15.899V17a1 1 0
                           011 1h1a1 1 0 011-1v-2a1 1 0 01-1-1h-1v2a1 1 0 01-1 1z"
-                        clip-rule="evenodd"/>
+                        clip-rule="evenodd"
+                      />
                     </svg>
-                    Atualizar Agora
-                  </a>
+                    Gerar Agora
+                  </button>
                 </div>
               </div>
           {% endif %}
+
+          <!-- Modal Confirmar Geração -->
+          <div id="generate-modal" tabindex="-1"
+            class="hidden fixed inset-0 z-[9999] bg-black bg-opacity-50 flex items-center justify-center px-4">
+            
+            <div class="bg-white rounded-lg shadow-lg w-full max-w-sm p-6 relative z-[10000]">
+              <button type="button"
+                class="absolute top-3 right-3 text-gray-400 hover:text-gray-900"
+                data-modal-hide="generate-modal">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
+
+              <div class="flex justify-center mb-4">
+                <div class="w-28 h-28 rounded-full bg-sky-100 flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg"
+                      fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                      stroke="currentColor" class="w-14 h-14 text-sky-600">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M4.5 12.75l6 6 9-13.5" />
+                  </svg>
+                </div>
+              </div>
+
+              <h3 class="text-lg font-semibold text-center text-gray-800 mb-4">
+                Gerar dados meteorológicos de hoje?
+              </h3>
+
+              <div class="flex justify-center gap-4 mt-4">
+                <a href="{% url 'meteorologicaldata_create' geolocation_id %}"
+                  class="text-white bg-sky-600 hover:bg-sky-700 focus:ring-4 focus:outline-none 
+                        focus:ring-sky-300 font-medium rounded-lg text-sm px-5 py-2.5">
+                  Confirmar
+                </a>
+                <button type="button"
+                  class="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 
+                        rounded-lg hover:bg-gray-100 hover:text-blue-600 focus:outline-none 
+                        focus:ring-2 focus:ring-gray-200"
+                  data-modal-hide="generate-modal">
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
 
           {% for meteorologicaldata in page_obj %}
             <div class="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
@@ -157,16 +207,19 @@
               </div>
 
               {% if meteorologicaldata.date == today %}
-                <form action="" method="post" class="mt-4" onsubmit="return confirm('Tem certeza que deseja deletar os dados de hoje?');">
-                  {% csrf_token %}
-                  <button type="submit"
-                          class="flex items-center gap-2 bg-red-100 hover:bg-red-200 text-red-700 border border-red-400 text-sm font-medium py-2 px-4 rounded-lg shadow transition duration-200">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7h6m2 0a1 1 0 011 1v0a1 1 0 01-1 1H7a1 1 0 01-1-1v0a1 1 0 011-1h10z" />
-                    </svg>
-                    Deletar dados de hoje
-                  </button>
-                </form>
+                <div class="flex justify-center mt-4">
+                  <form method="get" action="{% url 'meteorologicaldata_delete' meteorologicaldata.id %}">
+                    {% csrf_token %}
+                    <button type="submit"
+                            class="flex items-center gap-2 bg-red-100 hover:bg-red-200 text-red-700 border border-red-400 text-sm font-medium py-2 px-4 rounded-lg shadow transition duration-200">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M6 18L18 18M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2m4 0H5m1 0v12a2 2 0 002 2h8a2 2 0 002-2V6" />
+                      </svg>
+                      Deletar dados de hoje
+                    </button>
+                  </form>
+                </div>
               {% endif %}
 
             </div>
