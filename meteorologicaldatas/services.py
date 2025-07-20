@@ -7,9 +7,9 @@ from logs.models import Log
 
 OPEN_METEO_URL = "https://api.open-meteo.com/v1/forecast"
 
-def saveTodayWeather(geolocation_id):
+def saveTodayWeather(geolocationId):
     try:
-        geolocation = Geolocation.objects.get(pk=geolocation_id)
+        geolocation = Geolocation.objects.get(pk=geolocationId)
     except Geolocation.DoesNotExist:
         now_brazil = timezone.now()
         Log.objects.create(
@@ -87,7 +87,7 @@ def saveTodayWeather(geolocation_id):
             geolocation=geolocation,
         )
 
-    return {"message": "Dados meteorológicos salvos com sucesso!", "success": True}
+    return {"message": "Dados meteorológicos de hoje gerados com sucesso!", "success": True}
 
 def isNoneData(value):
     return value is None

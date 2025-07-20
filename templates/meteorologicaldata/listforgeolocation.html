@@ -92,8 +92,7 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-12 mb-12">
                
-          {% if not has_today_data and city_id %}
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-12 mb-12">
+          {% if not has_today_data and geolocation_id %}
               <div class="bg-gradient-to-br from-sky-50 to-gray-100 rounded-2xl shadow-xl p-8 border border-gray-200 h-full">
                 <div class="flex flex-col items-center justify-center h-full text-center">
                   <div class="mb-4 text-sky-500">
@@ -106,9 +105,9 @@
                   </div>
                   <h2 class="text-2xl font-bold text-gray-800">Gerar Dados Meteorológicos</h2>
                   <p class="text-sm text-gray-500 mt-1 mb-6">
-                    Dados para hoje, {{ today|date:"d 'de' F 'de' Y" }}
+                    Dados para hoje, {{ today|date:"d \\d\\e F \\d\\e Y" }}
                   </p>
-                  <a href="#"
+                  <a href="{%  url 'meteorologicaldata_create' geolocation_id %}"
                     class="inline-flex items-center justify-center px-6 py-3 font-semibold text-white bg-sky-500 rounded-full shadow-lg transition-transform transform hover:scale-105 hover:bg-sky-600 focus:outline-none focus:ring-4 focus:ring-sky-300">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                       <path fill-rule="evenodd"
@@ -123,7 +122,6 @@
                   </a>
                 </div>
               </div>
-            </div>
           {% endif %}
 
           {% for meteorologicaldata in page_obj %}
