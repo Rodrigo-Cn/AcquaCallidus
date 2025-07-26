@@ -32,15 +32,15 @@ $(document).ready(function () {
         allowClear: true,
     });
 
-    // Formulário atualizado
     $("#culture-form").on("submit", function (e) {
         e.preventDefault();
         const selectedCultureId = $("#culture-select").val();
 
         if (selectedCultureId) {
-            openModal("Cultura ID selecionado: " + selectedCultureId);
+            document.getElementById('culture-select').value = selectedCultureId;
+            document.getElementById('culture-form').submit();
         } else {
-            openModal("Por favor, selecione uma cultura.");
+            document.getElementById('culture-form').submit();
         }
     });
 });

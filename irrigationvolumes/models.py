@@ -8,7 +8,7 @@ class IrrigationVolume(models.Model):
     phase_flowering = models.FloatField()
     phase_fruiting = models.FloatField() 
     phase_maturation = models.FloatField()
-    date = models.DateField(auto_now=True)
+    date = models.DateField()
     culturevegetable = models.ForeignKey(
         CultureVegetable, 
         on_delete=models.CASCADE,

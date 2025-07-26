@@ -59,49 +59,39 @@ class IrrigationVolumeAPI(APIView):
                 phase_maturation=eto * cultureVegetable.phase_maturation_kc * rootAreaM2,
                 culturevegetable=cultureVegetable,
                 meteorologicaldata=meteorologicalData,
+                date=date.today(),
             )
 
             serializer = IrrigationVolumeSerializer(irrigationVolume)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-@login_required(login_url='/auth/login/') 
-def listForCulture(request):
-    logs = Log.objects.order_by('-created_at')[:10]
-    form_culture_vegetable = CultureVegetableForm()
-
-    return render(request, 'irrigationvolume/listforculture.html', context={
-        'user': request.user,
-        'logs': logs,
-        'form_culture_vegetable': form_culture_vegetable
-    })
-
 @login_required(login_url='/auth/login/')
 def listForCulture(request):
     logs = Log.objects.order_by('-created_at')[:10]
-    geolocationList = Geolocation.objects.all()
+    cultureVegetableList = CultureVegetable.objects.all()
     cultureId = request.GET.get('culture_id', '')
     formCultureVegetable = CultureVegetableForm()
     hasTodayData = False
     irrigationVolumeList = IrrigationVolume.objects.all()
 
-    if geolocationId:
+    if cultureId:
         irrigationVolumeList = irrigationVolumeList.filter(culturevegetable_id=cultureId)
         hasTodayData = IrrigationVolume.objects.filter(
-            geolocation_id=geolocationId,
+            culturevegetable_id=cultureId,
             date=date.today()
         ).exists()
 
-    meteorologicalDataList = meteorologicalDataList.order_by('-date')
-    paginator = Paginator(meteorologicalDataList, 15)
+    irrigationVolumeList = irrigationVolumeList.order_by('-date')
+    paginator = Paginator(irrigationVolumeList, 12)
     pageNumber = request.GET.get('page')
     pageObj = paginator.get_page(pageNumber)
 
-    return render(request, 'meteorologicaldata/listforgeolocation.html', context={
+    return render(request, 'irrigationvolume/listforculture.html', context={
         'user': request.user,
         'logs': logs,
-        'geolocations': geolocationList, 
+        'culturesvegetables': cultureVegetableList, 
         'page_obj': pageObj,              
-        'geolocation_id': geolocationId,  
+        'culture_id': cultureId,  
         'form_culture_vegetable': formCultureVegetable,
         'today': date.today(),
         'has_today_data': hasTodayData
