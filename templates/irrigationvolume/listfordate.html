@@ -7,12 +7,12 @@
     <div class="py-12">
       <div>
         <h2 class="text-2xl font-semibold leading-tight text-gray-800">
-          Volumes Registrados para Irrigação (Kc)
+          Volumes para Irrigação Diária (Kc)
         </h2>
       </div>
 
     <div class="my-4 flex sm:flex-row flex-col">
-      <form class="flex max-w-md w-full">
+      <form class="flex max-w-md w-full" method="GET" action="{% url 'irrigationvolume_list_date' %}">
           <label for="search-date" class="sr-only">Selecionar Data</label>
           <div class="relative w-full">
           <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
@@ -21,84 +21,150 @@
               </svg>
           </div>
           <input type="date" id="search-date" name="date"
-                  class="bg-white border border-gray-300 text-gray-700 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 placeholder-gray-400"
-                  required />
+            class="bg-white border border-gray-300 text-gray-700 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 placeholder-gray-400"
+            value="{{ date_query }}"
+          />
           </div>
           <button type="submit" class="p-2.5 ms-2 text-sm font-medium text-white bg-sky-500 dark:bg-sky-700 rounded-full border border-sky-500 dark:border-sky-700 hover:bg-sky-600 dark:hover:bg-sky-800 focus:ring-4 focus:outline-none focus:ring-sky-300 dark:focus:ring-sky-900">
-          <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
-          </svg>
-          <span class="sr-only">Search</span>
+            <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+            </svg>
+            <span class="sr-only">Search</span>
           </button>
       </form>
     </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-12">
+    {% if page_obj %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-12 mb-12">
+          {% for irrigationvolume in page_obj %}
+            <div class="bg-gradient-to-br from-white to-sky-50 rounded-2xl shadow-lg p-6 border border-sky-100 hover:shadow-2xl transition-shadow duration-300 w-full max-w-md mx-auto">
+              <div class="flex items-center justify-between mb-5">
+                <div>
+                  <h2 class="text-2xl font-extrabold text-gray-700 italic tracking-tight">{{ irrigationvolume.culturevegetable.name }}</h2>
+                  <p class="text-sm text-gray-500 italic mt-1 flex items-center gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-sky-500" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 2C8.14 2 5 5.14 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.86-3.14-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/>
+                    </svg>
+                    <strong>{{ irrigationvolume.meteorologicaldata.geolocation.city }} - {{ irrigationvolume.meteorologicaldata.geolocation.state }}</strong>
+                  </p>
+                  <p class="text-sm text-gray-500 italic flex items-center gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-sky-500" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-1.99.9-1.99 2L3 20c0 1.1.89 2 1.99 2H19c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/>
+                    </svg>
+                    <strong>{{ irrigationvolume.date }}</strong>
+                  </p>
+                  <p class="text-sm text-gray-500 italic mt-1">Estágios de Desenvolvimento</p>
+                </div>
+                <div class="text-5xl text-emerald-500">🌾</div>
+              </div>
 
-        <div class="bg-gradient-to-br from-white to-sky-50 rounded-2xl shadow-lg p-6 border border-sky-100 hover:shadow-2xl transition-shadow duration-300 w-full max-w-md mx-auto">
-          <div class="flex items-center justify-between mb-5">
-            <div>
-              <h2 class="text-2xl font-extrabold text-gray-700 italic tracking-tight">Milho</h2>
-              <p class="text-sm text-gray-500 italic mt-1 flex items-center gap-1">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-sky-500" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 2C8.14 2 5 5.14 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.86-3.14-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/>
-                </svg>
-                <strong>Barreiras - BA</strong>
-              </p>
-              <p class="text-sm text-gray-500 italic flex items-center gap-1">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-sky-500" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-1.99.9-1.99 2L3 20c0 1.1.89 2 1.99 2H19c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/>
-                </svg>
-                <strong>01/07/2025</strong>
-              </p>
-              <p class="text-sm text-gray-500 italic mt-1">Estágios de Desenvolvimento</p>
+              <div class="grid gap-3 text-sm text-gray-800">
+                <div class="flex items-center bg-white border border-gray-200 px-4 py-2 rounded-lg shadow-sm hover:shadow-md transition">
+                  <span class="mr-3 text-lg">🌱</span>
+                  <span>Inicial: <strong class="text-gray-900">{{ irrigationvolume.phase_initial|floatformat:2 }} Litros</strong></span>
+                </div>
+                <div class="flex items-center bg-white border border-gray-200 px-4 py-2 rounded-lg shadow-sm hover:shadow-md transition">
+                  <span class="mr-3 text-lg">🌿</span>
+                  <span>Vegetativo: <strong class="text-gray-900">{{ irrigationvolume.phase_vegetative|floatformat:2 }} Litros</strong></span>
+                </div>
+                <div class="flex items-center bg-white border border-gray-200 px-4 py-2 rounded-lg shadow-sm hover:shadow-md transition">
+                  <span class="mr-3 text-lg">🌸</span>
+                  <span>Floração: <strong class="text-gray-900">{{ irrigationvolume.phase_flowering|floatformat:2 }} Litros</strong></span>
+                </div>
+                <div class="flex items-center bg-white border border-gray-200 px-4 py-2 rounded-lg shadow-sm hover:shadow-md transition">
+                  <span class="mr-3 text-lg">🍎</span>
+                  <span>Frutificação: <strong class="text-gray-900">{{ irrigationvolume.phase_fruiting|floatformat:2 }} Litros</strong></span>
+                </div>
+                <div class="flex items-center bg-white border border-gray-200 px-4 py-2 rounded-lg shadow-sm hover:shadow-md transition">
+                  <span class="mr-3 text-lg">🍂</span>
+                  <span>Maturação: <strong class="text-gray-900">{{ irrigationvolume.phase_maturation|floatformat:2 }} Litros</strong></span>
+                </div>
+              </div>
             </div>
-            <div class="text-5xl text-emerald-500">🌾</div>
-          </div>
-
-          <div class="grid gap-3 text-sm text-gray-800">
-            <div class="flex items-center bg-white border border-gray-200 px-4 py-2 rounded-lg shadow-sm hover:shadow-md transition">
-              <span class="mr-3 text-lg">🌱</span>
-              <span>Inicial: <strong class="text-gray-900">0.30 Litros</strong></span>
-            </div>
-            <div class="flex items-center bg-white border border-gray-200 px-4 py-2 rounded-lg shadow-sm hover:shadow-md transition">
-              <span class="mr-3 text-lg">🌿</span>
-              <span>Vegetativo: <strong class="text-gray-900">0.70 Litros</strong></span>
-            </div>
-            <div class="flex items-center bg-white border border-gray-200 px-4 py-2 rounded-lg shadow-sm hover:shadow-md transition">
-              <span class="mr-3 text-lg">🌸</span>
-              <span>Floração: <strong class="text-gray-900">1.15 Litros</strong></span>
-            </div>
-            <div class="flex items-center bg-white border border-gray-200 px-4 py-2 rounded-lg shadow-sm hover:shadow-md transition">
-              <span class="mr-3 text-lg">🍎</span>
-              <span>Frutificação: <strong class="text-gray-900">0.95 Litros</strong></span>
-            </div>
-            <div class="flex items-center bg-white border border-gray-200 px-4 py-2 rounded-lg shadow-sm hover:shadow-md transition">
-              <span class="mr-3 text-lg">🍂</span>
-              <span>Maturação: <strong class="text-gray-900">0.80 Litros</strong></span>
-            </div>
-          </div>
+          {% endfor %}
         </div>
-
-      </div>
-
-      <div class="flex justify-center mt-12">
-        <a href="#" class="flex items-center justify-center px-3 h-8 me-3 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700">
-          <svg class="w-3.5 h-3.5 me-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M13 5H1m0 0 4 4M1 5l4-4"/>
+      {% else %}
+        <div
+          class="flex flex-col items-center justify-center py-16 px-4 text-center"
+        >
+          <svg
+            class="w-16 h-16 text-gray-400 mb-4"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"
+            ></path>
           </svg>
-          Anterior
-        </a>
-        <a href="#" class="flex items-center justify-center px-3 h-8 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700">
-          Próximo
-          <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M1 5h12m0 0L9 1m4 4L9 9"/>
-          </svg>
-        </a>
-      </div>
+          <h3 class="text-lg font-semibold text-gray-700">
+            Nenhum registro encontrado
+          </h3>
+          <p class="mt-2 text-sm text-gray-500">
+            Tente ajustar a busca ou adicionar novos registros para
+            visualizá-lo aqui.
+          </p>
+        </div>
+      {% endif %}
+
+      {% if page_obj.has_next or page_obj.has_previous %}
+        <div class="flex justify-center mb-8">
+          {% if page_obj.has_previous %}
+            <a
+              href="?page={{ page_obj.previous_page_number }}{% if date_query %}&name={{ date_query }}{% endif %}"
+              class="flex items-center justify-center px-3 h-8 me-3 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700"
+            >
+              <svg class="w-3.5 h-3.5 me-2 rtl:rotate-180" fill="none" viewBox="0 0 14 10">
+                <path d="M13 5H1m0 0 4 4M1 5l4-4" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+              </svg>
+              Anterior
+            </a>
+          {% else %}
+            <button
+              class="flex items-center justify-center px-3 h-8 me-3 text-sm font-medium text-gray-400 bg-gray-100 border border-gray-200 rounded-lg cursor-not-allowed"
+              disabled
+            >
+              <svg class="w-3.5 h-3.5 me-2 rtl:rotate-180" fill="none" viewBox="0 0 14 10">
+                <path d="M13 5H1m0 0 4 4M1 5l4-4" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+              </svg>
+              Anterior
+            </button>
+          {% endif %}
+
+          <span class="flex items-center text-gray-700 text-sm font-medium select-none me-3">
+            Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+          </span>
+
+          {% if page_obj.has_next %}
+            <a
+              href="?page={{ page_obj.next_page_number }}{% if date_query %}&name={{ date_query }}{% endif %}"
+              class="flex items-center justify-center px-3 h-8 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700"
+            >
+              Próxima
+              <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" fill="none" viewBox="0 0 14 10">
+                <path d="M1 5h12m0 0L9 1m4 4L9 9" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+              </svg>
+            </a>
+          {% else %}
+            <button
+              class="flex items-center justify-center px-3 h-8 text-sm font-medium text-gray-400 bg-gray-100 border border-gray-200 rounded-lg cursor-not-allowed"
+              disabled
+            >
+              Próxima
+              <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" fill="none" viewBox="0 0 14 10">
+                <path d="M1 5h12m0 0L9 1m4 4L9 9" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+              </svg>
+            </button>
+          {% endif %}
+        </div>
+      {% endif %}
+
     </div>
   </div>
 </div>

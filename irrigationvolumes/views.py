@@ -11,7 +11,10 @@ from .services import calculateReferenceEvapotranspiration
 from django.contrib.auth.decorators import login_required
 from culturesvegetables.forms import CultureVegetableForm
 from pytz import timezone as pytzTimezone
+from django.utils.dateparse import parse_date
+from django.core.paginator import Paginator
 from django.utils import timezone
+from datetime import date
 
 class IrrigationVolumeAPI(APIView):
     def get(self, request, geolocationId, cultureId):
@@ -72,13 +75,61 @@ def listForCulture(request):
         'form_culture_vegetable': form_culture_vegetable
     })
 
-@login_required(login_url='/auth/login/') 
+@login_required(login_url='/auth/login/')
+def listForCulture(request):
+    logs = Log.objects.order_by('-created_at')[:10]
+    geolocationList = Geolocation.objects.all()
+    cultureId = request.GET.get('culture_id', '')
+    formCultureVegetable = CultureVegetableForm()
+    hasTodayData = False
+    irrigationVolumeList = IrrigationVolume.objects.all()
+
+    if geolocationId:
+        irrigationVolumeList = irrigationVolumeList.filter(culturevegetable_id=cultureId)
+        hasTodayData = IrrigationVolume.objects.filter(
+            geolocation_id=geolocationId,
+            date=date.today()
+        ).exists()
+
+    meteorologicalDataList = meteorologicalDataList.order_by('-date')
+    paginator = Paginator(meteorologicalDataList, 15)
+    pageNumber = request.GET.get('page')
+    pageObj = paginator.get_page(pageNumber)
+
+    return render(request, 'meteorologicaldata/listforgeolocation.html', context={
+        'user': request.user,
+        'logs': logs,
+        'geolocations': geolocationList, 
+        'page_obj': pageObj,              
+        'geolocation_id': geolocationId,  
+        'form_culture_vegetable': formCultureVegetable,
+        'today': date.today(),
+        'has_today_data': hasTodayData
+    })
+
+@login_required(login_url='/auth/login/')
 def listForDate(request):
     logs = Log.objects.order_by('-created_at')[:10]
-    form_culture_vegetable = CultureVegetableForm()
+    dateQuery = request.GET.get('date', '')
+    formCultureVegetable = CultureVegetableForm()
+
+    IrrigationVolumeList = IrrigationVolume.objects.all()
+
+    if dateQuery:
+        parsedDate = parse_date(dateQuery)
+        if parsedDate:
+            IrrigationVolumeList = IrrigationVolumeList.filter(date=parsedDate)
+
+    IrrigationVolumeList = IrrigationVolumeList.order_by('-date')
+    paginator = Paginator(IrrigationVolumeList, 12)
+    pageNumber = request.GET.get('page')
+    pageObj = paginator.get_page(pageNumber)
 
     return render(request, 'irrigationvolume/listfordate.html', context={
         'user': request.user,
         'logs': logs,
-        'form_culture_vegetable': form_culture_vegetable
+        'page_obj': pageObj,
+        'date_query': dateQuery,
+        'form_culture_vegetable': formCultureVegetable,
+        'today': date.today()
     })

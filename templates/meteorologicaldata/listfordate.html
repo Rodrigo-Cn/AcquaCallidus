@@ -131,7 +131,7 @@
         </div>
       {% endif %}
 
-      {% if page_obj and page_obj.has_next %}
+      {% if page_obj.has_next or page_obj.has_previous %}
         <div class="flex justify-center mb-8">
           {% if page_obj.has_previous %}
             <a
