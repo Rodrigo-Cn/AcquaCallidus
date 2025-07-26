@@ -126,11 +126,38 @@ document.addEventListener('DOMContentLoaded', () => {
 function handleSubmit(event) {
   event.preventDefault();
 
-  const lat = document.getElementById('latitude').value;
-  const lng = document.getElementById('longitude').value;
+  const city = document.getElementById('city').value.trim();
+  const state = document.getElementById('state').value.trim();
+  const lat = document.getElementById('latitude').value.trim();
+  const lng = document.getElementById('longitude').value.trim();
+
+  if (!city || city.length < 2) {
+    showNotification('Informe uma cidade válida (mínimo 2 caracteres).', 'error');
+    document.getElementById('city').focus();
+    return;
+  }
+
+  if (!state || state.length < 2) {
+    showNotification('Informe um estado válido (mínimo 2 caracteres).', 'error');
+    document.getElementById('state').focus();
+    return;
+  }
 
   if (!lat || !lng) {
     showNotification('Selecione sua localização no mapa.', 'error');
+    return;
+  }
+
+  const latitude = parseFloat(lat);
+  const longitude = parseFloat(lng);
+
+  if (isNaN(latitude) || latitude < -90 || latitude > 90) {
+    showNotification('Latitude inválida. Deve estar entre -90 e 90.', 'error');
+    return;
+  }
+
+  if (isNaN(longitude) || longitude < -180 || longitude > 180) {
+    showNotification('Longitude inválida. Deve estar entre -180 e 180.', 'error');
     return;
   }
 
@@ -143,13 +170,6 @@ function handleSubmit(event) {
   submitBtn.disabled = true;
 
   setTimeout(() => {
-    submitLoadingSpinner.classList.add('hidden');
-    btnText.textContent = 'Salvar Localização';
-    submitBtn.disabled = false;
-
-    showNotification('Localização salva com sucesso!', 'success');
-    closeModal();
-
-    // document.getElementById('locationForm').submit();
-  }, 2000);
+    document.getElementById('locationForm').submit();
+  }, 500);
 }

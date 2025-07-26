@@ -45,8 +45,7 @@ def create(request):
             messages.success(request, "Cultura cadastrada com sucesso!")
             return redirect('culturevegetable_list')
         messages.error(request, "Dados inválidos! Verifique os campos.")
-        return redirect('culturevegetable_list')
-        
+        return redirect(request.META.get('HTTP_REFERER', 'culturevegetable_list'))
     except Exception as e:
         Log.objects.create(
             reference="create_culturevegetable_controller",
@@ -54,4 +53,4 @@ def create(request):
             created_at=todayWithHour
         )
         messages.error(request, "Ocorreu um erro ao criar a cultura!")
-        return redirect('culturevegetable_list')
+        return redirect(request.META.get('HTTP_REFERER', 'culturevegetable_list'))

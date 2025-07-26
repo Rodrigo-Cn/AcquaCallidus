@@ -188,7 +188,6 @@
                   </span>
                   <span class="ml-2 text-sm"> Painel de Culturas </span>
                   <span aria-hidden="true" class="ml-auto">
-                    <!-- active class 'rotate-180' -->
                     <svg
                       class="w-4 h-4 transition-transform transform"
                       :class="{ 'rotate-180': open }"
@@ -258,7 +257,6 @@
                   </span>
                   <span class="ml-2 text-sm"> Painel de Geolocalização </span>
                   <span aria-hidden="true" class="ml-auto">
-                    <!-- active class 'rotate-180' -->
                     <svg
                       class="w-4 h-4 transition-transform transform"
                       :class="{ 'rotate-180': open }"
@@ -394,7 +392,6 @@
                   </span>
                   <span class="ml-2 text-sm">Volumes de Irrigações</span>
                   <span aria-hidden="true" class="ml-auto">
-                    <!-- active class 'rotate-180' -->
                     <svg
                       class="w-4 h-4 transition-transform transform"
                       :class="{ 'rotate-180': open }"
@@ -408,8 +405,6 @@
                   </span>
                 </a>
                 <div x-show="open" class="mt-2 space-y-2 px-7" role="menu" arial-label="Components">
-                  <!-- active & hover classes 'text-gray-700 dark:text-light' -->
-                  <!-- inActive classes 'text-gray-400 dark:text-gray-400' -->
                   <a
                     href="#"
                     role="menuitem"
@@ -436,7 +431,6 @@
 
             </nav>
 
-            <!-- Sidebar footer -->
             <div class="flex-shrink-0 px-2 py-4 space-y-2">
               <button
                 @click="openSettingsPanel"
@@ -466,7 +460,6 @@
         </aside>
 
         <div class="flex-1 h-full overflow-x-hidden overflow-y-auto">
-          <!-- Navbar -->
           <header class="relative bg-white dark:bg-darker">
             <div class="flex items-center justify-between p-2 border-b dark:border-primary-darker">
               <!-- Mobile menu button -->
@@ -1052,7 +1045,8 @@
                 <button onclick="closeModal()" class="text-2xl font-bold text-gray-500 hover:text-red-500">&times;</button>
               </div>
 
-              <form id="locationForm" class="p-4 space-y-4" onsubmit="handleSubmit(event)">
+              <form id="locationForm" class="p-4 space-y-4" method="POST" action="{% url 'create_geolocation' %}" onsubmit="handleSubmit(event)">
+                {% csrf_token %}
                 <div>
                   <label for="city" class="block font-medium">Cidade</label>
                   <div class="relative">
