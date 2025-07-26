@@ -368,8 +368,12 @@
                 <a
                   href="#"
                   @click="$event.preventDefault(); open = !open"
-                  class="flex items-center p-2 text-gray-500 transition-colors rounded-md dark:text-light hover:bg-primary-100 dark:hover:bg-primary"
-                  :class="{ 'bg-primary-100 dark:bg-primary': isActive || open }"
+                  class="flex items-center p-2 transition-colors rounded-md hover:bg-primary-100 dark:hover:bg-primary
+                    {% if request.path == '/irrigationvolumes/cultures/' or  request.path == '/irrigationvolumes/dates/' %}
+                      text-gray-700 dark:text-light
+                    {% else %}
+                      text-gray-400 dark:text-gray-400
+                    {% endif %}"
                   role="button"
                   aria-haspopup="true"
                   :aria-expanded="(open || isActive) ? 'true' : 'false'"
@@ -406,16 +410,26 @@
                 </a>
                 <div x-show="open" class="mt-2 space-y-2 px-7" role="menu" arial-label="Components">
                   <a
-                    href="#"
+                    href="/irrigationvolumes/dates/"
                     role="menuitem"
-                    class="block p-2 text-sm text-gray-400 transition-colors duration-200 rounded-md dark:text-gray-400 dark:hover:text-light hover:text-gray-700"
+                    class="block p-2 text-sm transition-colors duration-200 rounded-md
+                    {% if request.path == '/irrigationvolumes/dates/' %}
+                      text-gray-700 dark:text-light
+                    {% else %}
+                      text-gray-400 dark:text-gray-400
+                    {% endif %}"
                   >
                     Volume por Data (Kc)
                   </a>
                   <a
-                    href="#"
+                    href="/irrigationvolumes/cultures/"
                     role="menuitem"
-                    class="block p-2 text-sm text-gray-400 transition-colors duration-200 rounded-md dark:text-gray-400 dark:hover:text-light hover:text-gray-700"
+                    class="block p-2 text-sm transition-colors duration-200 rounded-md
+                    {% if request.path == '/irrigationvolumes/cultures/' %}
+                      text-gray-700 dark:text-light
+                    {% else %}
+                      text-gray-400 dark:text-gray-400
+                    {% endif %}"
                   >
                     Volume por Cultura (Kc)
                   </a>
