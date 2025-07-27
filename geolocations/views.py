@@ -23,7 +23,6 @@ def list(request):
             Q(city__icontains=name_query) | Q(state__icontains=name_query)
         )
 
-
     paginator = Paginator(geolocations, 12)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
