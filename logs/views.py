@@ -49,9 +49,14 @@ def markLogsViewed(request):
 @api_view(['GET'])
 @authentication_classes([SessionAuthentication])
 @permission_classes([IsAuthenticated])
-def markLogsViewedUnique(request, id):
-    updated_count = Log.objects.filter(id=id, viewed=False).update(viewed=True)
-    return Response(
-        {"message": f"{updated_count} registro atualizado."},
-        status=status.HTTP_200_OK
-    )
+def getLogException(request, id):
+    try:
+        log = Log.objects.get(id=id)
+    except Log.DoesNotExist:
+        return Response({"error": "Log não encontrado."}, status=status.HTTP_404_NOT_FOUND)
+
+    if not log.viewed:
+        log.viewed = True
+        log.save()
+
+    return Response({"exception": log.exception}, status=status.HTTP_200_OK)

@@ -4,5 +4,5 @@ from . import views
 urlpatterns = [
     path('', views.list, name='log_list'),
     path('viewed/', views.markLogsViewed, name='mark_logs_viewed'),
-    path('viewed/<int:id>/', views.markLogsViewedUnique, name='mark_logs_viewed_unique'),
+    path('<int:id>/', views.getLogException, name='get_log_exception'),
 ]
