@@ -46,3 +46,12 @@ def markLogsViewed(request):
         status=status.HTTP_200_OK
     )
 
+@api_view(['GET'])
+@authentication_classes([SessionAuthentication])
+@permission_classes([IsAuthenticated])
+def markLogsViewedUnique(request, id):
+    updated_count = Log.objects.filter(id=id, viewed=False).update(viewed=True)
+    return Response(
+        {"message": f"{updated_count} registro atualizado."},
+        status=status.HTTP_200_OK
+    )
