@@ -10,4 +10,5 @@ urlpatterns = [
     path('culturesvegetables/', include('culturesvegetables.urls')),
     path('meteorologicaldatas/', include('meteorologicaldatas.urls')),
     path('geolocations/', include('geolocations.urls')),
+    path('logs/', include('logs.urls')),
 ]

@@ -9,6 +9,7 @@ from .models import Geolocation
 from logs.models import Log
 from culturesvegetables.forms import CultureVegetableForm
 
+@login_required(login_url='/auth/login/')
 def list(request):
     geolocations = Geolocation.objects.all()
     logs = Log.objects.order_by('-created_at')[:10]
