@@ -3,6 +3,7 @@ from django.utils import timezone
 
 class Log(models.Model):
     reference = models.CharField(max_length=255)
+    viewed = models.BooleanField(default=0)
     exception = models.JSONField()
     created_at = models.DateTimeField()
 

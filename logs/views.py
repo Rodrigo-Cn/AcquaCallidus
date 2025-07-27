@@ -4,6 +4,11 @@ from django.contrib.auth.decorators import login_required
 from django.utils.dateparse import parse_date
 from logs.models import Log
 from culturesvegetables.forms import CultureVegetableForm
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import SessionAuthentication
+from rest_framework.response import Response
+from rest_framework import status 
 
 @login_required(login_url='/auth/login/')
 def list(request):
@@ -30,3 +35,14 @@ def list(request):
         'date_query': date_query,
         'form_culture_vegetable': form_culture_vegetable,
     })
+
+@api_view(['GET'])
+@authentication_classes([SessionAuthentication])
+@permission_classes([IsAuthenticated])
+def markLogsViewed(request):
+    updated_count = Log.objects.filter(viewed=False).update(viewed=True)
+    return Response(
+        {"message": f"{updated_count} registros atualizados."},
+        status=status.HTTP_200_OK
+    )
+
