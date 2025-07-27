@@ -10,6 +10,10 @@
 />
 <link href="{% static 'css/irrigationvolume/style.css' %}" rel="stylesheet" />
 <script src="{% static 'js/irrigationvolume/select2.js' %}"></script>
+<script src="{% static 'js/irrigationvolume/modal.js' %}"></script>
+<script src="{% static 'js/meteorologicaldata/select2.js' %}"></script>
+<script>window.cultureId = "{{ culture_id }}";</script>
+<script src="{% static 'js/modal-irrigation.js' %}"></script>
 <div class="antialiased font-sans min-h-[800px] bg-gray-200">
   <div class="container mx-auto py-2 px-4 sm:px-8">
     <div class="py-12">
@@ -92,7 +96,7 @@
       {% if page_obj %}
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-12 mb-12">       
 
-        {% if not has_today_data and culture_id %}
+        {% if culture_id %}
           <div
             class="bg-gradient-to-br from-white to-sky-50 rounded-2xl shadow-xl p-8 border border-sky-200 h-full flex flex-col"
           >
@@ -122,44 +126,112 @@
             </div>
 
             <div class="my-4 flex flex-col sm:flex-row items-center justify-center gap-3 w-full max-w-md mx-auto">
-              <form id="city-form" class="flex flex-col w-full" autocomplete="off">
-                <select
-                  id="city-select"
-                  name="city_id"
-                  class="rounded-lg border border-gray-300 bg-white py-2 px-4 text-gray-700 shadow-sm
-                        focus:border-sky-500 focus:ring focus:ring-sky-200 focus:ring-opacity-50 transition"
-                  required
-                >
-                  <option value="" disabled selected>Selecione a cidade</option>
-                  <option value="1">Salvador</option>
-                  <option value="2">Feira de Santana</option>
-                  <option value="3">Vitória da Conquista</option>
-                  <option value="4">Ilhéus</option>
-                  <option value="5">Jequié</option>
-                </select>
-
+              <form 
+                id="geolocation-form"
+                class="flex flex-col w-full"
+                autocomplete="off"
+                method="GET"
+                action=""
+              >
+                <input type="hidden" id="culture-id" name="culture_id" value="{{ culture_id }}">
+                <div class="relative w-full">
+                  <select id="geolocation-select" name="geolocation_id" required>
+                    <option value="">Selecione a cidade</option>
+                    {% for geolocation in geolocations %}
+                      <option value="{{ geolocation.id }}" {% if geolocation_id|stringformat:"s" == geolocation.id|stringformat:"s" %}selected{% endif %}>
+                        {{ geolocation.city }} - {{ geolocation.state }}
+                      </option>
+                    {% endfor %}
+                  </select>
+                </div>
                 <button
-                  type="submit"
+                  type="button"
+                  onclick="prepareModal()"
                   class="mt-4 inline-flex items-center justify-center px-3 py-3 font-semibold text-white bg-sky-500 rounded-full shadow-lg
                         transition-transform transform hover:scale-105 hover:bg-sky-600 focus:outline-none focus:ring-4 focus:ring-sky-300 w-auto max-w-[180px] mx-auto"
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-5 w-5 mr-2"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fill-rule="evenodd"
-                      d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.899 2.101A1 1 0 0116 8a5 5 0 00-9.582-1.425a1 1 0 01-1.789-.85A7.002 7.002 0 014 4.101V3a1 1 0 01-1-1H2a1 1 0 01-1-1v2a1 1 0 011 1h1V3a1 1 0 011-1zm14 15a1 1 0 01-1-1v-2.101a7.002 7.002 0 01-11.899-2.101A1 1 0 014 12a5 5 0 009.582 1.425a1 1 0 011.789.85A7.002 7.002 0 0116 15.899V17a1 1 0 011 1h1a1 1 0 011-1v-2a1 1 0 01-1-1h-1v2a1 1 0 01-1 1z"
-                      clip-rule="evenodd"
-                    />
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-white-600" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.1-.3 2.13-.82 3.01l1.46 1.46C19.41 14.35 20 13.23 20 12c0-4.42-3.58-8-8-8zm-6 6c0-1.1.3-2.13.82-3.01L5.36 5.53C4.59 6.65 4 7.77 4 9c0 4.42 3.58 8 8 8v3l4-4-4-4v3c-3.31 0-6-2.69-6-6z"/>
                   </svg>
                   Atualizar Agora
                 </button>
               </form>
             </div>
           </div>
+
+          <div id="generate-modal" tabindex="-1"
+            class="hidden fixed inset-0 z-[9999] bg-black bg-opacity-50 flex items-center justify-center px-4">
+            
+            <div class="bg-white rounded-lg shadow-lg w-full max-w-sm p-6 relative z-[10000]">
+              <button type="button"
+                class="absolute top-3 right-3 text-gray-400 hover:text-gray-900"
+                onclick="hideModal()">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
+
+              <div class="flex justify-center mb-4">
+                <div class="w-28 h-28 rounded-full bg-sky-100 flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg"
+                      fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                      stroke="currentColor" class="w-14 h-14 text-sky-600">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M4.5 12.75l6 6 9-13.5" />
+                  </svg>
+                </div>
+              </div>
+
+              <h3 class="text-lg font-semibold text-center text-gray-800 mb-4">
+                Gerar dados de irrigação de hoje?
+              </h3>
+
+              <div class="flex justify-center gap-4 mt-4">
+                <a href="#" id="confirm-button"
+                  class="text-white bg-sky-600 hover:bg-sky-700 focus:ring-4 focus:outline-none 
+                        focus:ring-sky-300 font-medium rounded-lg text-sm px-5 py-2.5">
+                  Confirmar
+                </a>
+                <button type="button"
+                  class="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 
+                        rounded-lg hover:bg-gray-100 hover:text-blue-600 focus:outline-none 
+                        focus:ring-2 focus:ring-gray-200"
+                  onclick="hideModal()">
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div
+            id="alert-modal"
+            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden"
+          >
+            <div class="bg-white rounded-lg shadow-xl max-w-sm w-full">
+              <div class="flex justify-between items-center p-4 border-b">
+                <h3 class="text-lg font-semibold text-gray-800">Atenção</h3>
+                <button
+                  id="close-modal-btn"
+                  class="text-gray-400 text-3xl leading-none hover:text-gray-600"
+                >
+                  &times;
+                </button>
+              </div>
+              <div class="p-6">
+                <p id="modal-message" class="text-gray-700"></p>
+              </div>
+              <div class="flex justify-end p-4 bg-gray-50 rounded-b-lg">
+                <button
+                  id="ok-modal-btn"
+                  class="bg-sky-500 text-white px-4 py-2 rounded-lg hover:bg-sky-600 focus:outline-none focus:ring-2 focus:ring-sky-400"
+                >
+                  OK
+                </button>
+              </div>
+            </div>
+          </div>
+
         {% endif %}
 
         {% for irrigationvolume in page_obj %}

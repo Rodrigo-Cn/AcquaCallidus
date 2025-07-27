@@ -4,11 +4,6 @@ $(document).ready(function () {
     const okModalBtn = $("#ok-modal-btn");
     const modalMessage = $("#modal-message");
 
-    function openModal(message) {
-    modalMessage.text(message);
-    modal.removeClass("hidden");
-    }
-
     function closeModal() {
     modal.addClass("hidden");
     }
@@ -35,11 +30,8 @@ $(document).ready(function () {
     e.preventDefault();
     const selectedGeolocationId = $("#geolocation-select").val();
 
-    if (selectedGeolocationId) {
-        document.getElementById('geolocation-select').value = selectedGeolocationId;
-        document.getElementById('geolocation-form').submit();
-    } else {
-        openModal("Por favor, selecione uma cidade.");
-    }
+    document.getElementById('geolocation-select').value = selectedGeolocationId;
+    document.getElementById('geolocation-form').submit();
+
     });
 });
