@@ -31,91 +31,116 @@
           </button>
         </form>
       </div>
-      <div class="-mx-4 sm:-mx-8 px-4 sm:px-8 py-4 overflow-x-auto">
-        <div class="inline-block min-w-full shadow rounded-lg overflow-hidden">
-          <table
-            class="min-w-full divide-y divide-gray-200 shadow-lg rounded-lg overflow-hidden bg-white"
-          >
-            <thead class="bg-gray-100">
-              <tr>
-                <th
-                  scope="col"
-                  class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider"
-                >
-                  ID
-                </th>
-                <th
-                  scope="col"
-                  class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider"
-                >
-                  Referência
-                </th>
-                <th
-                  scope="col"
-                  class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider"
-                >
-                  Data
-                </th>
-                <th
-                  scope="col"
-                  class="px-6 py-3 text-center text-xs font-bold text-gray-700 uppercase tracking-wider"
-                >
-                  Visualizar
-                </th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200">
-              {% for log in page_obj %}
-              <tr class="hover:bg-gray-50 transition">
-                <td
-                  class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold"
-                >
-                  {{ log.id }}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                  {{ log.reference }}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {{ log.created_at|date:"d/m/Y H:i" }}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-center">
-                  <a
-                    href=""
-                    class="inline-flex items-center justify-center w-8 h-8 text-gray-700 hover:bg-gray-600 hover:text-white border border-gray-500 rounded-full transition duration-200"
-                    title="Visualizar log"
+      {% if page_obj %}
+        <div class="-mx-4 sm:-mx-8 px-4 sm:px-8 py-4 overflow-x-auto">
+          <div class="inline-block min-w-full shadow rounded-lg overflow-hidden">
+            <table
+              class="min-w-full divide-y divide-gray-200 shadow-lg rounded-lg overflow-hidden bg-white"
+            >
+              <thead class="bg-gray-100">
+                <tr>
+                  <th
+                    scope="col"
+                    class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider"
+                  >
+                    ID
+                  </th>
+                  <th
+                    scope="col"
+                    class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider"
+                  >
+                    Referência
+                  </th>
+                  <th
+                    scope="col"
+                    class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider"
+                  >
+                    Data
+                  </th>
+                  <th
+                    scope="col"
+                    class="px-6 py-3 text-center text-xs font-bold text-gray-700 uppercase tracking-wider"
+                  >
+                    Visualizar
+                  </th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-200">
+                {% for log in page_obj %}
+                  <tr class="hover:bg-gray-50 transition">
+                    <td
+                      class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold"
                     >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        class="h-5 w-5"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        stroke-width="2"
-                    >
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                        />
-                    </svg>
-                    </a>
-                </td>
-              </tr>
-              {% empty %}
-              <tr>
-                <td
-                  colspan="4"
-                  class="px-6 py-4 text-center text-gray-500 italic"
-                >
-                  Nenhum log de erro encontrado.
-                </td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
+                      {{ log.id }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                      {{ log.reference }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {{ log.created_at|date:"d/m/Y H:i" }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                      <a
+                        href=""
+                        class="inline-flex items-center justify-center w-8 h-8 border rounded-full transition duration-200
+                          {% if log.viewed %}
+                            bg-green-100 text-green-700 border-green-400 hover:bg-green-500 hover:text-white
+                          {% else %}
+                            bg-yellow-100 text-yellow-700 border-yellow-400 hover:bg-yellow-500 hover:text-white
+                          {% endif %}"
+                        title="Visualizar log"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          class="h-5 w-5"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          stroke-width="2"
+                        >
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                          />
+                        </svg>
+                      </a>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+      {% else %}
+        <div
+          class="flex flex-col items-center justify-center py-16 px-4 text-center"
+        >
+          <svg
+            class="w-16 h-16 text-gray-400 mb-4"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"
+            ></path>
+          </svg>
+          <h3 class="text-lg font-semibold text-gray-700">
+            Nenhum registro encontrado
+          </h3>
+          <p class="mt-2 text-sm text-gray-500">
+            Tente ajustar a busca ou adicionar novos registros para
+            visualizá-lo aqui.
+          </p>
+        </div>
+      {% endif %}
       {% if page_obj.has_next or page_obj.has_previous %}
         <div class="flex justify-center mb-8">
           {% if page_obj.has_previous %}
