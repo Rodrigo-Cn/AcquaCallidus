@@ -8,20 +8,31 @@ from django.utils import timezone
 from .models import Geolocation
 from logs.models import Log
 from culturesvegetables.forms import CultureVegetableForm
+from django.db.models import Q
 
 @login_required(login_url='/auth/login/')
 def list(request):
-    geolocations = Geolocation.objects.all()
     logs = Log.objects.order_by('-created_at')[:10]
-    paginator = Paginator(geolocations, 10)
+    name_query = request.GET.get('name', '')
     form_culture_vegetable = CultureVegetableForm()
-    
-    page_number = request.GET.get("page")
+
+    geolocations = Geolocation.objects.all()
+
+    if name_query:
+        geolocations = geolocations.filter(
+            Q(city__icontains=name_query) | Q(state__icontains=name_query)
+        )
+
+
+    paginator = Paginator(geolocations, 12)
+    page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
+
     return render(request, 'geolocation/list.html', context={
-        "page_obj": page_obj,
         'user': request.user,
         'logs': logs,
+        'page_obj': page_obj,
+        'name_query': name_query,
         'form_culture_vegetable': form_culture_vegetable
     })
 

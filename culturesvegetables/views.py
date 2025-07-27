@@ -21,7 +21,7 @@ def list(request):
     if name_query:
         culturevegetables = culturevegetables.filter(name__icontains=name_query)
 
-    paginator = Paginator(culturevegetables, 10)
+    paginator = Paginator(culturevegetables, 12)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 

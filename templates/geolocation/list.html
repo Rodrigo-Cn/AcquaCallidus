@@ -18,118 +18,267 @@
 <div class="antialiased font-sans min-h-[800px] bg-gray-100">
   <div class="container mx-auto py-4 px-4 sm:px-8">
     <div class="py-8">
-      <h2 class="text-3xl font-bold text-gray-900 mb-6 text-left">Geolocalizações</h2>
+      <h2 class="text-3xl font-bold text-gray-900 mb-6 text-left">
+        Geolocalizações
+      </h2>
 
-      <form class="flex max-w-md w-full mb-6" method="get" action="">
-        <label for="simple-search" class="sr-only">Pesquisar</label>
-        <div class="relative w-full">
-          <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-            <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 18 20">
-              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M3 5v10M3 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm0 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm0 0V6a3 3 0 0 0-3-3H9m1.5-2-2 2 2 2" />
+      <div class="mt-6 mb-9 flex sm:flex-row flex-col">
+        <form
+          class="flex max-w-md w-full"
+          method="GET"
+          action="{% url 'geolocation_list' %}"
+        >
+          <label for="simple-search" class="sr-only">Search</label>
+
+          <div class="relative w-full">
+            <div
+              class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+                class="w-6 h-6 text-black-600"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M12 2.25c-3.728 0-6.75 2.966-6.75 6.625 0 4.206 6.118 11.546 6.378 11.84a.75.75 0 0 0 1.044 0c.26-.294 6.378-7.634 6.378-11.84 0-3.659-3.022-6.625-6.75-6.625Zm0 9.125a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5Z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+            </div>
+            <input
+              type="text"
+              id="simple-search"
+              class="bg-white border border-gray-300 text-gray-700 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 placeholder-gray-400"
+              placeholder="Pesquisar..."
+              name="name"
+              value="{{ name_query }}"
+            />
+          </div>
+          <button
+            type="submit"
+            class="p-2.5 ms-2 text-sm font-medium text-white bg-sky-500 dark:bg-sky-700 rounded-full border border-sky-500 dark:border-sky-700 hover:bg-sky-600 dark:hover:bg-sky-800 focus:ring-4 focus:outline-none focus:ring-sky-300 dark:focus:ring-sky-900"
+          >
+            <svg
+              class="w-4 h-4"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 20 20"
+            >
+              <path
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+              />
             </svg>
-          </div>
-          <input
-            type="text"
-            id="simple-search"
-            name="q"
-            class="bg-white border border-gray-300 text-gray-700 text-sm rounded-lg focus:ring-sky-500 focus:border-sky-500 block w-full pl-10 p-2.5 placeholder-gray-400"
-            placeholder="Pesquisar..."
-            value="{{ request.GET.q|default:'' }}"
-          />
-        </div>
-        <button type="submit"
-          class="p-2.5 ml-2 text-sm font-medium text-white bg-sky-500 rounded-full border border-sky-500 hover:bg-sky-600 focus:ring-4 focus:outline-none focus:ring-sky-300"
-          aria-label="Pesquisar">
-          <svg class="w-5 h-5" fill="none" viewBox="0 0 20 20">
-            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
-          </svg>
-        </button>
-      </form>
+            <span class="sr-only">Search</span>
+          </button>
+          <button
+            type="button"
+            class="p-2.5 ms-2 text-sm font-medium text-white bg-sky-500 dark:bg-sky-700 rounded-full border border-sky-500 dark:border-sky-700 hover:bg-sky-600 dark:hover:bg-sky-800 focus:ring-4 focus:outline-none focus:ring-sky-300 dark:focus:ring-sky-900"
+            onclick="openModal()"
+          >
+            <svg
+              class="w-4 h-4"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M12 4v16m8-8H4"
+              />
+            </svg>
+            <span class="sr-only">Adicionar</span>
+          </button>
+        </form>
+      </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-10xl mx-auto">
         {% for location in page_obj %}
-          <div class="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col md:flex-row">
-            <div id="map-{{ forloop.counter }}"
-              class="map-instance h-48 md:h-auto md:w-1/2"
-              data-lat="{{ location.latitude }}"
-              data-lon="{{ location.longitude }}">
-            </div>
+        <div
+          class="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col md:flex-row"
+        >
+          <div
+            id="map-{{ forloop.counter }}"
+            class="map-instance h-48 md:h-auto md:w-1/2"
+            data-lat="{{ location.latitude }}"
+            data-lon="{{ location.longitude }}"
+          ></div>
 
-            <div class="flex flex-col justify-center items-center text-center p-6 md:w-1/2">
-              <h3 class="text-2xl font-semibold text-gray-800 mb-2">
-                {{ location.city }}, {{ location.state }}
-              </h3>
-              <p class="text-gray-600 text-sm mb-1"><strong>Latitude:</strong> {{ location.latitude }}</p>
-              <p class="text-gray-600 text-sm mb-4"><strong>Longitude:</strong> {{ location.longitude }}</p>
+          <div
+            class="flex flex-col justify-center items-center text-center p-6 md:w-1/2"
+          >
+            <h3 class="text-2xl font-semibold text-gray-800 mb-2">
+              {{ location.city }}, {{ location.state }}
+            </h3>
+            <p class="text-gray-600 text-sm mb-1">
+              <strong>Latitude:</strong> {{ location.latitude }}
+            </p>
+            <p class="text-gray-600 text-sm mb-4">
+              <strong>Longitude:</strong> {{ location.longitude }}
+            </p>
 
-              <div class="flex space-x-6">
-                <a href="#"
-                  title="Editar"
-                  class="text-white bg-sky-500 hover:bg-sky-600 transition focus:outline-none focus:ring-4 focus:ring-sky-300 rounded-full p-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none"
-                    viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                      d="M11 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5M16.5 7.5l-9 9"/>
+            <div class="flex space-x-6">
+              <a
+                href="#"
+                title="Editar"
+                class="text-white bg-sky-500 hover:bg-sky-600 transition focus:outline-none focus:ring-4 focus:ring-sky-300 rounded-full p-2"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-7 w-7"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M11 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5M16.5 7.5l-9 9"
+                  />
+                </svg>
+              </a>
+
+              <form
+                method="post"
+                action=""
+                onsubmit="return confirm('Tem certeza que deseja deletar esta geolocalização?');"
+              >
+                {% csrf_token %}
+                <button
+                  type="submit"
+                  title="Deletar"
+                  class="text-white bg-red-500 hover:bg-red-600 transition focus:outline-none focus:ring-4 focus:ring-red-300 rounded-full p-2"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-7 w-7"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
                   </svg>
-                </a>
-
-                <form method="post" action="" onsubmit="return confirm('Tem certeza que deseja deletar esta geolocalização?');">
-                  {% csrf_token %}
-                  <button type="submit"
-                    title="Deletar"
-                    class="text-white bg-red-500 hover:bg-red-600 transition focus:outline-none focus:ring-4 focus:ring-red-300 rounded-full p-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none"
-                      viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                      <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M6 18L18 6M6 6l12 12"/>
-                    </svg>
-                  </button>
-                </form>
-              </div>
+                </button>
+              </form>
             </div>
           </div>
+        </div>
         {% empty %}
-          <p class="text-gray-700 text-center">Nenhuma geolocalização encontrada.</p>
+        <p class="text-gray-700 text-center">
+          Nenhuma geolocalização encontrada.
+        </p>
         {% endfor %}
       </div>
 
-      <div class="flex justify-center mt-8 space-x-4">
-        <a href="{% if page_obj.has_previous %}?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% else %}#{% endif %}"
-          class="flex items-center justify-center px-4 h-9 text-sm font-medium border rounded-lg
-          {% if not page_obj.has_previous %}
-            text-gray-400 border-gray-300 cursor-not-allowed
-          {% else %}
-            text-gray-700 border-gray-300 hover:bg-gray-100 hover:text-gray-900
-          {% endif %}"
-          {% if not page_obj.has_previous %}tabindex="-1" aria-disabled="true"{% endif %}>
-          <svg class="w-4 h-4 mr-2 rtl:rotate-180" fill="none" viewBox="0 0 14 10">
-            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M13 5H1m0 0 4 4M1 5l4-4"/>
+      {% if page_obj.has_next or page_obj.has_previous %}
+      <div class="flex justify-center mb-8">
+        {% if page_obj.has_previous %}
+        <a
+          href="?page={{ page_obj.previous_page_number }}{% if name_query %}&name={{ name_query }}{% endif %}"
+          class="flex items-center justify-center px-3 h-8 me-3 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700"
+        >
+          <svg
+            class="w-3.5 h-3.5 me-2 rtl:rotate-180"
+            fill="none"
+            viewBox="0 0 14 10"
+          >
+            <path
+              d="M13 5H1m0 0 4 4M1 5l4-4"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+            />
           </svg>
-          Previous
+          Anterior
         </a>
+        {% else %}
+        <button
+          class="flex items-center justify-center px-3 h-8 me-3 text-sm font-medium text-gray-400 bg-gray-100 border border-gray-200 rounded-lg cursor-not-allowed"
+          disabled
+        >
+          <svg
+            class="w-3.5 h-3.5 me-2 rtl:rotate-180"
+            fill="none"
+            viewBox="0 0 14 10"
+          >
+            <path
+              d="M13 5H1m0 0 4 4M1 5l4-4"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+            />
+          </svg>
+          Anterior
+        </button>
+        {% endif %}
 
-        <span class="flex items-center text-gray-700 text-sm font-medium select-none">
+        <span
+          class="flex items-center text-gray-700 text-sm font-medium select-none me-3"
+        >
           Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
         </span>
 
-        <a href="{% if page_obj.has_next %}?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% else %}#{% endif %}"
-          class="flex items-center justify-center px-4 h-9 text-sm font-medium border rounded-lg
-          {% if not page_obj.has_next %}
-            text-gray-400 border-gray-300 cursor-not-allowed
-          {% else %}
-            text-gray-700 border-gray-300 hover:bg-gray-100 hover:text-gray-900
-          {% endif %}"
-          {% if not page_obj.has_next %}tabindex="-1" aria-disabled="true"{% endif %}>
-          Next
-          <svg class="w-4 h-4 ml-2 rtl:rotate-180" fill="none" viewBox="0 0 14 10">
-            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M1 5h12m0 0L9 1m4 4L9 9"/>
+        {% if page_obj.has_next %}
+        <a
+          href="?page={{ page_obj.next_page_number }}{% if name_query %}&name={{ name_query }}{% endif %}"
+          class="flex items-center justify-center px-3 h-8 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700"
+        >
+          Próxima
+          <svg
+            class="w-3.5 h-3.5 ms-2 rtl:rotate-180"
+            fill="none"
+            viewBox="0 0 14 10"
+          >
+            <path
+              d="M1 5h12m0 0L9 1m4 4L9 9"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+            />
           </svg>
         </a>
+        {% else %}
+        <button
+          class="flex items-center justify-center px-3 h-8 text-sm font-medium text-gray-400 bg-gray-100 border border-gray-200 rounded-lg cursor-not-allowed"
+          disabled
+        >
+          Próxima
+          <svg
+            class="w-3.5 h-3.5 ms-2 rtl:rotate-180"
+            fill="none"
+            viewBox="0 0 14 10"
+          >
+            <path
+              d="M1 5h12m0 0L9 1m4 4L9 9"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+            />
+          </svg>
+        </button>
+        {% endif %}
       </div>
+      {% endif %}
     </div>
   </div>
 </div>
