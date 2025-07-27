@@ -7,9 +7,11 @@ from django.urls import reverse
 from .models import MeteorologicalData
 from .services import saveTodayWeather
 from django.contrib import messages
+from django.utils.timezone import now
 from datetime import date
 from geolocations.models import Geolocation
 from logs.models import Log
+from .models import MeteorologicalData
 
 
 @login_required(login_url='/auth/login/')
@@ -74,18 +76,23 @@ def listForDate(request):
 
 @login_required(login_url='/auth/login/')
 def createForGeolocation(request, geolocationId):
-    if geolocationId:
-        response = saveTodayWeather(geolocationId)
+    if not geolocationId:
+        messages.error(request, "Geolocalização não selecionada!")
+        return redirect(f'{reverse("meteorologicaldata_list_geolocation")}?geolocation_id={geolocationId}')
+    
+    today = now().date()
+    already_exists = MeteorologicalData.objects.filter(geolocation_id=geolocationId, date=today).exists()
 
+    if already_exists:
+        messages.warning(request, "Os dados meteorológicos de hoje já existem para essa geolocalização.")
+    else:
+        response = saveTodayWeather(geolocationId)
         if response.get("success"):
             messages.success(request, response.get("message", "Dados meteorológicos de hoje gerados com sucesso!"))
         else:
             messages.error(request, response.get("message", "Ocorreu um erro ao gerar os dados meteorológicos!"))
-        
-        return redirect(f'{reverse("meteorologicaldata_list_geolocation")}?geolocation_id={geolocationId}')
-    else:
-        messages.error(request, "Geolocalização não selecionada!")
-        return redirect(f'{reverse("meteorologicaldata_list_geolocation")}?geolocation_id={geolocationId}')
+
+    return redirect(f'{reverse("meteorologicaldata_list_geolocation")}?geolocation_id={geolocationId}')
     
 @login_required(login_url='/auth/login/')
 def deleteForGeolocation(request, meteorologicalDataId):
