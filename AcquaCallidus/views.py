@@ -19,10 +19,12 @@ portugueseMonths = {
 
 @login_required(login_url='/auth/login/') 
 def home(request):
-    logs = Log.objects.order_by('-created_at')[:10]
+    logs = Log.objects.order_by('-created_at')  # exemplo de order_by decrescente pela data
+    hasUnread = logs.filter(viewed=False).exists()
+    logs = logs[:12]
     today = now()
 
-    form_culture_vegetable = CultureVegetableForm()
+    formCultureVegetable = CultureVegetableForm()
     irrigationCount = IrrigationVolume.objects.count()
     geolocationCount = Geolocation.objects.count()
     cultureCount = CultureVegetable.objects.count()
@@ -79,5 +81,6 @@ def home(request):
         'irrigation_count': irrigationCount,
         'geolocation_count': geolocationCount,
         'culture_count': cultureCount,
-        'form_culture_vegetable': form_culture_vegetable
+        'form_culture_vegetable': formCultureVegetable,
+        'has_unread': hasUnread
     })

@@ -16,7 +16,9 @@ from .models import MeteorologicalData
 
 @login_required(login_url='/auth/login/')
 def listForGeolocation(request):
-    logs = Log.objects.order_by('-created_at')[:10]
+    logs = Log.objects.order_by('-created_at')  # exemplo de order_by decrescente pela data
+    hasUnread = logs.filter(viewed=False).exists()
+    logs = logs[:12]
     geolocationList = Geolocation.objects.all()
     geolocationId = request.GET.get('geolocation_id', '')
     formCultureVegetable = CultureVegetableForm()
@@ -49,7 +51,9 @@ def listForGeolocation(request):
 
 @login_required(login_url='/auth/login/')
 def listForDate(request):
-    logs = Log.objects.order_by('-created_at')[:10]
+    logs = Log.objects.order_by('-created_at')  # exemplo de order_by decrescente pela data
+    hasUnread = logs.filter(viewed=False).exists()
+    logs = logs[:12]
     dateQuery = request.GET.get('date', '')
     formCultureVegetable = CultureVegetableForm()
 
@@ -71,7 +75,8 @@ def listForDate(request):
         'page_obj': pageObj,
         'date_query': dateQuery,
         'form_culture_vegetable': formCultureVegetable,
-        'today': date.today()
+        'today': date.today(),
+        'has_unread': hasUnread
     })
 
 @login_required(login_url='/auth/login/')

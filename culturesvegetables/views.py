@@ -12,7 +12,9 @@ from django.utils import timezone
 
 @login_required(login_url='/auth/login/') 
 def list(request):
-    logs = Log.objects.order_by('-created_at')[:10]
+    logs = Log.objects.order_by('-created_at')  # exemplo de order_by decrescente pela data
+    hasUnread = logs.filter(viewed=False).exists()
+    logs = logs[:12]
     name_query = request.GET.get('name', '')
     form_culture_vegetable = CultureVegetableForm()
 
@@ -30,7 +32,8 @@ def list(request):
         'logs': logs,
         'page_obj': page_obj,
         'name_query': name_query,
-        'form_culture_vegetable': form_culture_vegetable
+        'form_culture_vegetable': form_culture_vegetable,
+        'has_unread': hasUnread
     })
 
 @require_POST

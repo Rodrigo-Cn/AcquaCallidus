@@ -132,7 +132,9 @@ def createIrrigationVolume(request, geolocationId, cultureId):
 
 @login_required(login_url='/auth/login/')
 def listForCulture(request):
-    logs = Log.objects.order_by('-created_at')[:10]
+    logs = Log.objects.order_by('-created_at')  # exemplo de order_by decrescente pela data
+    hasUnread = logs.filter(viewed=False).exists()
+    logs = logs[:12]
     cultureVegetableList = CultureVegetable.objects.all()
     cultureId = request.GET.get('culture_id', '')
     formCultureVegetable = CultureVegetableForm()
@@ -161,12 +163,15 @@ def listForCulture(request):
         'culture_id': cultureId,  
         'form_culture_vegetable': formCultureVegetable,
         'today': date.today(),
-        'has_today_data': hasTodayData
+        'has_today_data': hasTodayData,
+        'has_unread': hasUnread
     })
 
 @login_required(login_url='/auth/login/')
 def listForDate(request):
-    logs = Log.objects.order_by('-created_at')[:10]
+    logs = Log.objects.order_by('-created_at')  # exemplo de order_by decrescente pela data
+    hasUnread = logs.filter(viewed=False).exists()
+    logs = logs[:12]
     dateQuery = request.GET.get('date', '')
     formCultureVegetable = CultureVegetableForm()
 
@@ -188,5 +193,6 @@ def listForDate(request):
         'page_obj': pageObj,
         'date_query': dateQuery,
         'form_culture_vegetable': formCultureVegetable,
-        'today': date.today()
+        'today': date.today(),
+        'has_unread': hasUnread
     })

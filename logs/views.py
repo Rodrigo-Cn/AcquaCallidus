@@ -12,8 +12,10 @@ from rest_framework import status
 
 @login_required(login_url='/auth/login/')
 def list(request):
-    logs = Log.objects.order_by('-created_at')[:10]
-    logs_page = Log.objects.order_by('-created_at')
+    logs = Log.objects.order_by('-created_at')  
+    logs_page = Log.objects.order_by('-created_at')# exemplo de order_by decrescente pela data
+    hasUnread = logs.filter(viewed=False).exists()
+    logs = logs[:12]
 
     form_culture_vegetable = CultureVegetableForm()
     date_query = request.GET.get('date', '')
@@ -34,6 +36,7 @@ def list(request):
         'user': request.user,
         'date_query': date_query,
         'form_culture_vegetable': form_culture_vegetable,
+        'has_unread': hasUnread
     })
 
 @api_view(['GET'])

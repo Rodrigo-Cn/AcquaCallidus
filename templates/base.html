@@ -16,6 +16,7 @@
     <script src="{% static 'js/base.js' %}"></script>
     <script src="{% static 'js/map.js' %}"></script>
     <script src="{% static 'js/loading.js' %}"></script>
+    <script src="{% static 'js/fetch.js' %}"></script>
     <script src="https://cdn.jsdelivr.net/gh/alpine-collective/alpine-magic-helpers@0.5.x/dist/component.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.7.3/dist/alpine.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
@@ -610,7 +611,8 @@
                 <!-- Notification button -->
                 <button
                   @click="openNotificationsPanel"
-                  class="p-2 transition-colors duration-200 rounded-full text-primary-lighter bg-primary-50 hover:text-primary hover:bg-primary-100 dark:hover:text-light dark:hover:bg-primary-dark dark:bg-dark focus:outline-none focus:bg-primary-100 dark:focus:bg-primary-dark focus:ring-primary-darker"
+                  class="relative p-2 transition-colors duration-200 rounded-full text-primary-lighter bg-primary-50 hover:text-primary hover:bg-primary-100 dark:hover:text-light dark:hover:bg-primary-dark dark:bg-dark focus:outline-none focus:bg-primary-100 dark:focus:bg-primary-dark focus:ring-primary-darker"
+                  id="openNotification"
                 >
                   <span class="sr-only">Open Notification panel</span>
                   <svg
@@ -628,6 +630,12 @@
                       d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
                     />
                   </svg>
+                  {% if has_unread %}
+                    <span
+                      id="notifyOn"
+                      class="absolute top-8 right-1 block h-2 w-2 rounded-full bg-red-600 ring-2 ring-white"
+                    ></span>
+                  {% endif %}
                 </button>
 
                 <!-- User avatar button -->
@@ -694,14 +702,14 @@
                 aria-label="Secondary"
               >
                 <div class="flex items-center gap-4 w-full justify-between">
-                  <!-- Botão de notificação -->
                   <button
+                    id="openNotification2" 
                     @click="openNotificationsPanel(); $nextTick(() => { isMobileSubMenuOpen = false })"
-                    class="p-2 transition-colors duration-200 rounded-full text-primary-lighter bg-primary-50 hover:text-primary hover:bg-primary-100 dark:hover:text-light dark:hover:bg-primary-dark dark:bg-dark focus:outline-none focus:bg-primary-100 dark:focus:bg-primary-dark focus:ring-primary-darker"
+                    class="relative p-2 transition-colors duration-200 rounded-full text-primary-lighter bg-primary-50 hover:text-primary hover:bg-primary-100 dark:hover:text-light dark:hover:bg-primary-dark dark:bg-dark focus:outline-none focus:bg-primary-100 dark:focus:bg-primary-dark focus:ring-primary-darker"
                   >
-                    <span class="sr-only">Open notifications panel</span>
+                    <span class="sr-only">Abrir notificações</span>
                     <svg
-                      class="w-7 h-7"
+                      class="w-7 h-7 text-gray-700"
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
                       viewBox="0 0 24 24"
@@ -715,9 +723,14 @@
                         d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
                       />
                     </svg>
+                    {% if has_unread %}
+                      <span
+                        id="notifyOn2"
+                        class="absolute top-8 right-1 block h-2 w-2 rounded-full bg-red-600 ring-2 ring-white"
+                      ></span>
+                    {% endif %}
                   </button>
 
-                  <!-- Botão do usuário/avatar -->
                   <div class="relative" x-data="{ open: false }">
                     <button
                       @click="open = !open"
