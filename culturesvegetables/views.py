@@ -1,5 +1,8 @@
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import SessionAuthentication
 from django.views.decorators.http import require_POST
 from django.core.paginator import Paginator
 from logs.models import Log
@@ -8,11 +11,13 @@ from .forms import CultureVegetableForm
 from django.contrib import messages
 from pytz import timezone as pytzTimezone
 from django.utils import timezone
+from rest_framework.response import Response
+from rest_framework import status 
 
 
 @login_required(login_url='/auth/login/') 
 def list(request):
-    logs = Log.objects.order_by('-created_at')  # exemplo de order_by decrescente pela data
+    logs = Log.objects.order_by('-created_at')
     hasUnread = logs.filter(viewed=False).exists()
     logs = logs[:12]
     name_query = request.GET.get('name', '')
@@ -57,3 +62,27 @@ def create(request):
         )
         messages.error(request, "Ocorreu um erro ao criar a cultura!")
         return redirect(request.META.get('HTTP_REFERER', 'culturevegetable_list'))
+    
+    
+@api_view(['GET'])
+@authentication_classes([SessionAuthentication])
+@permission_classes([IsAuthenticated])
+def edit(request, id):
+    try:
+        cultureVegetable = CultureVegetable.objects.get(id=id)
+        cultureVegetable.delete()
+        return Response({"message": "Cultura vegetal deletada com sucesso."}, status=status.HTTP_200_OK)
+    except CultureVegetable.DoesNotExist:
+        return Response({"message": "Cultura vegetal não encontrada."}, status=status.HTTP_404_NOT_FOUND)
+    
+@api_view(['DELETE'])
+@authentication_classes([SessionAuthentication])
+@permission_classes([IsAuthenticated])
+def delete(request, id):
+    try:
+        cultureVegetable = CultureVegetable.objects.get(id=id)
+        cultureVegetable.delete()
+        return Response({"message": "Cultura vegetal deletada com sucesso."}, status=status.HTTP_200_OK)
+    except CultureVegetable.DoesNotExist:
+        return Response({"message": "Cultura vegetal não encontrada."}, status=status.HTTP_404_NOT_FOUND)
+    
