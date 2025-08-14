@@ -7,7 +7,7 @@ from django.views.decorators.http import require_POST
 from django.core.paginator import Paginator
 from logs.models import Log
 from .models import CultureVegetable
-from .forms import CultureVegetableForm
+from .forms import CultureVegetableForm, CultureVegetableEditForm
 from django.contrib import messages
 from pytz import timezone as pytzTimezone
 from django.utils import timezone
@@ -23,6 +23,7 @@ def list(request):
     logs = logs[:12]
     name_query = request.GET.get('name', '')
     form_culture_vegetable = CultureVegetableForm()
+    form_edit_culture_vegetable = CultureVegetableEditForm()
 
     culturevegetables = CultureVegetable.objects.all().order_by('name')
 
@@ -39,6 +40,7 @@ def list(request):
         'page_obj': page_obj,
         'name_query': name_query,
         'form_culture_vegetable': form_culture_vegetable,
+        'form_edit_culture_vegetable': form_edit_culture_vegetable,
         'has_unread': hasUnread
     })
 
@@ -90,14 +92,18 @@ def delete(request, id):
 
 @login_required
 def update(request, id):
-    if request.method == "POST":
-        culture_vegetable = get_object_or_404(CultureVegetable, id=id)
-        form = CultureVegetableForm(request.POST, instance=culture_vegetable)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Cultura vegetal atualizada com sucesso.")
+    try:
+        if request.method == "POST":
+            culture_vegetable = get_object_or_404(CultureVegetable, id=id)
+            form = CultureVegetableForm(request.POST, instance=culture_vegetable)
+            if form.is_valid():
+                form.save()
+                messages.success(request, f"Cultura vegetal {culture_vegetable.name} atualizado(a) com sucesso.")
+            else:
+                messages.error(request, "Erro na atualização da cultura vegetal. Verifique os campos e tente novamente.")
         else:
-            messages.error(request, "Erro na atualização da cultura vegetal.")
-    else:
-        messages.error(request, "Método não permitido.")
+            messages.error(request, "Método não permitido.")
+    except Exception as e:
+        messages.error(request, "Ocorreu um erro ao atualizar a cultura vegetal")
+    
     return redirect('culturevegetable_list')
