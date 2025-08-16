@@ -101,3 +101,32 @@ def delete(request, id):
     else:
         messages.error(request, "Método não permitido.")
         return redirect('geolocation_list')
+
+@login_required
+def update(request, id):
+    try:
+        if request.method == "POST":
+            geolocation = get_object_or_404(Geolocation, id=id)
+
+            city = request.POST.get('city')
+            state = request.POST.get('state')
+            latitude = request.POST.get('latitude')
+            longitude = request.POST.get('longitude')
+
+            if not all([city, state, latitude, longitude]):
+                messages.error(request, "Todos os campos são obrigatórios.")
+                return redirect('geolocation_list')
+
+            geolocation.city = city
+            geolocation.state = state
+            geolocation.latitude = latitude
+            geolocation.longitude = longitude
+            geolocation.save()
+
+            messages.success(request, f"Geolocalização {geolocation.city} - {geolocation.state} atualizada com sucesso.")
+        else:
+            messages.error(request, "Método não permitido.")
+    except Exception as e:
+        messages.error(request, "Ocorreu um erro ao atualizar a geolocalização")
+    
+    return redirect('geolocation_list')

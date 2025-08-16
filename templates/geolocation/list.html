@@ -11,6 +11,7 @@
 <link href="{% static 'css/geolocation/style.css' %}" rel="stylesheet" />
 <script src="{% static 'js/geolocation/map.js' %}"></script>
 <script src="{% static 'js/geolocation/delete.js' %}"></script>
+<script src="{% static 'js/geolocation/edit.js' %}"></script>
 <script
   src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
   integrity="sha256-o9N1j8Mk3RY6hHVDiGZo7OqX+vHco90LkMjAz1N6zGk="
@@ -106,7 +107,7 @@
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-10xl mx-auto">
         {% for location in page_obj %}
         <div
-          class="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col md:flex-row"
+          class="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col md:flex-row mb-2"
         >
           <div
             id="map-{{ forloop.counter }}"
@@ -133,6 +134,7 @@
                 href="#"
                 title="Editar"
                 class="text-white bg-sky-500 hover:bg-sky-600 transition focus:outline-none focus:ring-4 focus:ring-sky-300 rounded-full p-2"
+                onclick="openEditModal({{ location.id }})"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -330,6 +332,64 @@
           Confirmar exclusão
         </button>
       </div>
+    </div>
+  </div>
+  <div id="modal-edit" class="hidden fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-xl">
+      <div class="flex justify-between items-center p-4 border-b">
+        <h2 class="text-lg font-semibold">Cadastrar Geolocalização</h2>
+        <button onclick="closeEditModal()" class="text-2xl font-bold text-gray-500 hover:text-red-500">&times;</button>
+      </div>
+
+      <form id="locationForm-edit" class="p-4 space-y-4" method="POST" onsubmit="handleSubmitEdit(event)">
+        {% csrf_token %}
+        <div>
+          <label for="city" class="block font-medium">Cidade</label>
+          <div class="relative">
+            <input placeholder="Guanambi..." type="text" id="city-edit" name="city" class="w-full border rounded p-2 pr-10" required autocomplete="off" />
+            <svg id="cityLoadingSpinner-edit" class="hidden animate-spin h-5 w-5 text-gray-500 absolute right-3 top-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+            </svg>
+          </div>
+        </div>
+
+        <div>
+          <label for="state" class="block font-medium">Estado</label>
+          <div class="relative">
+            <input placeholder="Bahia..." type="text" id="state-edit" name="state" class="w-full border rounded p-2 pr-10" required autocomplete="off" />
+            <svg id="stateLoadingSpinner-edit" class="hidden animate-spin h-5 w-5 text-gray-500 absolute right-3 top-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+            </svg>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-medium mb-1">Selecione no Mapa</label>
+          <div id="map-edit" class="w-full border rounded" style="height: 250px;"></div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label for="latitude" class="block font-medium">Latitude</label>
+            <input type="text" id="latitude-edit" name="latitude" class="w-full border rounded p-2 bg-gray-100" readonly />
+          </div>
+          <div>
+            <label for="longitude" class="block font-medium">Longitude</label>
+            <input type="text" id="longitude-edit" name="longitude" class="w-full border rounded p-2 bg-gray-100" readonly />
+          </div>
+        </div>
+
+        <button id="submitBtn-edit" type="submit"
+          class="w-full bg-sky-500 text-white rounded-lg py-2 hover:bg-sky-600 transition flex justify-center items-center gap-2">
+          <svg id="submitLoadingSpinner-edit" class="hidden animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+          </svg>
+          <span id="btnText-edit">Salvar Geolocalização</span>
+        </button>
+      </form>
     </div>
   </div>
 </div>
