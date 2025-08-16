@@ -86,7 +86,7 @@ def edit(request, id):
     serializer = GeolocationSerializer(geolocation)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
-@login_required
+@login_required(login_url='/auth/login/')
 def delete(request, id):
     if request.method == "POST":
         try:
@@ -102,7 +102,7 @@ def delete(request, id):
         messages.error(request, "Método não permitido.")
         return redirect('geolocation_list')
 
-@login_required
+@login_required(login_url='/auth/login/')
 def update(request, id):
     try:
         if request.method == "POST":

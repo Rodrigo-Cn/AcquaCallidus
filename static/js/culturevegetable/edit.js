@@ -1,6 +1,7 @@
 let editCultureModal;
 
 document.addEventListener("DOMContentLoaded", () => {
+
   editCultureModal = new Modal(document.getElementById('edit-culture-modal'));
   
   document.querySelector('[data-modal-hide="edit-culture-modal"]').addEventListener("click", () => {
@@ -9,6 +10,10 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function openEditCultureModal(id) {
+  const urlParams = new URLSearchParams(window.location.search);
+  const nameQuery = urlParams.get('name') || '';
+  const pageNumber = urlParams.get('page') || 1;
+
   fetch(`/culturesvegetables/${id}/`)
     .then(response => {
       if (!response.ok) throw new Error("Erro ao carregar dados.");
@@ -16,7 +21,13 @@ function openEditCultureModal(id) {
     })
     .then(data => {
       const form = document.getElementById("edit-culture-form");
-      form.action = `/culturesvegetables/${id}/update/`;
+
+      const queryParams = [];
+      if (nameQuery) queryParams.push(`name_page=${encodeURIComponent(nameQuery)}`);
+      if (pageNumber) queryParams.push(`page=${encodeURIComponent(pageNumber)}`);
+      let actionUrl = `/culturesvegetables/${id}/update/`;
+      if (queryParams.length > 0) actionUrl += `?${queryParams.join('&')}`;
+      form.action = actionUrl;
 
       document.querySelector("#name_edit").value = data.name || "";
       document.querySelector("#phase_initial_kc_edit").value = data.phase_initial_kc || "";

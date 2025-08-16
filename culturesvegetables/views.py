@@ -14,35 +14,38 @@ from django.utils import timezone
 from rest_framework.response import Response
 from rest_framework import status 
 from .serializers import CultureVegetableSerializer
+from django.urls import reverse
 
-
-@login_required(login_url='/auth/login/') 
+@login_required(login_url='/auth/login/')
 def list(request):
     logs = Log.objects.order_by('-created_at')
     hasUnread = logs.filter(viewed=False).exists()
     logs = logs[:12]
-    name_query = request.GET.get('name', '')
-    form_culture_vegetable = CultureVegetableForm()
-    form_edit_culture_vegetable = CultureVegetableEditForm()
 
-    culturevegetables = CultureVegetable.objects.all().order_by('name')
+    nameQuery = request.GET.get('name', '')
+    pageNumber = request.GET.get('page')
 
-    if name_query:
-        culturevegetables = culturevegetables.filter(name__icontains=name_query)
+    formCultureVegetable = CultureVegetableForm()
+    formEditCultureVegetable = CultureVegetableEditForm()
 
-    paginator = Paginator(culturevegetables, 12)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    cultureVegetables = CultureVegetable.objects.all().order_by('name')
+    if nameQuery:
+        cultureVegetables = cultureVegetables.filter(name__icontains=nameQuery)
 
-    return render(request, 'culturevegetable/list.html', context={
+    paginator = Paginator(cultureVegetables, 12)
+    pageObj = paginator.get_page(pageNumber)
+
+    context = {
         'user': request.user,
         'logs': logs,
-        'page_obj': page_obj,
-        'name_query': name_query,
-        'form_culture_vegetable': form_culture_vegetable,
-        'form_edit_culture_vegetable': form_edit_culture_vegetable,
+        'page_obj': pageObj,
+        'name_query': nameQuery,
+        'form_culture_vegetable': formCultureVegetable,
+        'form_edit_culture_vegetable': formEditCultureVegetable,
         'has_unread': hasUnread
-    })
+    }
+
+    return render(request, 'culturevegetable/list.html', context)
 
 @require_POST
 @login_required(login_url='/auth/login/')
@@ -70,40 +73,54 @@ def store(request):
 @authentication_classes([SessionAuthentication])
 @permission_classes([IsAuthenticated])
 def edit(request, id):
-    culture_vegetable = get_object_or_404(CultureVegetable, id=id)
-    serializer = CultureVegetableSerializer(culture_vegetable)
+    cultureVegetable = get_object_or_404(CultureVegetable, id=id)
+    serializer = CultureVegetableSerializer(cultureVegetable)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
-@login_required
+@login_required(login_url='/auth/login/')
 def delete(request, id):
+    nameQuery = request.GET.get('name_page', '')
+    pageNumber = request.GET.get('page')
+
     if request.method == "POST":
         try:
-            culture_vegetable = CultureVegetable.objects.get(id=id)
-            culture_vegetable.delete()
+            cultureVegetable = CultureVegetable.objects.get(id=id)
+            cultureVegetable.delete()
             messages.success(request, "Cultura vegetal deletada com sucesso.")
         except CultureVegetable.DoesNotExist:
             messages.error(request, "Cultura vegetal não encontrada.")
-        except Exception as e:
+        except Exception:
             messages.error(request, "Erro ao deletar cultura vegetal")
-        return redirect('culturevegetable_list')
     else:
         messages.error(request, "Método não permitido.")
-        return redirect('culturevegetable_list')
 
-@login_required
+    if pageNumber and nameQuery :
+        return redirect(f"{reverse('culturevegetable_list')}?name={nameQuery}&page={pageNumber}")   
+    elif pageNumber:
+        return redirect(f"{reverse('culturevegetable_list')}?page={pageNumber}")
+    return redirect('culturevegetable_list')
+
+@login_required(login_url='/auth/login/')
 def update(request, id):
+    nameQuery = request.GET.get('name_page', '')
+    pageNumber = request.GET.get('page')
+
     try:
         if request.method == "POST":
-            culture_vegetable = get_object_or_404(CultureVegetable, id=id)
-            form = CultureVegetableForm(request.POST, instance=culture_vegetable)
+            cultureVegetable = get_object_or_404(CultureVegetable, id=id)
+            form = CultureVegetableForm(request.POST, instance=cultureVegetable)
             if form.is_valid():
                 form.save()
-                messages.success(request, f"Cultura vegetal {culture_vegetable.name} atualizado(a) com sucesso.")
+                messages.success(request, f"Cultura vegetal {cultureVegetable.name} atualizado(a) com sucesso.")
             else:
                 messages.error(request, "Erro na atualização da cultura vegetal. Verifique os campos e tente novamente.")
         else:
             messages.error(request, "Método não permitido.")
-    except Exception as e:
+    except Exception:
         messages.error(request, "Ocorreu um erro ao atualizar a cultura vegetal")
-    
+
+    if pageNumber and nameQuery :
+        return redirect(f"{reverse('culturevegetable_list')}?name={nameQuery}&page={pageNumber}")   
+    elif pageNumber:
+        return redirect(f"{reverse('culturevegetable_list')}?page={pageNumber}")
     return redirect('culturevegetable_list')
