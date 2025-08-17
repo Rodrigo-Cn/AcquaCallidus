@@ -10,7 +10,16 @@ function openEditModal(id) {
   modal.classList.remove("hidden");
   modal.classList.add("flex");
 
-  formEdit.action = `/geolocations/${id}/update/`;
+  const urlParams = new URLSearchParams(window.location.search);
+  const nameQuery = urlParams.get("name");
+  const pageNumber = urlParams.get('page') || 1;
+
+  let actionUrl = `/geolocations/${id}/update/`;
+  const queryParams = [];
+  if (nameQuery) queryParams.push(`name_page=${encodeURIComponent(nameQuery)}`);
+  if (pageNumber) queryParams.push(`page=${encodeURIComponent(pageNumber)}`);
+  if (queryParams.length > 0) actionUrl += `?${queryParams.join('&')}`;
+  formEdit.action = actionUrl;
 
   fetch(`/geolocations/${id}/`)
     .then(response => {

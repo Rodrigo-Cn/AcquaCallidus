@@ -105,80 +105,104 @@
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-10xl mx-auto">
-        {% for location in page_obj %}
-        <div
-          class="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col md:flex-row mb-2"
-        >
-          <div
-            id="map-{{ forloop.counter }}"
-            class="map-instance h-48 md:h-auto md:w-1/2"
-            data-lat="{{ location.latitude }}"
-            data-lon="{{ location.longitude }}"
-          ></div>
+        {% if page_obj %}
+          {% for location in page_obj %}
+            <div
+              class="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col md:flex-row mb-2"
+            >
+              <div
+                id="map-{{ forloop.counter }}"
+                class="map-instance h-48 md:h-auto md:w-1/2"
+                data-lat="{{ location.latitude }}"
+                data-lon="{{ location.longitude }}"
+              ></div>
 
-          <div
-            class="flex flex-col justify-center items-center text-center p-6 md:w-1/2"
-          >
-            <h3 class="text-2xl font-semibold text-gray-800 mb-2">
-              {{ location.city }}, {{ location.state }}
-            </h3>
-            <p class="text-gray-600 text-sm mb-1">
-              <strong>Latitude:</strong> {{ location.latitude }}
-            </p>
-            <p class="text-gray-600 text-sm mb-4">
-              <strong>Longitude:</strong> {{ location.longitude }}
-            </p>
+              <div
+                class="flex flex-col justify-center items-center text-center p-6 md:w-1/2"
+              >
+                <h3 class="text-2xl font-semibold text-gray-800 mb-2">
+                  {{ location.city }}, {{ location.state }}
+                </h3>
+                <p class="text-gray-600 text-sm mb-1">
+                  <strong>Latitude:</strong> {{ location.latitude }}
+                </p>
+                <p class="text-gray-600 text-sm mb-4">
+                  <strong>Longitude:</strong> {{ location.longitude }}
+                </p>
 
-            <div class="flex space-x-6">
-              <button
-                href="#"
-                title="Editar"
-                class="text-white bg-sky-500 hover:bg-sky-600 transition focus:outline-none focus:ring-4 focus:ring-sky-300 rounded-full p-2"
-                onclick="openEditModal({{ location.id }})"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-7 w-7"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M11 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5M16.5 7.5l-9 9"
-                  />
-                </svg>
-              </button>
-              <button
-                title="Deletar"
-                class="text-white bg-red-500 hover:bg-red-600 transition focus:outline-none focus:ring-4 focus:ring-red-300 rounded-full p-2"
-                onclick="openDeleteGeolocationModal({{ location.id }})"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-7 w-7"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
+                <div class="flex space-x-6">
+                  <button
+                    href="#"
+                    title="Editar"
+                    class="text-white bg-sky-500 hover:bg-sky-600 transition focus:outline-none focus:ring-4 focus:ring-sky-300 rounded-full p-2"
+                    onclick="openEditModal({{ location.id }})"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="h-7 w-7"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M11 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5M16.5 7.5l-9 9"
+                      />
+                    </svg>
+                  </button>
+                  <button
+                    title="Deletar"
+                    class="text-white bg-red-500 hover:bg-red-600 transition focus:outline-none focus:ring-4 focus:ring-red-300 rounded-full p-2"
+                    onclick="openDeleteGeolocationModal({{ location.id }})"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="h-7 w-7"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </div>
             </div>
+          {% endfor %}
+        {% else %}
+          <div
+            class="flex flex-col items-center justify-center py-16 px-4 text-center w-full h-full col-span-full"
+          >
+            <svg
+              class="w-16 h-16 text-gray-400 mb-4"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"
+              ></path>
+            </svg>
+            <h3 class="text-lg font-semibold text-gray-700">
+              Nenhum registro encontrado
+            </h3>
+            <p class="mt-2 text-sm text-gray-500">
+              Tente ajustar a busca ou adicionar novos registros para visualizá-lo aqui.
+            </p>
           </div>
-        </div>
-        {% empty %}
-        <p class="text-gray-700 text-center">
-          Nenhuma geolocalização encontrada.
-        </p>
-        {% endfor %}
+        {% endif %}
       </div>
 
       {% if page_obj.has_next or page_obj.has_previous %}

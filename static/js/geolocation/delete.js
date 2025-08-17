@@ -54,9 +54,19 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById("confirmDeleteGeolocationBtn").addEventListener("click", () => {
     if (!GeolocationIdToDelete) return;
 
+    const urlParams = new URLSearchParams(window.location.search);
+    const nameQuery = urlParams.get("name");
+    const pageNumber = urlParams.get('page') || 1;
+
+    let actionUrl = `/geolocations/${GeolocationIdToDelete}/delete/`;
+    const queryParams = [];
+    if (nameQuery) queryParams.push(`name_page=${encodeURIComponent(nameQuery)}`);
+    if (pageNumber) queryParams.push(`page=${encodeURIComponent(pageNumber)}`);
+    if (queryParams.length > 0) actionUrl += `?${queryParams.join('&')}`;
+
     const form = document.createElement('form');
     form.method = 'POST';
-    form.action = `/geolocations/${GeolocationIdToDelete}/delete/`;
+    form.action = actionUrl;
 
     const csrfToken = getCookie('csrftoken');
     const csrfInput = document.createElement('input');
