@@ -11,6 +11,7 @@ class CultureVegetableForm(forms.ModelForm):
             'phase_flowering_kc',
             'phase_fruiting_kc',
             'phase_maturation_kc',
+            'radiusM2',
         ]
         labels = {
             'name': 'Nome',
@@ -19,6 +20,7 @@ class CultureVegetableForm(forms.ModelForm):
             'phase_flowering_kc': 'KC Florescimento',
             'phase_fruiting_kc': 'KC Frutificação',
             'phase_maturation_kc': 'KC Maturação',
+            'radiusM2': 'Raio de Irrigação (m²)'
         }
         widgets = {
             'name': forms.TextInput(attrs={
@@ -62,6 +64,13 @@ class CultureVegetableForm(forms.ModelForm):
                 'required': True,
                 'class': 'bg-white border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5'
             }),
+            'radiusM2': forms.NumberInput(attrs={
+                'id': 'radiusM2',
+                'placeholder': 'Ex: 0.90',
+                'step': '0.00001',
+                'required': True,
+                'class': 'bg-white border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5'
+            }),
         }
 
 class CultureVegetableEditForm(forms.ModelForm):
@@ -74,6 +83,7 @@ class CultureVegetableEditForm(forms.ModelForm):
             'phase_flowering_kc',
             'phase_fruiting_kc',
             'phase_maturation_kc',
+            'radiusM2',
         ]
         labels = {
             'name': 'Nome',
@@ -82,6 +92,7 @@ class CultureVegetableEditForm(forms.ModelForm):
             'phase_flowering_kc': 'KC Florescimento',
             'phase_fruiting_kc': 'KC Frutificação',
             'phase_maturation_kc': 'KC Maturação',
+            'radiusM2': 'Raio de Irrigação (m²)'
         }
         widgets = {
             'name': forms.TextInput(attrs={
@@ -121,6 +132,13 @@ class CultureVegetableEditForm(forms.ModelForm):
             'phase_maturation_kc': forms.NumberInput(attrs={
                 'id': 'phase_maturation_kc_edit',
                 'placeholder': 'Ex: 0.90000',
+                'step': '0.00001',
+                'required': True,
+                'class': 'bg-white border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 mb-2'
+            }),
+            'radiusM2': forms.NumberInput(attrs={
+                'id': 'radiusM2_edit',
+                'placeholder': 'Ex: 0.90',
                 'step': '0.00001',
                 'required': True,
                 'class': 'bg-white border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 mb-4'

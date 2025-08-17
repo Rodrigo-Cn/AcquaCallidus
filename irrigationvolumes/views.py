@@ -41,7 +41,6 @@ class IrrigationVolumeAPI(APIView):
                 return Response(calculateEtoResult, status=status.HTTP_400_BAD_REQUEST)
 
             eto = calculateEtoResult["dataEto"]
-            rootAreaM2 = 1
 
             try:
                 cultureVegetable = CultureVegetable.objects.get(pk=cultureId)
@@ -56,13 +55,13 @@ class IrrigationVolumeAPI(APIView):
             meteorologicalData = MeteorologicalData.objects.get(date=today, geolocation_id=geolocationId)
 
             irrigationVolume = IrrigationVolume.objects.create(
-                phase_initial=eto * cultureVegetable.phase_initial_kc * rootAreaM2,
-                phase_vegetative=eto * cultureVegetable.phase_vegetative_kc * rootAreaM2,
-                phase_flowering=eto * cultureVegetable.phase_flowering_kc * rootAreaM2,
-                phase_fruiting=eto * cultureVegetable.phase_fruiting_kc * rootAreaM2,
-                phase_maturation=eto * cultureVegetable.phase_maturation_kc * rootAreaM2,
-                culturevegetable=cultureVegetable,
-                meteorologicaldata=meteorologicalData,
+                phase_initial = eto * cultureVegetable.phase_initial_kc * cultureVegetable.radiusM2,
+                phase_vegetative = eto * cultureVegetable.phase_vegetative_kc * cultureVegetable.radiusM2,
+                phase_flowering = eto * cultureVegetable.phase_flowering_kc * cultureVegetable.radiusM2,
+                phase_fruiting = eto * cultureVegetable.phase_fruiting_kc * cultureVegetable.radiusM2,
+                phase_maturation = eto * cultureVegetable.phase_maturation_kc * cultureVegetable.radiusM2,
+                culturevegetable = cultureVegetable,
+                meteorologicaldata = meteorologicalData,
                 date=date.today(),
             )
 
@@ -169,7 +168,7 @@ def listForCulture(request):
 
 @login_required(login_url='/auth/login/')
 def listForDate(request):
-    logs = Log.objects.order_by('-created_at')  # exemplo de order_by decrescente pela data
+    logs = Log.objects.order_by('-created_at')
     hasUnread = logs.filter(viewed=False).exists()
     logs = logs[:12]
     dateQuery = request.GET.get('date', '')
