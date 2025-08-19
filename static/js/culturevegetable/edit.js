@@ -21,6 +21,7 @@ function openEditCultureModal(id) {
     })
     .then(data => {
       const form = document.getElementById("edit-culture-form");
+      const defaultEmoji = "🌱";
 
       const queryParams = [];
       if (nameQuery) queryParams.push(`name_page=${encodeURIComponent(nameQuery)}`);
@@ -36,11 +37,11 @@ function openEditCultureModal(id) {
       document.querySelector("#phase_fruiting_kc_edit").value = data.phase_fruiting_kc || "";
       document.querySelector("#phase_maturation_kc_edit").value = data.phase_maturation_kc || "";
       document.querySelector("#radiusM2_edit").value = data.radiusM2 || "";
+      document.querySelector("#emoji_edit").value = data.emoji || defaultEmoji;
       
       editCultureModal.show();
     })
     .catch(error => {
-      console.error(error);
       alert("Erro ao carregar cultura vegetal para edição.");
     });
 }

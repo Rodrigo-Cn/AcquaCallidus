@@ -1,8 +1,20 @@
 from django.db import models
-from django.core.validators import MinValueValidator
+from django.core.validators import RegexValidator, MinValueValidator
+
+emoji_validator = RegexValidator(
+    regex=r'^[\U0001F300-\U0001FAFF]$',
+    message="Coloque apenas 1 emoji válido."
+)
 
 class CultureVegetable(models.Model):
     name = models.CharField(max_length=255)
+    emoji = models.CharField(
+        max_length=2,
+        validators=[emoji_validator],
+        help_text="Escolha um emoji para representar a cultura.",
+        blank=True,
+        null=True
+    )
     phase_initial_kc = models.FloatField(validators=[MinValueValidator(0.0)])
     phase_vegetative_kc = models.FloatField(validators=[MinValueValidator(0.0)])
     phase_flowering_kc = models.FloatField(validators=[MinValueValidator(0.0)])
@@ -11,4 +23,4 @@ class CultureVegetable(models.Model):
     radiusM2 = models.FloatField(validators=[MinValueValidator(0.0)])
 
     def __str__(self):
-        return self.name
+        return f"{self.emoji} {self.name}"

@@ -150,7 +150,12 @@
                   <td class="px-5 py-4 border-b border-gray-200 text-sm text-gray-900">
                     {{ culturevegetable.id }}
                   </td>
-                  <td class="px-5 py-4 border-b border-gray-200 text-sm text-gray-900">
+                  <td class="px-5 py-4 border-b border-gray-200 text-sm text-gray-900">    
+                    {% if culturevegetable.emoji %}
+                      {{ culturevegetable.emoji }}
+                    {% else %}
+                      🌾
+                    {% endif %}
                     {{ culturevegetable.name }}
                   </td>
                   <td class="px-5 py-4 border-b border-gray-200 text-sm">
