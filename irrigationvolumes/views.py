@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.contrib import messages
@@ -7,6 +7,7 @@ from rest_framework import status
 from .models import IrrigationVolume
 from geolocations.models import Geolocation
 from logs.models import Log
+from .models import IrrigationVolume
 from culturesvegetables.models import CultureVegetable
 from meteorologicaldatas.models import MeteorologicalData
 from .serializers import IrrigationVolumeSerializer
@@ -126,12 +127,12 @@ def createIrrigationVolume(request, geolocationId, cultureId):
         date=today,
     )
 
-    messages.success(request, "Volume de irrigação gerado com sucesso!")
+    messages.success(request, "Volumes de irrigação gerados com sucesso!")
     return redirect(f'{reverse("irrigationvolume_list_cultures")}?culture_id={cultureId}')
 
 @login_required(login_url='/auth/login/')
 def listForCulture(request):
-    logs = Log.objects.order_by('-created_at')  # exemplo de order_by decrescente pela data
+    logs = Log.objects.order_by('-created_at')
     hasUnread = logs.filter(viewed=False).exists()
     logs = logs[:12]
     cultureVegetableList = CultureVegetable.objects.all()
@@ -195,3 +196,24 @@ def listForDate(request):
         'today': date.today(),
         'has_unread': hasUnread
     })
+
+def delete(request, irrigationVolumeId):
+    try:
+        culture_id = request.GET.get('culture_id', '')
+        page_number = request.GET.get('page', '')
+
+        irrigation_volume = get_object_or_404(IrrigationVolume, id=irrigationVolumeId)
+        culture_name = irrigation_volume.culturevegetable.name
+        city_name = f"{irrigation_volume.geolocation} - {irrigation_volume.state}"
+
+        irrigation_volume.delete()
+        
+        messages.success(
+            request,
+            f"Volumes de irrigação de hoje para {culture_name} em {city_name} deletados com sucesso!"
+        )
+    except Exception as e:
+        messages.error(request, "Ocorreu um erro ao deletar os volumes de irrigação.")
+
+    return redirect(f'{reverse("irrigationvolume_list_cultures")}?culture_id={culture_id}&page={page_number}')
+

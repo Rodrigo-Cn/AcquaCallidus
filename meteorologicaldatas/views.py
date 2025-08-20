@@ -16,7 +16,7 @@ from .models import MeteorologicalData
 
 @login_required(login_url='/auth/login/')
 def listForGeolocation(request):
-    logs = Log.objects.order_by('-created_at')  # exemplo de order_by decrescente pela data
+    logs = Log.objects.order_by('-created_at')
     hasUnread = logs.filter(viewed=False).exists()
     logs = logs[:12]
     geolocationList = Geolocation.objects.all()
@@ -51,7 +51,7 @@ def listForGeolocation(request):
 
 @login_required(login_url='/auth/login/')
 def listForDate(request):
-    logs = Log.objects.order_by('-created_at')  # exemplo de order_by decrescente pela data
+    logs = Log.objects.order_by('-created_at') 
     hasUnread = logs.filter(viewed=False).exists()
     logs = logs[:12]
     dateQuery = request.GET.get('date', '')
