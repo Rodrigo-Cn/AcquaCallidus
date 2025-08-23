@@ -63,7 +63,13 @@
                   </p>
                   <p class="text-sm text-gray-500 italic mt-1">Estágios de Desenvolvimento</p>
                 </div>
-                <div class="text-5xl text-emerald-500">🌾</div>
+                <div class="text-5xl text-emerald-500">
+                  {% if irrigationvolume.culturevegetable.emoji %}
+                    {{ irrigationvolume.culturevegetable.emoji }}
+                  {% else %}
+                    🌾
+                  {% endif %}
+                </div>
               </div>
 
               <div class="grid gap-3 text-sm text-gray-800">

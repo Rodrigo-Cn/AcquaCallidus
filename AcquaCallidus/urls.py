@@ -9,6 +9,7 @@ urlpatterns = [
     path('irrigationvolumes/', include('irrigationvolumes.urls')),
     path('culturesvegetables/', include('culturesvegetables.urls')),
     path('meteorologicaldatas/', include('meteorologicaldatas.urls')),
+    path('controllers/', include('controllers.urls')),
     path('geolocations/', include('geolocations.urls')),
     path('logs/', include('logs.urls')),
 ]

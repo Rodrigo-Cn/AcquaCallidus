@@ -24,19 +24,8 @@ class Controller(models.Model):
     ]
 
     name = models.CharField(max_length=60)
-    device = models.CharField(max_length=60)
-    
-    battery_percentage = models.PositiveSmallIntegerField(
-        validators=[MinValueValidator(0), MaxValueValidator(100)],
-        null=True,
-        blank=True
-    )
 
-    microcontrolador_code = models.TextField(
-        null=True,
-        blank=True,
-        help_text="Código exclusivo de integração com o microcontrolador"
-    )
+    device = models.CharField(max_length=60)
 
     security_code = models.CharField(
         max_length=32,
@@ -46,25 +35,6 @@ class Controller(models.Model):
     )
 
     ip_address = models.GenericIPAddressField(null=True, blank=True)
-
-    valves = models.PositiveIntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(8)],
-        help_text="Quantidade de válvulas operando"
-    )
-
-    valve_operating = models.PositiveSmallIntegerField(
-        null=True, blank=True,
-        validators=[MinValueValidator(1), MaxValueValidator(8)],
-        help_text="Número da válvula que está operando (1 a 8)"
-    )
-
-    plants_per_valve = models.PositiveIntegerField(
-        help_text="Quantidade de plantas/vegetais irrigados por válvula"
-    )
-
-    irrigation_radius = models.FloatField(
-        help_text="Raio de cobertura da irrigação em metros"
-    )
 
     phase_vegetable = models.PositiveSmallIntegerField(
         choices=PHASE_CHOICES_VEGETABLE,
@@ -150,3 +120,26 @@ class IrrigationController(models.Model):
 
     def __str__(self):
         return f"Irrigação em {self.date} {self.time} - {self.controller.name}"
+
+class ValveController(models.Model):
+    plants_number = models.PositiveIntegerField(
+        help_text="Quantidade de plantas/vegetais irrigados por válvula"
+    )
+
+    irrigation_radius = models.FloatField(
+        help_text="Raio de cobertura da irrigação em metros"
+    )
+    
+    controller = models.ForeignKey(
+        Controller,
+        on_delete=models.CASCADE,
+        related_name='valves'
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        help_text="Data e hora de criação da válvula"
+    )
+
+    def __str__(self):
+        return f"Válvula - {self.plants_number} plantas | {self.controller.name} | {self.created_at.strftime('%d/%m/%Y %H:%M')}"

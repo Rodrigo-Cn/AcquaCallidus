@@ -1,0 +1,138 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ESP32 Dashboard</title>
+  <link href="{% static 'css/style.css' %}" rel="stylesheet" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+  <div class="flex justify-center mt-10">
+    <div class="w-[90%] md:w-4/5 grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+
+      <div class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-6 relative flex flex-col border border-gray-100">
+
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center space-x-3">
+            <div class="p-2 bg-blue-100 rounded-xl">
+              <i data-lucide="cpu" class="w-6 h-6 text-sky-600"></i>
+            </div>
+            <div>
+              <h2 class="text-lg font-bold text-gray-800">ESP32 - Sensor 02</h2>
+              <p class="text-xs text-gray-500">Dispositivo: ESP32-WROOM</p>
+            </div>
+          </div>
+          <span class="text-[11px] font-bold px-3 py-1 rounded-full text-white bg-gray-400 shadow">
+            Offline
+          </span>
+        </div>
+        <div class="absolute top-16 right-4 flex flex-col items-center gap-2">
+          <button onclick="toggleSecret()" class="text-sky-500 hover:text-sky-800 transition p-2 rounded-xl hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-300">
+            <i id="eye-icon" data-lucide="eye" class="w-4 h-4"></i>
+          </button>
+          <button onclick="openDeviceCode()" class="text-sky-500 hover:text-sky-800 transition p-2 rounded-xl hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-300">
+            <i id="code-icon" data-lucide="code-xml" class="w-4 h-4"></i>
+          </button>
+          <button class="text-sky-500 hover:text-sky-800 transition p-2 rounded-xl hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-300">
+            <i data-lucide="droplet" class="w-4 h-4"></i>
+          </button>
+          <button class="text-sky-500 hover:text-sky-800 transition p-2 rounded-xl hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-300">
+            <i data-lucide="edit" class="w-4 h-4"></i>
+          </button>
+          <button class="text-red-600 transition p-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-300">
+            <i data-lucide="trash-2" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <div class="space-y-3 text-gray-700 text-sm">
+          <div class="flex items-center">
+            <i data-lucide="lock" class="w-5 h-5 mr-2 text-gray-500"></i>
+            <p><strong>Código Secreto:</strong> <span id="secret-code">*****</span></p>
+          </div>
+
+          <div class="flex items-center">
+            <i data-lucide="wifi" class="w-5 h-5 mr-2 text-gray-500"></i>
+            <p><strong>IP:</strong> 192.168.0.20</p>
+          </div>
+
+          <div class="flex items-center">
+            <i data-lucide="map-pin" class="w-5 h-5 mr-2 text-gray-500"></i>
+            <p><strong>Localização:</strong> São Paulo - SP</p>
+          </div>
+
+          <div class="flex items-center">
+            <i data-lucide="leaf" class="w-5 h-5 mr-2 text-green-500"></i>
+            <p><strong>Cultura:</strong> Tomate (Crescimento Vegetativo)</p>
+          </div>
+
+          <div class="flex items-center">
+            <i data-lucide="circle-dot" class="w-5 h-5 mr-2 text-gray-500"></i>
+            <p><strong>Área de Irrigação:</strong> 120 m²</p>
+          </div>
+
+          <div class="flex items-center">
+            <i data-lucide="clock" class="w-5 h-5 mr-2 text-gray-500"></i>
+            <p><strong>Última Irrigação:</strong> 20/08/2025 - 14:32</p>
+          </div>
+        </div>
+
+        <div class="mt-6">
+          <h3 class="text-sm font-semibold text-gray-700 mb-3">Válvulas</h3>
+          <div class="grid grid-cols-3 gap-3">
+            <button type="button" data-valve="1" onclick="handleValveClick(1)"
+              class="flex flex-col items-center bg-green-50 rounded-xl p-3 shadow-sm hover:shadow-lg transition-transform transform hover:scale-105 w-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-300">
+              <i data-lucide="droplet" class="w-6 h-6 text-green-600"></i>
+              <p class="text-xs mt-1 font-semibold text-green-700">Válvula 1</p>
+              <span class="text-[11px] text-green-600">Ativa</span>
+              <span class="text-[10px] text-gray-500 mt-1">Plantas: 30</span>
+            </button>
+
+            <button type="button" data-valve="2" onclick="handleValveClick(2)"
+              class="flex flex-col items-center bg-green-50 rounded-xl p-3 shadow-sm hover:shadow-lg transition-transform transform hover:scale-105 w-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-300">
+              <i data-lucide="droplet" class="w-6 h-6 text-green-600"></i>
+              <p class="text-xs mt-1 font-semibold text-green-700">Válvula 2</p>
+              <span class="text-[11px] text-green-600">Ativa</span>
+              <span class="text-[10px] text-gray-500 mt-1">Plantas: 25</span>
+            </button>
+
+            <button type="button" data-valve="3" onclick="handleValveClick(3)"
+              class="flex flex-col items-center bg-red-50 rounded-xl p-3 shadow-sm hover:shadow-lg transition-transform transform hover:scale-105 w-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-300">
+              <i data-lucide="droplet" class="w-6 h-6 text-red-600"></i>
+              <p class="text-xs mt-1 font-semibold text-red-700">Válvula 3</p>
+              <span class="text-[11px] text-red-600">Inativa</span>
+              <span class="text-[10px] text-gray-500 mt-1">Plantas: 40</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    lucide.createIcons();
+
+    function toggleSecret() {
+      const secret = document.getElementById("secret-code");
+      const eyeIcon = document.getElementById("eye-icon");
+      if (secret.innerText === "*****") {
+        secret.innerText = "AB12CD34"; 
+        eyeIcon.setAttribute("data-lucide", "eye-off");
+      } else {
+        secret.innerText = "*****";
+        eyeIcon.setAttribute("data-lucide", "eye");
+      }
+      lucide.createIcons();
+    }
+
+    function openDeviceCode() {
+      console.log("Abrir código do dispositivo (placeholder).");
+    }
+
+    function handleValveClick(valveNumber) {
+      console.log("Válvula clicada:", valveNumber);
+    }
+  </script>
+</body>
+</html>
