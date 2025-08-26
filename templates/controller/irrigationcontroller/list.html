@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Irrigações por Controlador{% endblock %}
+
+{% block content %}
+<div class="antialiased font-sans min-h-[800px] bg-gray-200">
+  <div class="container mx-auto py-4 px-4 sm:px-6 lg:px-8">
+    <div class="py-8">
+
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
+        <h2 class="text-lg sm:text-xl md:text-2xl font-bold leading-snug text-gray-800 break-words w-full sm:w-auto">
+          Irrigações da <span class="text-sky-700">Válvula (tal)</span> do
+          <span class="text-sky-700">Controlador (tal)</span>
+        </h2>
+
+        <div class="w-full sm:w-auto flex justify-start sm:justify-end">
+          <a
+            href="javascript:history.back()"
+            class="inline-flex items-center gap-2 px-3 sm:px-4 py-2 text-sm sm:text-base font-medium 
+                   text-white bg-sky-500 border border-sky-500 rounded-xl shadow-sm 
+                   hover:bg-sky-800 hover:border-sky-600 focus:outline-none 
+                   focus:ring-2 focus:ring-offset-2 focus:ring-sky-300 transition w-full sm:w-auto justify-center"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+              stroke-width="2" stroke="currentColor" class="w-4 h-4 sm:w-5 sm:h-5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+            </svg>
+            Voltar
+          </a>
+        </div>
+      </div>
+
+      <div class="my-6 flex flex-col sm:flex-row sm:items-center sm:justify-start gap-2">
+        <form class="flex w-full max-w-md" method="GET" action="{% url 'irrigationvolume_list_date' %}">
+          <label for="search-date" class="sr-only">Selecionar Data</label>
+          <div class="relative flex-grow">
+            <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+              <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2"
+                   viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M8 7V3m8 4V3m-9 8h10m-10 4h6m5 7H5a2 2 0 01-2-2V7a2 2 0 012-2h14a2 2 0 012 2v13a2 2 0 01-2 2z"/>
+              </svg>
+            </div>
+            <input
+              type="date"
+              id="search-date"
+              name="date"
+              class="bg-white border border-gray-300 text-gray-700 text-sm rounded-lg focus:ring-sky-500 focus:border-sky-500 block w-full ps-10 p-2.5 placeholder-gray-400"
+              value="{{ date_query }}"
+            />
+          </div>
+          <button
+            type="submit"
+            class="p-2.5 ms-2 text-sm font-medium text-white bg-sky-500 rounded-full border border-sky-500 hover:bg-sky-600 focus:ring-4 focus:outline-none focus:ring-sky-300 transition"
+          >
+            <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                 fill="none" viewBox="0 0 20 20">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+            </svg>
+            <span class="sr-only">Search</span>
+          </button>
+        </form>
+      </div>
+
+      <div class="overflow-x-auto rounded-lg shadow bg-white">
+        <table class="w-full min-w-[600px] text-sm text-left">
+          <thead>
+            <tr class="bg-gray-100">
+              <th class="px-4 py-3 border-b text-gray-600 font-semibold uppercase tracking-wider">ID</th>
+              <th class="px-4 py-3 border-b text-gray-600 font-semibold uppercase tracking-wider">Data e Hora</th>
+              <th class="px-4 py-3 border-b text-gray-600 font-semibold uppercase tracking-wider">Litros Totais</th>
+              <th class="px-4 py-3 border-b text-gray-600 font-semibold uppercase tracking-wider">Plantas por Válvula</th>
+              <th class="px-4 py-3 border-b text-gray-600 font-semibold uppercase tracking-wider">Raio (m²)</th>
+              <th class="px-4 py-3 border-b text-gray-600 font-semibold uppercase tracking-wider">Fase Vegetal</th>
+              <th class="px-4 py-3 border-b text-gray-600 font-semibold uppercase tracking-wider">Cultura</th>
+              <th class="px-4 py-3 border-b text-gray-600 font-semibold uppercase tracking-wider">Localização</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td colspan="7" class="px-4 py-6 text-center text-gray-500">
+                Nenhuma irrigação registrada até o momento
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

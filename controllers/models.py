@@ -74,6 +74,7 @@ class IrrigationController(models.Model):
     ]
 
     date = models.DateField(auto_now_add=True)
+    
     time = models.TimeField(auto_now_add=True)
 
     total_liters = models.FloatField(
