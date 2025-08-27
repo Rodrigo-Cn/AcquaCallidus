@@ -9,7 +9,17 @@ def list(request):
 
 @login_required(login_url='/auth/login/')
 def create(request):
-    return render(request, 'controller/list.html')
+    logs = Log.objects.order_by('-created_at')
+    hasUnread = logs.filter(viewed=False).exists()
+    logs = logs[:12]
+    formCulturevegetable = CultureVegetableForm()
+
+    return render(request, 'controller/create.html', context={
+        'user': request.user,
+        'logs': logs,
+        'form_culture_vegetable': formCulturevegetable,
+        'has_unread': hasUnread
+    })
 
 @login_required(login_url='/auth/login/')
 def irrigationsControllersList(request, id):
