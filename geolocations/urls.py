@@ -7,4 +7,5 @@ urlpatterns = [
     path('<int:id>/delete/', views.delete, name='delete_geolocation'),
     path('<int:id>/', views.edit, name='get_geolocation'),
     path('<int:id>/update/', views.update, name='update_geolocation'), 
+    path('<int:id>/favorite/', views.favorite, name='favorite_geolocation'), 
 ]

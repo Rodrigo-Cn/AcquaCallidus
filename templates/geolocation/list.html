@@ -12,6 +12,7 @@
 <script src="{% static 'js/geolocation/map.js' %}"></script>
 <script src="{% static 'js/geolocation/delete.js' %}"></script>
 <script src="{% static 'js/geolocation/edit.js' %}"></script>
+<script src="{% static 'js/geolocation/favorite.js' %}"></script>
 <script
   src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
   integrity="sha256-o9N1j8Mk3RY6hHVDiGZo7OqX+vHco90LkMjAz1N6zGk="
@@ -108,8 +109,29 @@
         {% if page_obj %}
           {% for location in page_obj %}
             <div
-              class="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col md:flex-row mb-2"
+              class="relative bg-white rounded-xl shadow-lg overflow-hidden flex flex-col md:flex-row mb-2"
             >
+              <button
+                class="absolute top-2 right-2 p-2 rounded-full transition focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                onclick="toggleFavorite({{ location.id }})"
+                id="star-{{ location.id }}"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-6 w-6"
+                  fill="{% if location.favorite %}gold{% else %}none{% endif %}"
+                  viewBox="0 0 24 24"
+                  stroke="gold"
+                  stroke-width="2"
+                >
+                  <path
+                    d="M12 .587l3.668 7.431 8.2 1.193-5.934 5.785 
+                      1.402 8.168L12 18.896 4.664 23.164 
+                      6.066 15.0.132 9.211l8.2-1.193z"
+                  />
+                </svg>
+              </button>
+
               <div
                 id="map-{{ forloop.counter }}"
                 class="map-instance h-48 md:h-auto md:w-1/2"
@@ -132,7 +154,6 @@
 
                 <div class="flex space-x-6">
                   <button
-                    href="#"
                     title="Editar"
                     class="text-white bg-sky-500 hover:bg-sky-600 transition focus:outline-none focus:ring-4 focus:ring-sky-300 rounded-full p-2"
                     onclick="openEditModal({{ location.id }})"
