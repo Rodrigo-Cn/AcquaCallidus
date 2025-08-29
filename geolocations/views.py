@@ -152,10 +152,9 @@ def update(request, id):
 @authentication_classes([SessionAuthentication])
 @permission_classes([IsAuthenticated])
 def favorite(request, id):
-    # Desfavorita todos
     Geolocation.objects.filter(favorite=True).update(favorite=False)
     geolocation = get_object_or_404(Geolocation, id=id)
     geolocation.favorite = True
     geolocation.save()
 
-    return Response(status=204)  # No content
+    return Response(status=204)

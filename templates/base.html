@@ -296,7 +296,7 @@
                     href="pages/404.html"
                     role="menuitem"
                     class="block p-2 text-sm text-gray-400 transition-colors duration-200 rounded-md dark:text-gray-400 dark:hover:text-light hover:text-gray-700"
-                    onclick="openModal()"
+                    onclick="openModalGeolocation()"
                   >
                     Cadastrar Geolocalização
                 </button>
@@ -970,7 +970,7 @@
                       href="pages/404.html"
                       role="menuitem"
                       class="block p-2 text-sm text-gray-400 transition-colors duration-200 rounded-md dark:text-gray-400 dark:hover:text-light hover:text-gray-700"
-                      onclick="openModal()"
+                      onclick="openModalGeolocation"
                     >
                       Cadastrar Geolocalização
                   </button>
@@ -1210,7 +1210,7 @@
             <div class="bg-white rounded-lg shadow-lg w-full max-w-xl">
               <div class="flex justify-between items-center p-4 border-b">
                 <h2 class="text-lg font-semibold">Cadastrar Geolocalização</h2>
-                <button onclick="closeModal()" class="text-2xl font-bold text-gray-500 hover:text-red-500">&times;</button>
+                <button onclick=" closeModalGeolocation()" class="text-2xl font-bold text-gray-500 hover:text-red-500">&times;</button>
               </div>
 
               <form id="locationForm" class="p-4 space-y-4" method="POST" action="{% url 'create_geolocation' %}" onsubmit="handleSubmit(event)">

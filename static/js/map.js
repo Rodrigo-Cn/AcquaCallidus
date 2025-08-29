@@ -2,7 +2,7 @@ let mapInitialized = false;
 let marker;
 let map;
 
-function openModal() {
+function openModalGeolocation() {
   const modal = document.getElementById("modal");
   modal.classList.remove("hidden");
   modal.classList.add("flex");
@@ -31,7 +31,7 @@ function openModal() {
   }, 200);
 }
 
-function closeModal() {
+function closeModalGeolocation() {
   const modal = document.getElementById("modal");
   modal.classList.remove("flex");
   modal.classList.add("hidden");
