@@ -36,7 +36,7 @@ def uploadProfileImage(request):
 
             messages.success(request, "Foto de perfil salva com sucesso!")
 
-        except Exception:
+        except Exception as e:
             messages.error(request, "Erro ao salvar foto de perfil")
 
     elif request.method == "POST":
@@ -44,3 +44,29 @@ def uploadProfileImage(request):
 
     nextUrl = request.META.get("HTTP_REFERER", "/")
     return redirect(nextUrl)
+
+@login_required
+def updateUser(request):
+    if request.method == "POST":
+        try:
+            username = request.POST.get("username")
+            email = request.POST.get("email")
+
+            user = request.user
+
+            if username:
+                user.username = username
+            if email:
+                user.email = email
+
+            user.save()
+
+            messages.success(request, "Perfil atualizado com sucesso!")
+
+        except Exception as e:
+            messages.error(request, "Ocorreu um erro ao atualizar perfil")
+
+        return redirect(request.META.get("HTTP_REFERER", "/"))
+
+    messages.error(request, "Método não permitido.")
+    return redirect(request.META.get("HTTP_REFERER", "/"))

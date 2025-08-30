@@ -18,6 +18,7 @@
     <script src="{% static 'js/loading.js' %}"></script>
     <script src="{% static 'js/fetch.js' %}"></script>
     <script src="{% static 'js/profile.js' %}"></script>
+    <script src="{% static 'js/image.js' %}"></script>
     <script src="https://cdn.jsdelivr.net/gh/alpine-collective/alpine-magic-helpers@0.5.x/dist/component.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.7.3/dist/alpine.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
@@ -1354,26 +1355,14 @@
                       <span id="fileName" class="text-xs text-gray-500"></span>
                     </div>
                   </form>
-
-                  <script>
-                    const input = document.getElementById("profile_photo");
-                    const fileName = document.getElementById("fileName");
-
-                    input.addEventListener("change", () => {
-                      if (input.files.length > 0) {
-                        fileName.textContent = input.files[0].name;
-                      } else {
-                        fileName.textContent = "";
-                      }
-                    });
-                  </script>
                 </div>
 
                 <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">
                   Meu Perfil
                 </h2>
 
-                <form action="/profile/update" method="POST" class="space-y-5 text-left">
+                <form action="{% url 'update_user' %}" method="POST" class="space-y-5 text-left">
+                  {% csrf_token %}
                   <div>
                     <label for="username" class="block text-sm font-semibold text-gray-500">Nome</label>
                     <input
