@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login as auth_login
+from django.contrib.auth import authenticate, login as auth_login, update_session_auth_hash
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from .models import UserImage
@@ -65,6 +65,42 @@ def updateUser(request):
 
         except Exception as e:
             messages.error(request, "Ocorreu um erro ao atualizar perfil")
+
+        return redirect(request.META.get("HTTP_REFERER", "/"))
+
+    messages.error(request, "Método não permitido.")
+    return redirect(request.META.get("HTTP_REFERER", "/"))
+
+
+@login_required
+def changePassword(request):
+    if request.method == "POST":
+        currentPassword = request.POST.get("current_password")
+        newPassword = request.POST.get("new_password")
+        confirmPassword = request.POST.get("confirm_password")
+        user = request.user
+
+        if not user.check_password(currentPassword):
+            messages.error(request, "A senha atual está incorreta.")
+            return redirect(request.META.get("HTTP_REFERER", "/"))
+
+        if newPassword != confirmPassword:
+            messages.error(request, "A senha e a confirmação não coincidem.")
+            return redirect(request.META.get("HTTP_REFERER", "/"))
+
+        if not newPassword:
+            messages.error(request, "A nova senha não pode ser vazia.")
+            return redirect(request.META.get("HTTP_REFERER", "/"))
+
+        try:
+            user.set_password(newPassword)
+            user.save()
+
+            update_session_auth_hash(request, user)
+
+            messages.success(request, "Senha atualizada com sucesso!")
+        except Exception as e:
+            messages.error(request, "Ocorreu um erro ao atualizar a senha.")
 
         return redirect(request.META.get("HTTP_REFERER", "/"))
 

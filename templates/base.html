@@ -1449,9 +1449,9 @@
             class="fixed inset-0 z-[9999] bg-black bg-opacity-50 hidden"
             onclick="closePasswordModal()"
           >
-            <div class="flex items-center justify-center min-h-screen px-4">
+            <div class="flex items-center justify-center min-h-screen px-1">
               <div
-                class="bg-white w-full max-w-sm p-6 rounded-2xl shadow-2xl relative z-[9999]"
+                class="bg-white w-full max-w-sm p-4 rounded-2xl shadow-2xl relative z-[9999]"
                 onclick="event.stopPropagation()"
               >
                 <div class="flex items-center justify-center gap-2 mb-5">
@@ -1477,7 +1477,8 @@
                   <h3 class="text-xl font-bold text-gray-800">Alterar Senha</h3>
                 </div>
 
-                <form action="/profile/password" method="POST" class="space-y-4" novalidate>
+                <form action="{% url 'change_password' %}" method="POST" class="space-y-4">
+                  {% csrf_token %}
                   <div>
                     <label class="block text-sm font-semibold text-gray-500">Senha Atual</label>
                     <input type="password" name="current_password" placeholder="****************" required class="w-full mt-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-sky-400 focus:outline-none" />
