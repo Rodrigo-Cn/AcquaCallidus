@@ -4,183 +4,303 @@
 
 {% block content %}
 <div class="antialiased font-sans min-h-[800px] bg-gray-100">
-  <div class="container mx-auto py-10 px-4 sm:px-6 lg:px-8">
 
-    <div class="bg-white shadow-xl rounded-2xl p-8 w-full max-w-full mx-auto">
+  <button id="abrirPopupControlador" 
+    class="px-4 py-2 bg-sky-600 text-white rounded-lg shadow hover:bg-sky-700 transition">
+    Novo Controlador
+  </button>
 
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 gap-4">
-        <h2 class="text-2xl font-bold text-gray-800">
-          Cadastro de Controlador de Irrigação
-        </h2>
-        <a
-          href="javascript:history.back()"
-          class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-medium 
-                 text-white bg-sky-600 rounded-xl shadow-md 
-                 hover:bg-sky-700 focus:outline-none 
-                 focus:ring-2 focus:ring-offset-2 focus:ring-sky-300 transition"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-            stroke-width="2" stroke="currentColor" class="w-5 h-5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
-          </svg>
-          Voltar
-        </a>
+  <button onclick="editController(2)" 
+  class="px-3 py-2 bg-yellow-500 text-white rounded">Editar</button>
+
+  <div id="popupControlador" class="fixed inset-0 hidden z-50 overflow-y-auto">
+    <div class="flex items-center justify-center min-h-screen p-4">
+
+      <div id="fecharFundoControlador" class="fixed inset-0 bg-black bg-opacity-50"></div>
+
+      <div class="relative bg-white shadow-2xl rounded-2xl w-full max-w-4xl mx-auto p-6 overflow-y-auto max-h-[95vh]">
+
+        <div class="flex justify-between items-center border-b pb-4 mb-6">
+          <h2 class="text-xl font-bold text-gray-800">Cadastro de Controlador</h2>
+          <button id="fecharPopupControlador" class="text-gray-500 hover:text-gray-800 text-2xl font-bold">&times;</button>
+        </div>
+
+        <form method="POST" action="/controllers/store/" class="space-y-6">
+          {% csrf_token %}
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div>
+              <label for="nomeControlador" class="block text-sm font-semibold text-gray-700 mb-1">Nome</label>
+              <input type="text" id="nomeControlador" name="name" placeholder="Ex: Controlador Principal" required
+                class="w-full rounded-lg border-gray-300 shadow-sm focus:border-sky-500 focus:ring focus:ring-sky-200 p-3"/>
+            </div>
+
+            <div>
+              <label for="dispositivoControlador" class="block text-sm font-semibold text-gray-700 mb-1">Dispositivo</label>
+              <input type="text" id="dispositivoControlador" name="device" placeholder="Ex: ESP32" required
+                class="w-full rounded-lg border-gray-300 shadow-sm focus:border-sky-500 focus:ring focus:ring-sky-200 p-3"/>
+            </div>
+
+            <div>
+              <label for="ipControlador" class="block text-sm font-semibold text-gray-700 mb-1">Endereço IP</label>
+              <input type="text" id="ipControlador" name="ip_address" placeholder="Ex: 192.168.0.10" required
+                class="w-full rounded-lg border-gray-300 shadow-sm focus:border-sky-500 focus:ring focus:ring-sky-200 p-3"/>
+            </div>
+
+            <div>
+              <label for="faseControlador" class="block text-sm font-semibold text-gray-700 mb-1">Fase do Cultivo</label>
+              <select id="faseControlador" name="phase_vegetable" required
+                class="w-full rounded-lg border-gray-300 shadow-sm focus:border-sky-500 focus:ring focus:ring-sky-200 p-3">
+                <option value="" disabled selected>Selecione</option>
+                <option value="1">🌱 Inicial</option>
+                <option value="2">🌿 Vegetativa</option>
+                <option value="3">🌸 Floração</option>
+                <option value="4">🍒 Frutificação</option>
+                <option value="5">🍂 Maturação</option>
+              </select>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <input type="checkbox" id="statusControlador" name="active" checked
+                class="w-5 h-5 text-sky-600 border-gray-300 rounded focus:ring-sky-500"/>
+              <label for="statusControlador" class="text-sm font-semibold text-gray-700">Ativo</label>
+            </div>
+
+            <div>
+              <label for="irrigacaoControlador" class="block text-sm font-semibold text-gray-700 mb-1">Última Irrigação</label>
+              <input type="date" id="irrigacaoControlador" name="last_irrigation" required
+                class="w-full rounded-lg border-gray-300 shadow-sm focus:border-sky-500 focus:ring focus:ring-sky-200 p-3"/>
+            </div>
+
+            <div>
+              <label for="culturaControlador" class="block text-sm font-semibold text-gray-700 mb-1">Cultura</label>
+              <select id="culturaControlador" name="culturevegetable" required class="select2-popup" data-placeholder="Selecione uma cultura">
+                <option></option>
+                {% for culture_vegetable in cultures_vegetables %}
+                  <option value="{{ culture_vegetable.id }}">{{ culture_vegetable.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div>
+              <label for="geoControlador" class="block text-sm font-semibold text-gray-700 mb-1">Geolocalização</label>
+              <select id="geoControlador" name="geolocation" required class="select2-popup" data-placeholder="Selecione uma geolocalização">
+                <option></option>
+                {% for geolocation in geolocations %}
+                  <option value="{{ geolocation.id }}">{{ geolocation.city }} - {{ geolocation.state }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Válvulas</label>
+            <div id="popup-valve-container" class="space-y-3"></div>
+            <button type="button" id="popup-add-valve" 
+              class="mt-3 flex items-center justify-center w-10 h-10 bg-sky-600 text-white rounded-full hover:bg-sky-700 transition">
+              +
+            </button>
+            <p class="text-xs text-gray-500 mt-1">Máximo de 3 válvulas por controlador</p>
+          </div>
+
+          <div class="flex justify-end pt-4">
+            <button type="submit"
+              class="w-full sm:w-auto px-6 py-3 text-white text-base font-medium bg-sky-600 rounded-xl shadow-md 
+                     hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-300 transition">
+              Salvar
+            </button>
+          </div>
+        </form>
       </div>
-
-      <form method="POST" action="" class="space-y-6">
-        {% csrf_token %}
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <div>
-            <label for="name" class="block text-sm font-semibold text-gray-700 mb-1">Nome</label>
-            <input type="text" id="name" name="name" value="Controlador Principal"
-              class="w-full rounded-lg border-gray-300 shadow-sm focus:border-sky-500 focus:ring focus:ring-sky-200 p-3"/>
-          </div>
-
-          <div>
-            <label for="device" class="block text-sm font-semibold text-gray-700 mb-1">Dispositivo</label>
-            <input type="text" id="device" name="device" value="ESP32-ABC123"
-              class="w-full rounded-lg border-gray-300 shadow-sm focus:border-sky-500 focus:ring focus:ring-sky-200 p-3"/>
-          </div>
-
-          <div>
-            <label for="ip_address" class="block text-sm font-semibold text-gray-700 mb-1">Endereço IP</label>
-            <input type="text" id="ip_address" name="ip_address" value="192.168.0.10"
-              class="w-full rounded-lg border-gray-300 shadow-sm focus:border-sky-500 focus:ring focus:ring-sky-200 p-3"/>
-          </div>
-
-          <div>
-            <label for="phase_vegetable" class="block text-sm font-semibold text-gray-700 mb-1">Fase do Cultivo</label>
-            <select id="phase_vegetable" name="phase_vegetable"
-              class="w-full rounded-lg border-gray-300 shadow-sm focus:border-sky-500 focus:ring focus:ring-sky-200 p-3">
-              <option value="1" selected>Inicial</option>
-              <option value="2">Vegetativa</option>
-              <option value="3">Floração</option>
-              <option value="4">Frutificação</option>
-              <option value="5">Maturação</option>
-            </select>
-          </div>
-
-          <div class="flex items-center gap-3">
-            <input type="checkbox" id="status" name="status" checked
-              class="w-5 h-5 text-sky-600 border-gray-300 rounded focus:ring-sky-500"/>
-            <label for="status" class="text-sm font-semibold text-gray-700">Ativo</label>
-          </div>
-
-          <div>
-            <label for="last_irrigation" class="block text-sm font-semibold text-gray-700 mb-1">Última Irrigação</label>
-            <input type="date" id="last_irrigation" name="last_irrigation"
-              class="w-full rounded-lg border-gray-300 shadow-sm focus:border-sky-500 focus:ring focus:ring-sky-200 p-3"/>
-          </div>
-
-          <div>
-            <label for="culturevegetable" class="block text-sm font-semibold text-gray-700 mb-1">Cultura</label>
-            <select id="culturevegetable" name="culturevegetable"
-              class="w-full rounded-lg border-gray-300 shadow-sm focus:border-sky-500 focus:ring focus:ring-sky-200 p-3">
-              <option value="">-- Selecione --</option>
-              <option value="1" selected>Tomate</option>
-              <option value="2">Alface</option>
-              <option value="3">Cenoura</option>
-              <option value="4">Pimentão</option>
-            </select>
-          </div>
-
-          <div>
-            <label for="geolocation" class="block text-sm font-semibold text-gray-700 mb-1">Geolocalização</label>
-            <select id="geolocation" name="geolocation"
-              class="w-full rounded-lg border-gray-300 shadow-sm focus:border-sky-500 focus:ring focus:ring-sky-200 p-3">
-              <option value="">-- Selecione --</option>
-              <option value="1" selected>Estufa Norte</option>
-              <option value="2">Estufa Sul</option>
-              <option value="3">Campo Aberto</option>
-              <option value="4">Hidroponia</option>
-            </select>
-          </div>
-        </div>
-
-        <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-2">Válvulas</label>
-          <div id="valve-container" class="space-y-3"></div>
-          <button type="button" id="add-valve" 
-            class="mt-3 flex items-center justify-center w-10 h-10 bg-sky-600 text-white rounded-full hover:bg-sky-700 transition">
-            +
-          </button>
-          <p class="text-xs text-gray-500 mt-1">Máximo de 3 válvulas por controlador</p>
-        </div>
-
-        <div class="flex justify-end pt-4">
-          <button type="submit"
-            class="w-full sm:w-auto px-6 py-3 text-white text-base font-medium bg-sky-600 rounded-xl shadow-md 
-                   hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-300 transition">
-             Salvar
-          </button>
-        </div>
-      </form>
     </div>
   </div>
-</div>
+
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+  <style>
+    .select2-container--default .select2-selection--single {
+      height: 3rem !important;
+      padding-left: 0.75rem !important; 
+      padding-right: 2.5rem !important; 
+      border-radius: 0.5rem !important;
+      border: 1px solid #d1d5db !important;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+      display: flex;
+      align-items: center;
+      font-size: 0.875rem;
+      line-height: 1.25rem;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+      padding-left: 0 !important;
+      color: #374151;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__placeholder {
+      color: #9ca3af !important;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+      top: 50% !important;
+      right: 0.75rem !important;
+      transform: translateY(-50%) !important;
+      position: absolute !important;
+    }
+    .select2-dropdown {
+      border-radius: 0.5rem !important;
+      border: 1px solid #d1d5db !important;
+      padding: 0.25rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+  </style>
 
 <script>
-  const valveContainer = document.getElementById("valve-container");
-  const addValveBtn = document.getElementById("add-valve");
-  let valveCount = 0;
-  const maxValves = 3;
+  $(function() {
+    const popup = $("#popupControlador");
+    const valveContainer = document.getElementById("popup-valve-container");
+    const addValveBtn = document.getElementById("popup-add-valve");
+    let valveCount = 0;
+    const maxValves = 3;
+    let isEditMode = false;
+    function resetForm() {
+      isEditMode = false;
+      $("form").attr("action", "/controllers/store/");
+      $("#nomeControlador").val("");
+      $("#dispositivoControlador").val("");
+      $("#ipControlador").val("");
+      $("#faseControlador").val("");
+      $("#statusControlador").prop("checked", true);
+      $("#irrigacaoControlador").val(new Date().toISOString().split("T")[0]);
+      $("#culturaControlador").val(null).trigger("change");
+      $("#geoControlador").val(null).trigger("change");
 
-  const irrigationInput = document.getElementById("last_irrigation");
-  const today = new Date().toISOString().split("T")[0];
-  irrigationInput.value = today;
+      valveContainer.innerHTML = "";
+      valveCount = 0;
+      createValveField();
 
-  function toggleAddButton() {
-    addValveBtn.style.display = valveCount >= maxValves ? "none" : "flex";
-  }
+      addValveBtn.style.display = "flex";
+    }
 
-  function updateDeleteButtons() {
-    const allValves = valveContainer.querySelectorAll(".valve-field");
-    allValves.forEach(v => {
-      const btn = v.querySelector(".remove-valve");
-      if (btn) btn.remove();
+    $("#abrirPopupControlador").on("click", () => {
+      resetForm();              
+      popup.removeClass("hidden"); 
     });
-    if (allValves.length > 1) {
-      allValves.forEach(v => {
-        const deleteBtn = document.createElement("button");
-        deleteBtn.type = "button";
-        deleteBtn.className = "remove-valve bg-red-500 text-white w-10 h-10 rounded-full hover:bg-red-600 flex items-center justify-center";
-        deleteBtn.innerHTML = "×";
-        v.appendChild(deleteBtn);
 
-        deleteBtn.addEventListener("click", () => {
-          v.remove();
-          valveCount--;
-          toggleAddButton();
-          updateDeleteButtons();
-        });
+    $("#fecharPopupControlador, #fecharFundoControlador").on("click", () => {
+      popup.addClass("hidden");
+      resetForm();
+    });
+
+    function initSelect2(selector) {
+      $(selector).select2({
+        placeholder: $(selector).data("placeholder"),
+        allowClear: true,
+        width: '100%'
+      }).on('select2:open', function() {
+        document.querySelector('.select2-search__field')
+          .setAttribute('placeholder', 'Buscar...');
       });
     }
-  }
+    initSelect2('#culturaControlador');
+    initSelect2('#geoControlador');
 
-  function createValveField() {
-    valveCount++;
-    const div = document.createElement("div");
-    div.className = "valve-field flex flex-col sm:flex-row gap-2";
+    function toggleAddButton() {
+      if (isEditMode) {
+        addValveBtn.style.display = "none";
+      } else {
+        addValveBtn.style.display = valveCount >= maxValves ? "none" : "flex";
+      }
+    }
 
-    div.innerHTML = `
-      <input type="number" name="valves[${valveCount}][plants]" placeholder="Qtd. Plantas" 
-        class="w-full sm:w-1/2 rounded-lg border-gray-300 shadow-sm focus:border-sky-500 focus:ring focus:ring-sky-200 p-3"/>
-      <input type="number" step="0.1" name="valves[${valveCount}][radius]" placeholder="Raio de Irrigação (m)" 
-        class="w-full sm:w-1/2 rounded-lg border-gray-300 shadow-sm focus:border-sky-500 focus:ring focus:ring-sky-200 p-3"/>
-    `;
+    function updateDeleteButtons() {
+      const allValves = valveContainer.querySelectorAll(".valve-field");
 
-    valveContainer.appendChild(div);
-    toggleAddButton();
-    updateDeleteButtons();
-  }
+      if (isEditMode) {
+        allValves.forEach(v => {
+          const btn = v.querySelector(".remove-valve");
+          if (btn) btn.remove();
+        });
+        return;
+      }
 
-  addValveBtn.addEventListener("click", () => {
-    if (valveCount < maxValves) {
-      createValveField();
+      allValves.forEach(v => {
+        const btn = v.querySelector(".remove-valve");
+        if (btn) btn.remove();
+      });
+      if (allValves.length > 1) {
+        allValves.forEach(v => {
+          const deleteBtn = document.createElement("button");
+          deleteBtn.type = "button";
+          deleteBtn.className = "remove-valve bg-red-500 text-white w-10 h-10 rounded-full hover:bg-red-600 flex items-center justify-center";
+          deleteBtn.innerHTML = "×";
+          v.appendChild(deleteBtn);
+
+          deleteBtn.addEventListener("click", () => {
+            v.remove();
+            valveCount--;
+            toggleAddButton();
+            updateDeleteButtons();
+          });
+        });
+      }
+    }
+
+    function createValveField(valve = null) {
+      valveCount++;
+      const div = document.createElement("div");
+      div.className = "valve-field flex flex-col sm:flex-row gap-2";
+
+      div.innerHTML = `
+        <input type="hidden" name="valves[${valveCount}][id]" value="${valve?.id || ''}"/>
+        <input type="number" name="valves[${valveCount}][plants]" placeholder="Qtd. Plantas" value="${valve?.plants_number || ''}" required
+          class="w-full sm:w-1/2 rounded-lg border-gray-300 shadow-sm focus:border-sky-500 focus:ring focus:ring-sky-200 p-3"/>
+        <input type="number" step="0.1" name="valves[${valveCount}][radius]" placeholder="Raio de Irrigação (m²)" value="${valve?.irrigation_radius || ''}" required
+          class="w-full sm:w-1/2 rounded-lg border-gray-300 shadow-sm focus:border-sky-500 focus:ring focus:ring-sky-200 p-3"/>
+      `;
+
+      valveContainer.appendChild(div);
+      toggleAddButton();
+      updateDeleteButtons();
+    }
+
+    addValveBtn.addEventListener("click", () => {
+      if (!isEditMode && valveCount < maxValves) {
+        createValveField();
+      }
+    });
+
+    resetForm();
+
+    window.editController = function(id) {
+      isEditMode = true;
+      fetch(`/controllers/${id}`)
+        .then(res => res.json())
+        .then(data => {
+          $("#nomeControlador").val(data.name);
+          $("#dispositivoControlador").val(data.device);
+          $("#ipControlador").val(data.ip_address);
+          $("#faseControlador").val(data.phase_vegetable);
+          $("#statusControlador").prop("checked", data.active);
+          $("#irrigacaoControlador").val(data.last_irrigation || new Date().toISOString().split("T")[0]);
+          $("#culturaControlador").val(data.culturevegetable).trigger("change");
+          $("#geoControlador").val(data.geolocation).trigger("change");
+
+          $("form").attr("action", `/controllers/update/${id}`);
+
+          valveContainer.innerHTML = "";
+          valveCount = 0;
+
+          if (data.valves && data.valves.length) {
+            data.valves.forEach(v => createValveField(v));
+          } else {
+            createValveField();
+          }
+
+          addValveBtn.style.display = "none";
+          updateDeleteButtons();
+          popup.removeClass("hidden");
+        });
     }
   });
-
-  createValveField();
 </script>
+</div>
 {% endblock %}

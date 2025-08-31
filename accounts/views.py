@@ -21,7 +21,7 @@ def login(request):
             messages.error(request, 'Usuário ou senha inválidos.')
             return render(request, 'authentication/login.html')
 
-@login_required
+@login_required(login_url='/auth/login/')
 def uploadProfileImage(request):
     if request.method == "POST" and "image" in request.FILES:
         try:
@@ -45,7 +45,7 @@ def uploadProfileImage(request):
     nextUrl = request.META.get("HTTP_REFERER", "/")
     return redirect(nextUrl)
 
-@login_required
+@login_required(login_url='/auth/login/')
 def updateUser(request):
     if request.method == "POST":
         try:
@@ -71,8 +71,7 @@ def updateUser(request):
     messages.error(request, "Método não permitido.")
     return redirect(request.META.get("HTTP_REFERER", "/"))
 
-
-@login_required
+@login_required(login_url='/auth/login/')
 def changePassword(request):
     if request.method == "POST":
         currentPassword = request.POST.get("current_password")

@@ -28,7 +28,7 @@ class Controller(models.Model):
     device = models.CharField(max_length=60)
 
     security_code = models.CharField(
-        max_length=32,
+        max_length=40,
         unique=True,
         editable=False,
         default=generate_security_code
@@ -42,6 +42,8 @@ class Controller(models.Model):
     )
 
     status = models.BooleanField(default=False)
+
+    active = models.BooleanField(default=False)
 
     last_irrigation = models.DateField(null=True, blank=True)
 
@@ -62,7 +64,7 @@ class Controller(models.Model):
     )
 
     def __str__(self):
-        return f"{self.name} - {self.security_code}"
+        return f"{self.name}"
 
 class IrrigationController(models.Model):
     PHASE_CHOICES_VEGETABLE = [
@@ -130,6 +132,10 @@ class ValveController(models.Model):
     irrigation_radius = models.FloatField(
         help_text="Raio de cobertura da irrigação em metros"
     )
+
+    last_irrigation = models.DateField(null=True, blank=True)
+    
+    active = models.BooleanField(default=False)
     
     controller = models.ForeignKey(
         Controller,
@@ -143,4 +149,4 @@ class ValveController(models.Model):
     )
 
     def __str__(self):
-        return f"Válvula - {self.plants_number} plantas | {self.controller.name} | {self.created_at.strftime('%d/%m/%Y %H:%M')}"
+        return f"Válvula - {self.controller.name} | {self.plants_number} plantas | {self.created_at.strftime('%d/%m/%Y %H:%M')}"

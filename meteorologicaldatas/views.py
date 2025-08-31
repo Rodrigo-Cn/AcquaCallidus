@@ -45,7 +45,8 @@ def listForGeolocation(request):
         'geolocation_id': geolocationId,  
         'form_culture_vegetable': formCultureVegetable,
         'today': date.today(),
-        'has_today_data': hasTodayData
+        'has_today_data': hasTodayData,
+        'has_unread': hasUnread
     })
 
 
