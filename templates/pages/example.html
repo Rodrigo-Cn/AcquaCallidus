@@ -1,180 +1,137 @@
-{% extends "base.html" %} {% load static %} {% block title %}Culturas
-Vegetais{%endblock %} {% block content %}
-<div class="antialiased font-sans min-h-[800px] bg-gray-200">
-  <div class="container mx-auto py-2 px-4 sm:px-8">
-    <div class="py-12">
-      <div>
-        <h2 class="text-2xl font-semibold leading-tight text-gray-800">
-          Usuários
-        </h2>
-      </div>
-      <div class="my-4 flex sm:flex-row flex-col">
-        <form class="flex max-w-md w-full">
-          <label for="simple-search" class="sr-only">Search</label>
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ESP32 Dashboard</title>
+  <link href="{% static 'css/style.css' %}" rel="stylesheet" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+  <div class="flex justify-center mt-10">
+    <div class="w-[90%] md:w-4/5 grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
 
-          <div class="relative w-full">
-            <div
-              class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none"
-            >
-              <svg
-                class="w-4 h-4 text-gray-500"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 18 20"
-              >
-                <path
-                  stroke="currentColor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M3 5v10M3 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm0 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm0 0V6a3 3 0 0 0-3-3H9m1.5-2-2 2 2 2"
-                />
-              </svg>
+      <div class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-6 relative flex flex-col border border-gray-100">
+
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center space-x-3">
+            <div class="p-2 bg-blue-100 rounded-xl">
+              <i data-lucide="cpu" class="w-6 h-6 text-sky-600"></i>
             </div>
-            <input
-              type="text"
-              id="simple-search"
-              class="bg-white border border-gray-300 text-gray-700 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 placeholder-gray-400"
-              placeholder="Pesquisar..."
-              required
-            />
+            <div>
+              <h2 class="text-lg font-bold text-gray-800">ESP32 - Sensor 02</h2>
+              <p class="text-xs text-gray-500">Dispositivo: ESP32-WROOM</p>
+            </div>
           </div>
-          <button
-            type="submit"
-            class="p-2.5 ms-2 text-sm font-medium text-white bg-sky-500 dark:bg-sky-700 rounded-full border border-sky-500 dark:border-sky-700 hover:bg-sky-600 dark:hover:bg-sky-800 focus:ring-4 focus:outline-none focus:ring-sky-300 dark:focus:ring-sky-900"
-          >
-            <svg
-              class="w-4 h-4"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 20 20"
-            >
-              <path
-                stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-              />
-            </svg>
-            <span class="sr-only">Search</span>
-          </button>
-        </form>
-      </div>
-      <div class="-mx-4 sm:-mx-8 px-4 sm:px-8 py-4 overflow-x-auto">
-        <div class="inline-block min-w-full shadow rounded-lg overflow-hidden">
-          <table class="min-w-full leading-normal">
-            <thead>
-              <tr>
-                <th
-                  class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"
-                >
-                  User
-                </th>
-                <th
-                  class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"
-                >
-                  Rol
-                </th>
-                <th
-                  class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"
-                >
-                  Created at
-                </th>
-                <th
-                  class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"
-                >
-                  Status
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                  <div class="flex items-center">
-                    <div class="flex-shrink-0 w-10 h-10">
-                      <img
-                        class="w-full h-full rounded-full"
-                        src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2.2&w=160&h=160&q=80"
-                        alt=""
-                      />
-                    </div>
-                    <div class="ml-3">
-                      <p class="text-gray-900 whitespace-no-wrap">
-                        Blake Bowman
-                      </p>
-                    </div>
-                  </div>
-                </td>
-                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                  <p class="text-gray-900 whitespace-no-wrap">Editor</p>
-                </td>
-                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                  <p class="text-gray-900 whitespace-no-wrap">Jan 01, 2020</p>
-                </td>
-                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                  <span
-                    class="relative inline-block px-3 py-1 font-semibold text-green-900 leading-tight"
-                  >
-                    <span
-                      aria-hidden
-                      class="absolute inset-0 bg-green-200 opacity-50 rounded-full"
-                    ></span>
-                    <span class="relative">Activo</span>
-                  </span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <span class="text-[11px] font-bold px-3 py-1 rounded-full text-white bg-gray-400 shadow">
+            Offline
+          </span>
         </div>
-      </div>
-      <div class="flex justify-center mb-8">
-        <a
-          href="#"
-          class="flex items-center justify-center px-3 h-8 me-3 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700"
-        >
-          <svg
-            class="w-3.5 h-3.5 me-2 rtl:rotate-180"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 14 10"
-          >
-            <path
-              stroke="currentColor"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M13 5H1m0 0 4 4M1 5l4-4"
-            />
-          </svg>
-          Previous
-        </a>
-        <a
-          href="#"
-          class="flex items-center justify-center px-3 h-8 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700"
-        >
-          Next
-          <svg
-            class="w-3.5 h-3.5 ms-2 rtl:rotate-180"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 14 10"
-          >
-            <path
-              stroke="currentColor"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M1 5h12m0 0L9 1m4 4L9 9"
-            />
-          </svg>
-        </a>
+        <div class="absolute top-16 right-4 flex flex-col items-center gap-2">
+          <button onclick="toggleSecret()" class="text-sky-500 hover:text-sky-800 transition p-2 rounded-xl hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-300">
+            <i id="eye-icon" data-lucide="eye" class="w-4 h-4"></i>
+          </button>
+          <button onclick="openDeviceCode()" class="text-sky-500 hover:text-sky-800 transition p-2 rounded-xl hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-300">
+            <i id="code-icon" data-lucide="code-xml" class="w-4 h-4"></i>
+          </button>
+          <button class="text-sky-500 hover:text-sky-800 transition p-2 rounded-xl hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-300">
+            <i data-lucide="droplet" class="w-4 h-4"></i>
+          </button>
+          <button class="text-sky-500 hover:text-sky-800 transition p-2 rounded-xl hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-300">
+            <i data-lucide="edit" class="w-4 h-4"></i>
+          </button>
+          <button class="text-red-600 transition p-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-300">
+            <i data-lucide="trash-2" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <div class="space-y-3 text-gray-700 text-sm">
+          <div class="flex items-center">
+            <i data-lucide="lock" class="w-5 h-5 mr-2 text-gray-500"></i>
+            <p><strong>Código Secreto:</strong> <span id="secret-code">*****</span></p>
+          </div>
+
+          <div class="flex items-center">
+            <i data-lucide="wifi" class="w-5 h-5 mr-2 text-gray-500"></i>
+            <p><strong>IP:</strong> 192.168.0.20</p>
+          </div>
+
+          <div class="flex items-center">
+            <i data-lucide="map-pin" class="w-5 h-5 mr-2 text-gray-500"></i>
+            <p><strong>Localização:</strong> São Paulo - SP</p>
+          </div>
+
+          <div class="flex items-center">
+            <i data-lucide="leaf" class="w-5 h-5 mr-2 text-green-500"></i>
+            <p><strong>Cultura:</strong> Tomate (Crescimento Vegetativo)</p>
+          </div>
+
+          <div class="flex items-center">
+            <i data-lucide="circle-dot" class="w-5 h-5 mr-2 text-gray-500"></i>
+            <p><strong>Área de Irrigação:</strong> 120 m²</p>
+          </div>
+
+          <div class="flex items-center">
+            <i data-lucide="clock" class="w-5 h-5 mr-2 text-gray-500"></i>
+            <p><strong>Última Irrigação:</strong> 20/08/2025 - 14:32</p>
+          </div>
+        </div>
+
+        <div class="mt-6">
+          <h3 class="text-sm font-semibold text-gray-700 mb-3">Válvulas</h3>
+          <div class="grid grid-cols-3 gap-3">
+            <button type="button" data-valve="1" onclick="handleValveClick(1)"
+              class="flex flex-col items-center bg-green-50 rounded-xl p-3 shadow-sm hover:shadow-lg transition-transform transform hover:scale-105 w-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-300">
+              <i data-lucide="droplet" class="w-6 h-6 text-green-600"></i>
+              <p class="text-xs mt-1 font-semibold text-green-700">Válvula 1</p>
+              <span class="text-[11px] text-green-600">Ativa</span>
+              <span class="text-[10px] text-gray-500 mt-1">Plantas: 30</span>
+            </button>
+
+            <button type="button" data-valve="2" onclick="handleValveClick(2)"
+              class="flex flex-col items-center bg-green-50 rounded-xl p-3 shadow-sm hover:shadow-lg transition-transform transform hover:scale-105 w-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-300">
+              <i data-lucide="droplet" class="w-6 h-6 text-green-600"></i>
+              <p class="text-xs mt-1 font-semibold text-green-700">Válvula 2</p>
+              <span class="text-[11px] text-green-600">Ativa</span>
+              <span class="text-[10px] text-gray-500 mt-1">Plantas: 25</span>
+            </button>
+
+            <button type="button" data-valve="3" onclick="handleValveClick(3)"
+              class="flex flex-col items-center bg-red-50 rounded-xl p-3 shadow-sm hover:shadow-lg transition-transform transform hover:scale-105 w-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-300">
+              <i data-lucide="droplet" class="w-6 h-6 text-red-600"></i>
+              <p class="text-xs mt-1 font-semibold text-red-700">Válvula 3</p>
+              <span class="text-[11px] text-red-600">Inativa</span>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-</div>
-{% endblock %}
+
+  <script>
+    lucide.createIcons();
+
+    function toggleSecret() {
+      const secret = document.getElementById("secret-code");
+      const eyeIcon = document.getElementById("eye-icon");
+      if (secret.innerText === "*****") {
+        secret.innerText = "AB12CD34"; 
+        eyeIcon.setAttribute("data-lucide", "eye-off");
+      } else {
+        secret.innerText = "*****";
+        eyeIcon.setAttribute("data-lucide", "eye");
+      }
+      lucide.createIcons();
+    }
+
+    function openDeviceCode() {
+      console.log("Abrir código do dispositivo (placeholder).");
+    }
+
+    function handleValveClick(valveNumber) {
+      console.log("Válvula clicada:", valveNumber);
+    }
+  </script>
+</body>
+</html>

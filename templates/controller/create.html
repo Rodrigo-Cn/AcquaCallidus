@@ -5,7 +5,7 @@
 {% block content %}
 <div class="antialiased font-sans min-h-[800px] bg-gray-100">
 
-  <button id="abrirPopupControlador" 
+  <button id="openPopupController" 
     class="px-4 py-2 bg-sky-600 text-white rounded-lg shadow hover:bg-sky-700 transition">
     Novo Controlador
   </button>
@@ -22,7 +22,7 @@
 
         <div class="flex justify-between items-center border-b pb-4 mb-6">
           <h2 class="text-xl font-bold text-gray-800">Cadastro de Controlador</h2>
-          <button id="fecharPopupControlador" class="text-gray-500 hover:text-gray-800 text-2xl font-bold">&times;</button>
+          <button id="closePopupController" class="text-gray-500 hover:text-gray-800 text-2xl font-bold">&times;</button>
         </div>
 
         <form method="POST" action="/controllers/store/" class="space-y-6">
@@ -180,12 +180,12 @@
       addValveBtn.style.display = "flex";
     }
 
-    $("#abrirPopupControlador").on("click", () => {
+    $("#openPopupController").on("click", () => {
       resetForm();              
       popup.removeClass("hidden"); 
     });
 
-    $("#fecharPopupControlador, #fecharFundoControlador").on("click", () => {
+    $("#closePopupController, #fecharFundoControlador").on("click", () => {
       popup.addClass("hidden");
       resetForm();
     });
@@ -203,7 +203,7 @@
     initSelect2('#culturaControlador');
     initSelect2('#geoControlador');
 
-    function toggleAddButton() {
+    function toggleAddButtonController() {
       if (isEditMode) {
         addValveBtn.style.display = "none";
       } else {
@@ -211,7 +211,7 @@
       }
     }
 
-    function updateDeleteButtons() {
+    function updateDeleteButtonsController() {
       const allValves = valveContainer.querySelectorAll(".valve-field");
 
       if (isEditMode) {
@@ -237,8 +237,8 @@
           deleteBtn.addEventListener("click", () => {
             v.remove();
             valveCount--;
-            toggleAddButton();
-            updateDeleteButtons();
+            toggleAddButtonController();
+            updateDeleteButtonsController();
           });
         });
       }
@@ -258,8 +258,8 @@
       `;
 
       valveContainer.appendChild(div);
-      toggleAddButton();
-      updateDeleteButtons();
+      toggleAddButtonController();
+      updateDeleteButtonsController();
     }
 
     addValveBtn.addEventListener("click", () => {
@@ -272,7 +272,7 @@
 
     window.editController = function(id) {
       isEditMode = true;
-      fetch(`/controllers/${id}`)
+      fetch(`/controllers/${id}/`)
         .then(res => res.json())
         .then(data => {
           $("#nomeControlador").val(data.name);
@@ -284,7 +284,7 @@
           $("#culturaControlador").val(data.culturevegetable).trigger("change");
           $("#geoControlador").val(data.geolocation).trigger("change");
 
-          $("form").attr("action", `/controllers/update/${id}`);
+          $("form").attr("action", `/controllers/update/${id}/`);
 
           valveContainer.innerHTML = "";
           valveCount = 0;
@@ -296,7 +296,7 @@
           }
 
           addValveBtn.style.display = "none";
-          updateDeleteButtons();
+          updateDeleteButtonsController();
           popup.removeClass("hidden");
         });
     }

@@ -105,3 +105,54 @@ def edit(request, id):
     controller = get_object_or_404(Controller, id=id)
     serializer = ControllerSerializer(controller)
     return Response(serializer.data, status=status.HTTP_200_OK)
+
+@login_required(login_url='/auth/login/')
+def updateController(request, id):
+    if request.method == "POST":
+        try:
+            controller = get_object_or_404(Controller, id=id)
+
+            controller.name = request.POST.get("name")
+            controller.device = request.POST.get("device")
+            controller.ip_address = request.POST.get("ip_address")
+            controller.phase_vegetable = request.POST.get("phase_vegetable")
+            controller.active = bool(request.POST.get("active"))
+            controller.last_irrigation = parse_date(request.POST.get("last_irrigation")) if request.POST.get("last_irrigation") else None
+            controller.culturevegetable = CultureVegetable.objects.filter(id=request.POST.get("culturevegetable")).first() if request.POST.get("culturevegetable") else None
+            controller.geolocation = Geolocation.objects.filter(id=request.POST.get("geolocation")).first() if request.POST.get("geolocation") else None
+            controller.save()
+
+            existing_valves_ids = [] 
+            for i in range(1, 5):
+                valve_id = request.POST.get(f"valves[{i}][id]")
+                plants = request.POST.get(f"valves[{i}][plants]")
+                radius = request.POST.get(f"valves[{i}][radius]")
+
+                if plants and radius:
+                    if valve_id:  
+                        valve = ValveController.objects.filter(id=valve_id, controller=controller).first()
+                        if valve:
+                            valve.plants_number = plants
+                            valve.irrigation_radius = radius
+                            valve.save()
+                            existing_valves_ids.append(valve.id)
+                    else:
+                        valve = ValveController.objects.create(
+                            plants_number=plants,
+                            irrigation_radius=radius,
+                            controller=controller,
+                            active=True
+                        )
+                        existing_valves_ids.append(valve.id)
+
+            ValveController.objects.filter(controller=controller).exclude(id__in=existing_valves_ids).delete()
+
+            messages.success(request, "Controlador atualizado com sucesso")
+            return redirect("controllers_create")
+
+        except Exception as e:
+            messages.error(request, "Erro ao atualizar controlador")
+            return redirect("controllers_create")
+
+    messages.info(request, "Método incorreto.")
+    return redirect("controllers_create")
