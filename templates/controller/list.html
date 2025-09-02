@@ -5,6 +5,8 @@
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="{% static 'js/controller/secret-code.js' %}"></script>
 <link
   href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css"
   rel="stylesheet"
@@ -130,8 +132,132 @@
       </div>
 
       {% if page_obj %}
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-12 mb-12">       
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-12 mb-12">
+          {% for controller in page_obj %}
+            <div class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-6 relative flex flex-col border border-gray-100">
+              <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center space-x-3">
+                  <div class="p-2 bg-blue-100 rounded-xl">
+                    <i data-lucide="cpu" class="w-6 h-6 text-sky-600"></i>
+                  </div>
+                  <div>
+                    <h2 class="text-lg font-bold text-gray-800">{{ controller.name }}</h2>
+                    <p class="text-xs text-gray-500">Dispositivo: {{ controller.device }}</p>
+                  </div>
+                </div>
+                {% if controller.status %}
+                  <span class="text-[11px] font-bold px-3 py-1 rounded-full text-white bg-green-600 shadow">
+                    Online
+                  </span>
+                {% else %}  
+                  <span class="text-[11px] font-bold px-3 py-1 rounded-full text-white bg-gray-400 shadow">
+                    Offline
+                  </span>
+                {% endif %}
+              </div>
+              <div class="absolute top-16 right-4 flex flex-col items-center gap-2">
+                <button onclick="toggleSecret(this)" 
+                  class="text-sky-500 hover:text-sky-800 transition p-2 rounded-xl hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-300">
+                  <i data-lucide="eye" class="w-4 h-4"></i>
+                </button>
+                <button onclick="openDeviceCode()" class="text-sky-500 hover:text-sky-800 transition p-2 rounded-xl hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-300">
+                  <i id="code-icon" data-lucide="code-xml" class="w-4 h-4"></i>
+                </button>
+                <button class="text-sky-500 hover:text-sky-800 transition p-2 rounded-xl hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-300">
+                  <i data-lucide="droplet" class="w-4 h-4"></i>
+                </button>
+                <button class="text-sky-500 hover:text-sky-800 transition p-2 rounded-xl hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-300">
+                  <i data-lucide="edit" class="w-4 h-4"></i>
+                </button>
+                <button class="text-red-600 transition p-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-300">
+                  <i data-lucide="trash-2" class="w-4 h-4"></i>
+                </button>
+              </div>
 
+              <div class="space-y-3 text-gray-700 text-sm">
+                <div class="flex items-center">
+                  <i data-lucide="lock" class="w-5 h-5 mr-2 text-gray-500"></i>
+                  <p>
+                    <strong>Código Secreto:</strong> 
+                    <span class="secret-code" data-code="{{ controller.security_code }}">****************</span>
+                  </p>
+                </div>
+
+                <div class="flex items-center">
+                  <i data-lucide="wifi" class="w-5 h-5 mr-2 text-gray-500"></i>
+                  <p><strong>IP:</strong> {{ controller.ip_address }}</p>
+                </div>
+
+                <div class="flex items-center">
+                  <i data-lucide="map-pin" class="w-5 h-5 mr-2 text-gray-500"></i>
+                  <p><strong>Localização:</strong> {{ controller.geolocation.city }} - {{ controller.geolocation.state }}</p>
+                </div>
+
+                <div class="flex items-center">
+                  {% if controller.phase_vegetable == 1 %}
+                    <i data-lucide="sprout" class="w-5 h-5 mr-2 text-green-600"></i> 
+                  {% elif controller.phase_vegetable == 2 %}
+                    <i data-lucide="leaf" class="w-5 h-5 mr-2 text-green-600"></i> 
+                  {% elif controller.phase_vegetable == 3 %}
+                    <i data-lucide="flower" class="w-5 h-5 mr-2 text-pink-500"></i> 
+                  {% elif controller.phase_vegetable == 4 %}
+                    <i data-lucide="apple" class="w-5 h-5 mr-2 text-red-500"></i> 
+                  {% elif controller.phase_vegetable == 5 %}
+                    <i data-lucide="package" class="w-5 h-5 mr-2 text-yellow-600"></i> 
+                  {% endif %}
+                  <p>
+                    <strong>Cultura:</strong> {{ controller.culturevegetable.name }} 
+                    {% if controller.phase_vegetable == 1 %}
+                      (Fase Inicial)
+                    {% elif controller.phase_vegetable == 2 %}
+                      (Fase Vegetativa)
+                    {% elif controller.phase_vegetable == 3 %}
+                      (Fase de Floração)
+                    {% elif controller.phase_vegetable == 4 %}
+                      (Fase de Frutificação)
+                    {% elif controller.phase_vegetable == 5 %}
+                      (Fase de Maturação)
+                    {% endif %}
+                  </p>
+                </div>
+
+                <div class="flex items-center">
+                  <i data-lucide="clock" class="w-5 h-5 mr-2 text-gray-500"></i>
+                  <p><strong>Última Irrigação:</strong> {{ controller.last_irrigation }}</p>
+                </div>
+              </div>
+
+              <div class="mt-6">
+                <h3 class="text-sm font-semibold text-gray-700 mb-3">Válvulas</h3>
+                  <div class="grid grid-cols-3 gap-3">
+                    {% for valve in controller.valves_fixed %}
+                      {% if valve %}
+                        <button type="button" data-valve="{{ forloop.counter }}" onclick=""
+                          class="flex flex-col items-center bg-green-50 rounded-xl p-3 shadow-sm hover:shadow-lg transition-transform transform hover:scale-105 w-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-300">
+                          {% if valve.status %}
+                            <i data-lucide="droplet" class="w-6 h-6 text-blue-600"></i>
+                          {% else %}
+                            <i data-lucide="droplet" class="w-6 h-6 text-red-600"></i>
+                          {% endif %}
+                          <p class="text-xs mt-1 font-semibold text-green-700">Válvula {{ forloop.counter }}</p>
+                          <span class="text-[11px] text-green-600">Ativa</span>
+                          <span class="text-[10px] text-gray-500 mt-1">Plantas: {{ valve.plants_number }}</span>
+                          <span class="text-[10px] text-gray-500 mt-1"><strong>Área:</strong> {{ valve.irrigation_radius }} m²</span>
+                        </button>
+                      {% else %}
+                        <div class="flex flex-col items-center bg-red-50 rounded-xl p-3 shadow-sm w-full opacity-70 cursor-not-allowed">
+                          <i data-lucide="droplet" class="w-6 h-6 text-red-600"></i>
+                          <p class="text-xs mt-1 font-semibold text-red-700">Válvula {{ forloop.counter }}</p>
+                          <span class="text-[11px] text-red-600">Inativa</span>
+                          <span class="text-[10px] text-gray-500 mt-1">Plantas: 0</span>
+                          <span class="text-[10px] text-gray-500 mt-1"><strong>Área:</strong> 0 m²</span>
+                        </div>
+                      {% endif %}
+                    {% endfor %}
+                  </div>
+              </div>
+            </div>
+          {% endfor %}
       </div>
     {% else %}
       <div

@@ -134,6 +134,8 @@ class ValveController(models.Model):
     )
 
     last_irrigation = models.DateField(null=True, blank=True)
+
+    status = models.BooleanField(default=False)
     
     active = models.BooleanField(default=False)
     
