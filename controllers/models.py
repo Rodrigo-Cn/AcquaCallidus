@@ -103,8 +103,9 @@ class IrrigationController(models.Model):
 
     controller = models.ForeignKey(
         Controller,
-        on_delete=models.CASCADE,
-        related_name='irrigations'
+        on_delete=models.SET_NULL,
+        related_name='irrigations', 
+        null=True
     )
     
     culturevegetable = models.ForeignKey(

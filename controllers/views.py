@@ -16,6 +16,7 @@ from geolocations.models import Geolocation
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import SessionAuthentication
 from .serializers import ControllerSerializer
+from django.urls import reverse
 from django.db.models import Q
 import random
 import string
@@ -42,7 +43,7 @@ def controllerList(request):
             valves.append(None)
         c.valves_fixed = valves
 
-    paginator = Paginator(controllers, 1)
+    paginator = Paginator(controllers, 9)
     pageNumber = request.GET.get('page')
     pageobj = paginator.get_page(pageNumber)
 
@@ -141,7 +142,7 @@ def edit(request, id):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 @login_required(login_url='/auth/login/')
-def updateController(request, id):
+def update(request, id):
     if request.method == "POST":
         try:
             controller = get_object_or_404(Controller, id=id)
@@ -190,3 +191,26 @@ def updateController(request, id):
 
     messages.info(request, "Método incorreto.")
     return redirect("controllers_create")
+
+@login_required(login_url='/auth/login/')
+def delete(request, id):
+    nameQuery = request.GET.get('name_page', '')
+    pageNumber = request.GET.get('page')
+
+    if request.method == "POST":
+        try:
+            controller = Controller.objects.get(id=id)
+            controller.delete()
+            messages.success(request, "Controlador deletado com sucesso.")
+        except Controller.DoesNotExist:
+            messages.error(request, "Controlador não encontrado.")
+        except Exception as e:
+            messages.error(request, "Erro ao deletar controlador")
+    else:
+        messages.error(request, "Método não permitido.")
+
+    if pageNumber and nameQuery :
+        return redirect(f"{reverse('controllers_list')}?name={nameQuery}&page={pageNumber}")   
+    elif pageNumber:
+        return redirect(f"{reverse('controllers_list')}?page={pageNumber}")
+    return redirect('controllers_list')

@@ -452,7 +452,7 @@
                   href="#"
                   @click="$event.preventDefault(); open = !open"
                   class="flex items-center p-2 text-gray-500 transition-colors rounded-md dark:text-light hover:bg-primary-100 dark:hover:bg-primary
-                  {% if request.path == '/logs/' %}
+                  {% if request.path == '/controllers/' or request.path == '/logs/' %}
                     text-gray-700
                   {% else %}
                     text-gray-400 dark:text-gray-400
@@ -495,7 +495,12 @@
                   <a
                     href="/controllers/"
                     role="menuitem"
-                    class="block p-2 text-sm text-gray-400 transition-colors duration-200 rounded-md dark:text-gray-400 dark:hover:text-light hover:text-gray-700"
+                    class="block p-2 text-sm transition-colors duration-200 rounded-md
+                    {% if request.path == '/controllers/' %}
+                      text-gray-700 dark:text-light
+                    {% else %}
+                      text-gray-400 dark:text-gray-400
+                    {% endif %}"
                   >
                     Meus Controladores
                   </a>
