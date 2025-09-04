@@ -6,9 +6,13 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="{% static 'js/controller/secret-code.js' %}"></script>
 <script src="{% static 'js/controller/delete.js' %}"></script>
 <script src="{% static 'js/controller/modal.js' %}"></script>
+<script src="{% static 'css/controller/style.css' %}"></script>
 <link
   href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css"
   rel="stylesheet"
@@ -83,7 +87,7 @@
           <button
             type="button"
             class="p-2.5 ms-2 text-sm font-medium text-white bg-sky-500 dark:bg-sky-700 rounded-full border border-sky-500 dark:border-sky-700 hover:bg-sky-600 dark:hover:bg-sky-800 focus:ring-4 focus:outline-none focus:ring-sky-300 dark:focus:ring-sky-900"
-            onclick="openModalGeolocation()"
+            id="openPopupController" 
           >
             <svg
               class="w-4 h-4"
@@ -168,7 +172,7 @@
                 <button class="text-sky-500 hover:text-sky-800 transition p-2 rounded-xl hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-300">
                   <i data-lucide="droplet" class="w-4 h-4"></i>
                 </button>
-                <button class="text-sky-500 hover:text-sky-800 transition p-2 rounded-xl hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-300">
+                <button onclick="editController({{ controller.id }})" class="text-sky-500 hover:text-sky-800 transition p-2 rounded-xl hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-300">
                   <i data-lucide="edit" class="w-4 h-4"></i>
                 </button>
                 <button class="text-red-600 transition p-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-300" onclick="openDeleteControllerModal({{ controller.id }})">
@@ -180,7 +184,7 @@
                 <div class="flex items-center">
                   <i data-lucide="lock" class="w-5 h-5 mr-2 text-gray-500"></i>
                   <p>
-                    <strong>Código Secreto:</strong> 
+                    <strong>Chave Secreta:</strong> 
                     <span class="secret-code" data-code="{{ controller.security_code }}">****************</span>
                   </p>
                 </div>
@@ -382,6 +386,107 @@
         >
           Confirmar exclusão
         </button>
+      </div>
+    </div>
+  </div>
+  <div id="popupControlador" class="fixed inset-0 hidden z-50 overflow-y-auto">
+    <div class="flex items-center justify-center min-h-screen p-4">
+
+      <div id="fecharFundoControlador" class="fixed inset-0 bg-black bg-opacity-50"></div>
+
+      <div class="relative bg-white shadow-2xl rounded-2xl w-full max-w-4xl mx-auto p-6 overflow-y-auto max-h-[95vh]">
+
+        <div class="flex justify-between items-center border-b pb-4 mb-6">
+          <h2 class="text-xl font-bold text-gray-800">Cadastro de Controlador</h2>
+          <button id="closePopupController" class="text-gray-500 hover:text-gray-800 text-2xl font-bold">&times;</button>
+        </div>
+
+        <form method="POST" id="formController" action="/controllers/store/" class="space-y-6">
+          {% csrf_token %}
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div>
+              <label for="nomeControlador" class="block text-sm font-semibold text-gray-700 mb-1">Nome</label>
+              <input type="text" id="nomeControlador" name="name" placeholder="Ex: Controlador Principal" required
+                class="w-full rounded-lg border-gray-300 shadow-sm focus:border-sky-500 focus:ring focus:ring-sky-200 p-3"/>
+            </div>
+
+            <div>
+              <label for="dispositivoControlador" class="block text-sm font-semibold text-gray-700 mb-1">Dispositivo</label>
+              <input type="text" id="dispositivoControlador" name="device" placeholder="Ex: ESP32" required
+                class="w-full rounded-lg border-gray-300 shadow-sm focus:border-sky-500 focus:ring focus:ring-sky-200 p-3"/>
+            </div>
+
+            <div>
+              <label for="ipControlador" class="block text-sm font-semibold text-gray-700 mb-1">Endereço IP</label>
+              <input type="text" id="ipControlador" name="ip_address" placeholder="Ex: 192.168.0.10" required
+                class="w-full rounded-lg border-gray-300 shadow-sm focus:border-sky-500 focus:ring focus:ring-sky-200 p-3"/>
+            </div>
+
+            <div>
+              <label for="faseControlador" class="block text-sm font-semibold text-gray-700 mb-1">Fase do Cultivo</label>
+              <select id="faseControlador" name="phase_vegetable" required
+                class="w-full rounded-lg border-gray-300 shadow-sm focus:border-sky-500 focus:ring focus:ring-sky-200 p-3">
+                <option value="" disabled selected>Selecione</option>
+                <option value="1">🌱 Inicial</option>
+                <option value="2">🌿 Vegetativa</option>
+                <option value="3">🌸 Floração</option>
+                <option value="4">🍒 Frutificação</option>
+                <option value="5">🍂 Maturação</option>
+              </select>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <input type="checkbox" id="statusControlador" name="active" checked
+                class="w-5 h-5 text-sky-600 border-gray-300 rounded focus:ring-sky-500"/>
+              <label for="statusControlador" class="text-sm font-semibold text-gray-700">Ativo</label>
+            </div>
+
+            <div>
+              <label for="irrigacaoControlador" class="block text-sm font-semibold text-gray-700 mb-1">Última Irrigação</label>
+              <input type="date" id="irrigacaoControlador" name="last_irrigation" required
+                class="w-full rounded-lg border-gray-300 shadow-sm focus:border-sky-500 focus:ring focus:ring-sky-200 p-3"/>
+            </div>
+
+            <div>
+              <label for="culturaControlador" class="block text-sm font-semibold text-gray-700 mb-1">Cultura</label>
+              <select id="culturaControlador" name="culturevegetable" required class="select2-popup" data-placeholder="Selecione uma cultura">
+                <option></option>
+                {% for culture_vegetable in cultures_vegetables %}
+                  <option value="{{ culture_vegetable.id }}">{{ culture_vegetable.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div>
+              <label for="geoControlador" class="block text-sm font-semibold text-gray-700 mb-1">Geolocalização</label>
+              <select id="geoControlador" name="geolocation" required class="select2-popup" data-placeholder="Selecione uma geolocalização">
+                <option></option>
+                {% for geolocation in geolocations %}
+                  <option value="{{ geolocation.id }}">{{ geolocation.city }} - {{ geolocation.state }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Válvulas</label>
+            <div id="popup-valve-container" class="space-y-3"></div>
+            <button type="button" id="popup-add-valve" 
+              class="mt-3 flex items-center justify-center w-10 h-10 bg-sky-600 text-white rounded-full hover:bg-sky-700 transition">
+              +
+            </button>
+            <p class="text-xs text-gray-500 mt-1">Máximo de 3 válvulas por controlador</p>
+          </div>
+
+          <div class="flex justify-end pt-4">
+            <button type="submit"
+              class="w-full sm:w-auto px-6 py-3 text-white text-base font-medium bg-sky-600 rounded-xl shadow-md 
+                     hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-300 transition">
+              Salvar
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   </div>

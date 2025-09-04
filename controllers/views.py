@@ -22,10 +22,12 @@ import random
 import string
 
 @login_required(login_url='/auth/login/')
-def controllerList(request):
+def listController(request):
     logs = Log.objects.order_by('-created_at')
     hasUnread = logs.filter(viewed=False).exists()
     logs = logs[:12]
+    geolocations = Geolocation.objects.all()
+    culturesVegetables = CultureVegetable.objects.all()
 
     nameQuery = request.GET.get('name', '')
     formCulturevegetable = CultureVegetableForm()
@@ -52,23 +54,6 @@ def controllerList(request):
         'logs': logs,
         'page_obj': pageobj,
         'name_query': nameQuery,
-        'form_culture_vegetable': formCulturevegetable,
-        'has_unread': hasUnread
-    })
-
-
-@login_required(login_url='/auth/login/')
-def create(request):
-    logs = Log.objects.order_by('-created_at')
-    hasUnread = logs.filter(viewed=False).exists()
-    logs = logs[:12]
-    formCulturevegetable = CultureVegetableForm()
-    geolocations = Geolocation.objects.all()
-    culturesVegetables = CultureVegetable.objects.all()
-    
-    return render(request, 'controller/create.html', context={
-        'user': request.user,
-        'logs': logs,
         'form_culture_vegetable': formCulturevegetable,
         'has_unread': hasUnread,
         'geolocations': geolocations,
@@ -124,14 +109,14 @@ def createController(request):
                     )
 
             messages.success(request, "Controlador criado com sucesso")
-            return redirect("controllers_create")
+            return redirect("controllers_list")
         except Exception as e:
             messages.error(request, "Erro ao salvar controlador")
-            return redirect("controllers_create")
+            return redirect("controllers_list")
 
 
     messages.info(request, "Método incorreto.")
-    return redirect("controllers_create")
+    return redirect("controllers_list")
 
 @api_view(['GET'])
 @authentication_classes([SessionAuthentication])
@@ -182,12 +167,12 @@ def update(request, id):
 
             ValveController.objects.filter(controller=controller).exclude(id__in=existing_valves_ids).delete()
 
-            messages.success(request, "Controlador atualizado com sucesso")
-            return redirect("controllers_create")
+            messages.success(request, "Controlador editado com sucesso")
+            return redirect("controllers_list")
 
         except Exception as e:
-            messages.error(request, "Erro ao atualizar controlador")
-            return redirect("controllers_create")
+            messages.error(request, "Erro ao editar controlador")
+            return redirect("controllers_list")
 
     messages.info(request, "Método incorreto.")
     return redirect("controllers_create")
