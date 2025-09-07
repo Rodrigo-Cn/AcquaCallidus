@@ -32,7 +32,7 @@ def listController(request):
     nameQuery = request.GET.get('name', '')
     formCulturevegetable = CultureVegetableForm()
 
-    controllers = Controller.objects.prefetch_related('valves').all()
+    controllers = Controller.objects.prefetch_related('valves').all().order_by('created_at')
 
     if nameQuery:
         controllers = controllers.filter(

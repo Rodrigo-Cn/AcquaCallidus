@@ -45,6 +45,12 @@ class Controller(models.Model):
 
     active = models.BooleanField(default=False)
 
+    code = models.TextField(
+        null=True,
+        blank=True,
+        help_text="Código em C do controlador"
+    )
+
     last_irrigation = models.DateField(null=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
