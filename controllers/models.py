@@ -1,10 +1,11 @@
-import random
-import string
 from django.db import models
 from django.utils.timezone import now
 from django.core.validators import MaxValueValidator, MinValueValidator
 from culturesvegetables.models import CultureVegetable
 from geolocations.models import Geolocation
+import random
+import string
+import uuid
 
 def generate_custom_code():
     date_part = now().strftime("%Y%m%d")
@@ -22,6 +23,8 @@ class Controller(models.Model):
         (4, 'Frutificação'),
         (5, 'Maturação'),
     ]
+
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, null=True)
 
     name = models.CharField(max_length=60)
 

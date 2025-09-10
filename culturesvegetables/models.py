@@ -20,7 +20,6 @@ class CultureVegetable(models.Model):
     phase_flowering_kc = models.FloatField(validators=[MinValueValidator(0.0)])
     phase_fruiting_kc = models.FloatField(validators=[MinValueValidator(0.0)])
     phase_maturation_kc = models.FloatField(validators=[MinValueValidator(0.0)])
-    radiusM2 = models.FloatField(validators=[MinValueValidator(0.0)])
 
     def __str__(self):
         return f"{self.emoji} {self.name}"

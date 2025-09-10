@@ -16,6 +16,7 @@ from geolocations.models import Geolocation
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import SessionAuthentication
 from .serializers import ControllerSerializer
+from rest_framework.views import APIView
 from django.urls import reverse
 from django.db.models import Q
 import random
@@ -199,3 +200,38 @@ def delete(request, id):
     elif pageNumber:
         return redirect(f"{reverse('controllers_list')}?page={pageNumber}")
     return redirect('controllers_list')
+
+class ControllerAPI(APIView):
+    def post(self, request, *args, **kwargs):
+        controllerId = request.data.get("controllerId")
+        valveId = request.data.get("valveId")
+        securityCode = request.data.get("securityCode")
+        controllerUuid = request.data.get("controllerUuid")
+
+        errorMessage = {"success": False, "message": "Dados de autenticação do controlador estão incorretos"}
+
+        if not controllerId or not valveId or not securityCode or not controllerUuid:
+            return Response(errorMessage, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            controller = Controller.objects.prefetch_related("valves").get(
+                id=controllerId,
+                uuid=controllerUuid,
+                security_code=securityCode
+            )
+        except Controller.DoesNotExist:
+            return Response(errorMessage, status=status.HTTP_400_BAD_REQUEST)
+
+        if not controller.valves.filter(id=valveId).exists():
+            return Response(errorMessage, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(
+            {
+                "success": True,
+                "message": "Requisição recebida com sucesso",
+                "controllerId": controllerId,
+                "controllerUuid": str(controllerUuid),
+                "valveId": valveId,
+            },
+            status=status.HTTP_200_OK
+        )

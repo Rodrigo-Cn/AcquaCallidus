@@ -17,10 +17,38 @@
 <div class="antialiased font-sans min-h-[800px] bg-gray-200">
   <div class="container mx-auto py-2 px-4 sm:px-8">
     <div class="py-12">
-      <div>
-        <h2 class="text-2xl font-semibold leading-tight text-gray-800">
-          Volumes para Irrigação Diária (Kc)
-        </h2>
+      <div class="flex items-center">
+        <div class="relative">
+          <h2 class="text-2xl font-semibold leading-tight text-gray-800 pr-6">
+            Volumes para Irrigação por Cultura (Kc)
+          </h2>
+          <div class="absolute bottom-0 right-0 group">
+            <button
+              type="button"
+              class="p-0.5 rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
+            >
+              <svg
+                class="w-3.5 h-3.5 text-gray-600 dark:text-gray-200"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z"
+                />
+              </svg>
+            </button>
+            <div
+              class="absolute z-10 hidden group-hover:block w-64 p-2 text-xs text-white bg-gray-800 rounded-lg shadow-lg -top-12 start-1/2 -translate-x-1/2"
+            >
+              Os volumes de irrigação não levam em conta a área de irrigação nem
+              a quantidade de plantas.
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="my-4 flex sm:flex-row flex-col">
@@ -272,13 +300,6 @@
                     <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-1.99.9-1.99 2L3 20c0 1.1.89 2 1.99 2H19c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/>
                   </svg>
                   <strong>{{ irrigationvolume.date }}</strong>
-                </p>
-                <p class="text-sm text-gray-500 italic flex items-center gap-1">
-                  <svg class="h-4 w-4 text-sky-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10" />
-                    <line x1="12" y1="12" x2="20" y2="12" />
-                  </svg>
-                  <strong>{{ irrigationvolume.culturevegetable.radiusM2 }} m²</strong>
                 </p>
                 <p class="text-sm text-gray-500 italic mt-1">Estágios de Desenvolvimento</p>
               </div>

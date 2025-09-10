@@ -36,7 +36,6 @@ function openEditCultureModal(id) {
       document.querySelector("#phase_flowering_kc_edit").value = data.phase_flowering_kc || "";
       document.querySelector("#phase_fruiting_kc_edit").value = data.phase_fruiting_kc || "";
       document.querySelector("#phase_maturation_kc_edit").value = data.phase_maturation_kc || "";
-      document.querySelector("#radiusM2_edit").value = data.radiusM2 || "";
       document.querySelector("#emoji_edit").value = data.emoji || defaultEmoji;
       
       editCultureModal.show();
