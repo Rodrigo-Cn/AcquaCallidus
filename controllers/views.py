@@ -11,12 +11,16 @@ from geolocations.models import Geolocation
 from django.contrib import messages
 from django.utils.dateparse import parse_date
 from .models import Controller, ValveController
-from culturesvegetables.models import CultureVegetable
+from irrigationvolumes.models import IrrigationVolume
+from meteorologicaldatas.models import MeteorologicalData
 from geolocations.models import Geolocation
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import SessionAuthentication
+from .services import calculateReferenceEvapotranspiration
 from .serializers import ControllerSerializer
 from rest_framework.views import APIView
+from pytz import timezone as pytzTimezone
+from django.utils import timezone
 from django.urls import reverse
 from django.db.models import Q
 import random
@@ -207,6 +211,8 @@ class ControllerAPI(APIView):
         valveId = request.data.get("valveId")
         securityCode = request.data.get("securityCode")
         controllerUuid = request.data.get("controllerUuid")
+        today = timezone.now().astimezone(pytzTimezone("America/Sao_Paulo")).date()
+        now_sp = timezone.now().astimezone(pytzTimezone("America/Sao_Paulo"))
 
         errorMessage = {"success": False, "message": "Dados de autenticação do controlador estão incorretos"}
 
@@ -222,8 +228,53 @@ class ControllerAPI(APIView):
         except Controller.DoesNotExist:
             return Response(errorMessage, status=status.HTTP_400_BAD_REQUEST)
 
-        if not controller.valves.filter(id=valveId).exists():
-            return Response(errorMessage, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            valve = controller.valves.get(id=valveId)
+        except ValveController.DoesNotExist:
+            return Response(
+                {"success": False, "message": f"Válvula {valveId} não encontrada neste controlador."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        irrigationvolume = IrrigationVolume.objects.filter(
+            culturevegetable_id=controller.culturevegetable.id,
+            meteorologicaldata__geolocation_id=controller.geolocation.id,
+            date=today
+        ).first()
+
+        if not irrigationvolume:
+            calculateEtoResult = calculateReferenceEvapotranspiration(controller.geolocation.id)
+            if not calculateEtoResult.get("success", False):
+                return Response("Erro ao calcular evapotranspiração.", status=status.HTTP_400_BAD_REQUEST)
+
+            try:
+                cultureVegetable = CultureVegetable.objects.get(pk=controller.culturevegetable.id)
+            except CultureVegetable.DoesNotExist:
+                Log.objects.create(
+                    reference="create_irrigationvolume_view",
+                    exception={"error": f"Cultura vegetal não encontrada, ID: {controller.culturevegetable.id}"},
+                    created_at=now_sp
+                )
+                return Response("Cultura vegetal não encontrada.", status=status.HTTP_400_BAD_REQUEST)
+
+            try:
+                meteorologicalData = MeteorologicalData.objects.get(
+                    date=today,
+                    geolocation_id=controller.geolocation.id
+                )
+            except MeteorologicalData.DoesNotExist:
+                return Response("Dados meteorológicos de hoje não encontrados para essa geolocalização.", status=status.HTTP_400_BAD_REQUEST)
+
+            IrrigationVolume.objects.create(
+                phase_initial=calculateEtoResult["dataEto"] * cultureVegetable.phase_initial_kc,
+                phase_vegetative=calculateEtoResult["dataEto"] * cultureVegetable.phase_vegetative_kc,
+                phase_flowering=calculateEtoResult["dataEto"] * cultureVegetable.phase_flowering_kc,
+                phase_fruiting=calculateEtoResult["dataEto"] * cultureVegetable.phase_fruiting_kc,
+                phase_maturation=calculateEtoResult["dataEto"] * cultureVegetable.phase_maturation_kc,
+                culturevegetable=cultureVegetable,
+                meteorologicaldata=meteorologicalData,
+                date=today,
+            )
 
         return Response(
             {
@@ -231,7 +282,8 @@ class ControllerAPI(APIView):
                 "message": "Requisição recebida com sucesso",
                 "controllerId": controllerId,
                 "controllerUuid": str(controllerUuid),
-                "valveId": valveId,
+                "valveId": valve.id,
+                "valveName": valve.name if hasattr(valve, "name") else None,  # só se existir campo name
             },
             status=status.HTTP_200_OK
         )

@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login as auth_login, update_session_auth_hash
-from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.db import transaction
 from .models import UserImage
 
 def login(request):
@@ -92,13 +93,14 @@ def changePassword(request):
             return redirect(request.META.get("HTTP_REFERER", "/"))
 
         try:
-            user.set_password(newPassword)
-            user.save()
+            with transaction.atomic():
+                user.set_password(newPassword)
+                user.save()
+                update_session_auth_hash(request, user)
+                messages.success(request, "Senha atualizada com sucesso!")
 
-            update_session_auth_hash(request, user)
-
-            messages.success(request, "Senha atualizada com sucesso!")
         except Exception as e:
+            transaction.set_rollback(True)
             messages.error(request, "Ocorreu um erro ao atualizar a senha.")
 
         return redirect(request.META.get("HTTP_REFERER", "/"))
