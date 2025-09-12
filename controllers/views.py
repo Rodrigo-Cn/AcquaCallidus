@@ -10,7 +10,7 @@ from culturesvegetables.models import CultureVegetable
 from geolocations.models import Geolocation
 from django.contrib import messages
 from django.utils.dateparse import parse_date
-from .models import Controller, ValveController
+from .models import Controller, ValveController, IrrigationController
 from irrigationvolumes.models import IrrigationVolume
 from meteorologicaldatas.models import MeteorologicalData
 from geolocations.models import Geolocation
@@ -87,7 +87,7 @@ def generateSecurityCode(length=40):
     return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
 
 @login_required(login_url='/auth/login/')
-def createController(request):
+def storeController(request):
     if request.method == "POST":
         try:
             controller = Controller.objects.create(
@@ -110,7 +110,7 @@ def createController(request):
                         plants_number=plants,
                         irrigation_radius=radius,
                         controller=controller,
-                        active=True
+                        order=i,
                     )
 
             messages.success(request, "Controlador criado com sucesso")
@@ -211,79 +211,134 @@ class ControllerAPI(APIView):
         valveId = request.data.get("valveId")
         securityCode = request.data.get("securityCode")
         controllerUuid = request.data.get("controllerUuid")
+        ipAdress = request.data.get("ipAdress")
         today = timezone.now().astimezone(pytzTimezone("America/Sao_Paulo")).date()
         now_sp = timezone.now().astimezone(pytzTimezone("America/Sao_Paulo"))
 
-        errorMessage = {"success": False, "message": "Dados de autenticação do controlador estão incorretos"}
+        error = self._validateRequestData(controllerId, valveId, securityCode, controllerUuid)
+        if error:
+            return error
 
+        controller = self._getController(controllerId, controllerUuid, securityCode)
+        if isinstance(controller, Response):
+            return controller
+
+        valve = self._getValve(controller, valveId)
+        if isinstance(valve, Response):
+            return valve
+
+        irrigationVolume = IrrigationVolume.objects.filter(
+            culturevegetable_id=controller.culturevegetable.id,
+            meteorologicaldata__geolocation_id=controller.geolocation.id,
+            date=today
+        ).first()
+
+        if not irrigationVolume:
+            irrigationVolume = self._storeIrrigationVolume(controller)
+            if irrigationVolume is None:
+                return Response(
+                    {"success": False, "message": "Falha ao gerar volume de irrigação."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+        irrigationController = self._createIrrigationController(controller, valve, irrigationVolume)
+
+        controller.status = True
+        controller.ip_address = ipAdress or "127.0.0.1"
+        controller.save(update_fields=["status", "ip_address"])
+
+        valve.status = True
+        valve.last_irrigation = now_sp
+        valve.save(update_fields=["status", "last_irrigation"])
+
+        return Response(
+            {
+                "success": True,
+                "total_liters": irrigationController.total_liters,
+            },
+            status=status.HTTP_200_OK
+        )
+
+    def _validateRequestData(self, controllerId, valveId, securityCode, controllerUuid):
         if not controllerId or not valveId or not securityCode or not controllerUuid:
-            return Response(errorMessage, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"success": False, "message": "Dados de autenticação do controlador estão incorretos"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        return None
 
+    def _getController(self, controllerId, controllerUuid, securityCode):
         try:
             controller = Controller.objects.prefetch_related("valves").get(
                 id=controllerId,
                 uuid=controllerUuid,
                 security_code=securityCode
             )
+            if not controller.active:
+                return Response(
+                    {"success": False, "message": "Dispositivo desativado!"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            return controller
         except Controller.DoesNotExist:
-            return Response(errorMessage, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"success": False, "message": "Dados de autenticação do controlador estão incorretos"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
+    def _getValve(self, controller, valveId):
         try:
-            valve = controller.valves.get(id=valveId)
+            return controller.valves.get(id=valveId)
         except ValveController.DoesNotExist:
             return Response(
                 {"success": False, "message": f"Válvula {valveId} não encontrada neste controlador."},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        irrigationvolume = IrrigationVolume.objects.filter(
-            culturevegetable_id=controller.culturevegetable.id,
-            meteorologicaldata__geolocation_id=controller.geolocation.id,
-            date=today
-        ).first()
+    def _storeIrrigationVolume(self, controller):
+        today = timezone.now().astimezone(pytzTimezone("America/Sao_Paulo")).date()
+        calculateEtoResult = calculateReferenceEvapotranspiration(controller.geolocation.id)
+        if not calculateEtoResult.get("success", False):
+            return None
 
-        if not irrigationvolume:
-            calculateEtoResult = calculateReferenceEvapotranspiration(controller.geolocation.id)
-            if not calculateEtoResult.get("success", False):
-                return Response("Erro ao calcular evapotranspiração.", status=status.HTTP_400_BAD_REQUEST)
-
-            try:
-                cultureVegetable = CultureVegetable.objects.get(pk=controller.culturevegetable.id)
-            except CultureVegetable.DoesNotExist:
-                Log.objects.create(
-                    reference="create_irrigationvolume_view",
-                    exception={"error": f"Cultura vegetal não encontrada, ID: {controller.culturevegetable.id}"},
-                    created_at=now_sp
-                )
-                return Response("Cultura vegetal não encontrada.", status=status.HTTP_400_BAD_REQUEST)
-
-            try:
-                meteorologicalData = MeteorologicalData.objects.get(
-                    date=today,
-                    geolocation_id=controller.geolocation.id
-                )
-            except MeteorologicalData.DoesNotExist:
-                return Response("Dados meteorológicos de hoje não encontrados para essa geolocalização.", status=status.HTTP_400_BAD_REQUEST)
-
-            IrrigationVolume.objects.create(
-                phase_initial=calculateEtoResult["dataEto"] * cultureVegetable.phase_initial_kc,
-                phase_vegetative=calculateEtoResult["dataEto"] * cultureVegetable.phase_vegetative_kc,
-                phase_flowering=calculateEtoResult["dataEto"] * cultureVegetable.phase_flowering_kc,
-                phase_fruiting=calculateEtoResult["dataEto"] * cultureVegetable.phase_fruiting_kc,
-                phase_maturation=calculateEtoResult["dataEto"] * cultureVegetable.phase_maturation_kc,
-                culturevegetable=cultureVegetable,
-                meteorologicaldata=meteorologicalData,
+        try:
+            meteorologicalData = MeteorologicalData.objects.get(
                 date=today,
+                geolocation_id=controller.geolocation.id
             )
+        except MeteorologicalData.DoesNotExist:
+            return None
 
-        return Response(
-            {
-                "success": True,
-                "message": "Requisição recebida com sucesso",
-                "controllerId": controllerId,
-                "controllerUuid": str(controllerUuid),
-                "valveId": valve.id,
-                "valveName": valve.name if hasattr(valve, "name") else None,  # só se existir campo name
-            },
-            status=status.HTTP_200_OK
+        return IrrigationVolume.objects.create(
+            phase_initial=calculateEtoResult["dataEto"] * controller.culturevegetable.phase_initial_kc,
+            phase_vegetative=calculateEtoResult["dataEto"] * controller.culturevegetable.phase_vegetative_kc,
+            phase_flowering=calculateEtoResult["dataEto"] * controller.culturevegetable.phase_flowering_kc,
+            phase_fruiting=calculateEtoResult["dataEto"] * controller.culturevegetable.phase_fruiting_kc,
+            phase_maturation=calculateEtoResult["dataEto"] * controller.culturevegetable.phase_maturation_kc,
+            culturevegetable=controller.culturevegetable,
+            meteorologicaldata=meteorologicalData,
+            date=today,
+        )
+
+    def _createIrrigationController(self, controller, valve, irrigationVolume):
+        phaseMap = {
+            1: irrigationVolume.phase_initial,
+            2: irrigationVolume.phase_vegetative,
+            3: irrigationVolume.phase_flowering,
+            4: irrigationVolume.phase_fruiting,
+            5: irrigationVolume.phase_maturation,
+        }
+
+        irrigationVolumeFase = phaseMap.get(controller.phase_vegetable)
+        if irrigationVolumeFase is None:
+            raise ValueError(f"Fase {controller.phase_vegetable} inválida.")
+
+        return IrrigationController.objects.create(
+            total_liters=(irrigationVolumeFase * valve.irrigation_radius) * valve.plants_number,
+            plants_number=valve.plants_number,
+            irrigation_radius=valve.irrigation_radius,
+            phase_vegetable=controller.phase_vegetable,
+            controller=controller,
+            culturevegetable=controller.culturevegetable,
+            geolocation=controller.geolocation
         )

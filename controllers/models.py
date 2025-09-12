@@ -74,6 +74,35 @@ class Controller(models.Model):
 
     def __str__(self):
         return f"{self.name}"
+    
+class ValveController(models.Model):
+    plants_number = models.PositiveIntegerField(
+        help_text="Quantidade de plantas/vegetais irrigados por válvula"
+    )
+
+    irrigation_radius = models.FloatField(
+        help_text="Raio de cobertura da irrigação em metros"
+    )
+
+    order = models.IntegerField(default=0)
+
+    last_irrigation = models.DateField(null=True, blank=True)
+
+    status = models.BooleanField(default=False)
+    
+    controller = models.ForeignKey(
+        Controller,
+        on_delete=models.CASCADE,
+        related_name='valves'
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        help_text="Data e hora de criação da válvula"
+    )
+
+    def __str__(self):
+        return f"Válvula - {self.controller.name} | {self.plants_number} plantas | {self.created_at.strftime('%d/%m/%Y %H:%M')}"
 
 class IrrigationController(models.Model):
     PHASE_CHOICES_VEGETABLE = [
@@ -91,13 +120,8 @@ class IrrigationController(models.Model):
     total_liters = models.FloatField(
         help_text="Total de litros de água utilizados na irrigação"
     )
-
-    valves_used = models.PositiveSmallIntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(8)],
-        help_text="Quantidade de válvulas utilizadas na irrigação do dia"
-    )
     
-    plants_per_valve = models.PositiveIntegerField(
+    plants_number = models.PositiveIntegerField(
         help_text="Quantidade de plantas/vegetais irrigados por válvula"
     )
 
@@ -116,9 +140,16 @@ class IrrigationController(models.Model):
         related_name='irrigations', 
         null=True
     )
+
+    controller = models.ForeignKey(
+        Controller,
+        on_delete=models.SET_NULL,
+        related_name='irrigations', 
+        null=True
+    )
     
-    culturevegetable = models.ForeignKey(
-        CultureVegetable,
+    valveController = models.ForeignKey(
+        ValveController,
         on_delete=models.SET_NULL,
         null=True,
         blank=True
@@ -133,32 +164,3 @@ class IrrigationController(models.Model):
 
     def __str__(self):
         return f"Irrigação em {self.date} {self.time} - {self.controller.name}"
-
-class ValveController(models.Model):
-    plants_number = models.PositiveIntegerField(
-        help_text="Quantidade de plantas/vegetais irrigados por válvula"
-    )
-
-    irrigation_radius = models.FloatField(
-        help_text="Raio de cobertura da irrigação em metros"
-    )
-
-    last_irrigation = models.DateField(null=True, blank=True)
-
-    status = models.BooleanField(default=False)
-    
-    active = models.BooleanField(default=False)
-    
-    controller = models.ForeignKey(
-        Controller,
-        on_delete=models.CASCADE,
-        related_name='valves'
-    )
-
-    created_at = models.DateTimeField(
-        auto_now_add=True,
-        help_text="Data e hora de criação da válvula"
-    )
-
-    def __str__(self):
-        return f"Válvula - {self.controller.name} | {self.plants_number} plantas | {self.created_at.strftime('%d/%m/%Y %H:%M')}"
