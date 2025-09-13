@@ -20,6 +20,7 @@ from .services import calculateReferenceEvapotranspiration
 from .serializers import ControllerSerializer
 from rest_framework.views import APIView
 from pytz import timezone as pytzTimezone
+from django.db import transaction
 from django.utils import timezone
 from django.urls import reverse
 from django.db.models import Q
@@ -205,59 +206,106 @@ def delete(request, id):
         return redirect(f"{reverse('controllers_list')}?page={pageNumber}")
     return redirect('controllers_list')
 
+from django.db import transaction
+from django.utils import timezone
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from pytz import timezone as pytzTimezone
+
 class ControllerAPI(APIView):
     def post(self, request, *args, **kwargs):
-        controllerId = request.data.get("controllerId")
-        valveId = request.data.get("valveId")
-        securityCode = request.data.get("securityCode")
-        controllerUuid = request.data.get("controllerUuid")
-        ipAdress = request.data.get("ipAdress")
-        today = timezone.now().astimezone(pytzTimezone("America/Sao_Paulo")).date()
-        now_sp = timezone.now().astimezone(pytzTimezone("America/Sao_Paulo"))
+        try:
+            with transaction.atomic():
+                now_sp = timezone.now().astimezone(pytzTimezone("America/Sao_Paulo"))
+                controllerId = request.data.get("controllerId")
+                valveId = request.data.get("valveId")
+                securityCode = request.data.get("securityCode")
+                controllerUuid = request.data.get("controllerUuid")
+                ipAdress = request.data.get("ipAdress")
+                today = now_sp.date()
 
-        error = self._validateRequestData(controllerId, valveId, securityCode, controllerUuid)
-        if error:
-            return error
+                error = self._validateRequestData(controllerId, valveId, securityCode, controllerUuid)
+                if error:
+                    self._log_error("controller_api_post_on", {"step": "validate_request", "request": request.data})
+                    return error
 
-        controller = self._getController(controllerId, controllerUuid, securityCode)
-        if isinstance(controller, Response):
-            return controller
+                controller = self._getController(controllerId, controllerUuid, securityCode)
+                if isinstance(controller, Response):
+                    self._log_error("controller_api_post_on", {"step": "get_controller", "controllerId": controllerId})
+                    return controller
 
-        valve = self._getValve(controller, valveId)
-        if isinstance(valve, Response):
-            return valve
+                valve = self._getValve(controller, valveId)
+                if isinstance(valve, Response):
+                    self._log_error("controller_api_post_on", {"step": "get_valve", "valveId": valveId})
+                    return valve
 
-        irrigationVolume = IrrigationVolume.objects.filter(
-            culturevegetable_id=controller.culturevegetable.id,
-            meteorologicaldata__geolocation_id=controller.geolocation.id,
-            date=today
-        ).first()
+                irrigationVolume = IrrigationVolume.objects.filter(
+                    culturevegetable_id=controller.culturevegetable.id,
+                    meteorologicaldata__geolocation_id=controller.geolocation.id,
+                    date=today
+                ).first()
 
-        if not irrigationVolume:
-            irrigationVolume = self._storeIrrigationVolume(controller)
-            if irrigationVolume is None:
+                if not irrigationVolume:
+                    irrigationVolume = self._storeIrrigationVolume(controller)
+                    if irrigationVolume is None:
+                        self._log_error("controller_api_post_on", {
+                            "step": "create_irrigationvolume",
+                            "error": "Cultura vegetal não encontrada"
+                        })
+                        return Response(
+                            {"success": False, "message": "Falha ao gerar volume de irrigação."},
+                            status=status.HTTP_400_BAD_REQUEST
+                        )
+
+                existingIrrigation = IrrigationController.objects.filter(
+                    controller=controller,
+                    culturevegetable=controller.culturevegetable,
+                    geolocation=controller.geolocation,
+                    phase_vegetable=controller.phase_vegetable,
+                    created_at__date=today,
+                    valve_id=valve.id
+                ).first()
+
+                if existingIrrigation:
+                    self._log_error("controller_api_post_on", {
+                        "step": "duplicate_irrigation",
+                        "valveId": valve.id,
+                        "message": "Já existe irrigação registrada para esta válvula hoje."
+                    })
+                    return Response(
+                        {"success": False, "message": "Já existe irrigação registrada para esta válvula hoje."},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+
+                irrigationController = self._createIrrigationController(controller, valve, irrigationVolume)
+
+                controller.status = True
+                controller.ip_address = ipAdress or "127.0.0.1"
+                controller.save(update_fields=["status", "ip_address"])
+
+                valve.status = True
+                valve.last_irrigation = now_sp
+                valve.save(update_fields=["status", "last_irrigation"])
+
                 return Response(
-                    {"success": False, "message": "Falha ao gerar volume de irrigação."},
-                    status=status.HTTP_400_BAD_REQUEST
+                    {
+                        "success": True,
+                        "total_liters": irrigationController.total_liters,
+                    },
+                    status=status.HTTP_200_OK
                 )
 
-        irrigationController = self._createIrrigationController(controller, valve, irrigationVolume)
-
-        controller.status = True
-        controller.ip_address = ipAdress or "127.0.0.1"
-        controller.save(update_fields=["status", "ip_address"])
-
-        valve.status = True
-        valve.last_irrigation = now_sp
-        valve.save(update_fields=["status", "last_irrigation"])
-
-        return Response(
-            {
-                "success": True,
-                "total_liters": irrigationController.total_liters,
-            },
-            status=status.HTTP_200_OK
-        )
+        except Exception as e:
+            self._log_error("controller_api_post_on", {
+                "step": "exception",
+                "error": str(e),
+                "request": request.data
+            })
+            return Response(
+                {"success": False, "message": "Ocorreu um erro interno no servidor."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
     def _validateRequestData(self, controllerId, valveId, securityCode, controllerUuid):
         if not controllerId or not valveId or not securityCode or not controllerUuid:
@@ -290,6 +338,7 @@ class ControllerAPI(APIView):
         try:
             return controller.valves.get(id=valveId)
         except ValveController.DoesNotExist:
+            self._log_error("controller_api_post_on", {"step": "get_valve", "valveId": valveId})
             return Response(
                 {"success": False, "message": f"Válvula {valveId} não encontrada neste controlador."},
                 status=status.HTTP_400_BAD_REQUEST
@@ -299,6 +348,7 @@ class ControllerAPI(APIView):
         today = timezone.now().astimezone(pytzTimezone("America/Sao_Paulo")).date()
         calculateEtoResult = calculateReferenceEvapotranspiration(controller.geolocation.id)
         if not calculateEtoResult.get("success", False):
+            self._log_error("controller_api_post_on", {"step": "calculate_eto", "error": "Falha ao calcular Eto"})
             return None
 
         try:
@@ -307,6 +357,7 @@ class ControllerAPI(APIView):
                 geolocation_id=controller.geolocation.id
             )
         except MeteorologicalData.DoesNotExist:
+            self._log_error("controller_api_post_on", {"step": "meteorological_data", "error": "Dados meteorológicos não encontrados"})
             return None
 
         return IrrigationVolume.objects.create(
@@ -340,5 +391,13 @@ class ControllerAPI(APIView):
             phase_vegetable=controller.phase_vegetable,
             controller=controller,
             culturevegetable=controller.culturevegetable,
-            geolocation=controller.geolocation
+            geolocation=controller.geolocation,
+            valve=valve 
+        )
+
+    def _log_error(self, reference, exception):
+        Log.objects.create(
+            reference=reference,
+            exception=exception,
+            created_at=timezone.now().astimezone(pytzTimezone("America/Sao_Paulo"))
         )

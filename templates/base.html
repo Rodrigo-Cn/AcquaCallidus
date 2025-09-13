@@ -321,7 +321,7 @@
                   <span aria-hidden="true">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      class="w-5 h-5 text-gray-500"
+                      class="w-5 h-5 text-gray-400"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor">
@@ -451,7 +451,7 @@
                 <a
                   href="#"
                   @click="$event.preventDefault(); open = !open"
-                  class="flex items-center p-2 text-gray-500 transition-colors rounded-md dark:text-light hover:bg-primary-100 dark:hover:bg-primary
+                  class="flex items-center p-2 text-gray-400 transition-colors rounded-md dark:text-light hover:bg-primary-100 dark:hover:bg-primary
                   {% if request.path == '/controllers/' or request.path == '/logs/' %}
                     text-gray-700
                   {% else %}
@@ -1009,7 +1009,7 @@
                     <span aria-hidden="true">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        class="w-5 h-5 text-gray-500"
+                        class="w-5 h-5 text-gray-400"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor">
@@ -1658,15 +1658,16 @@
               {% if logs %}
                 <div class="space-y-4" x-show.transition.in="activeTabe == 'action'">
                   {% for log in logs %}
-                    <a class="block">
+                    <a href="/logs/{{log.id}}/get/"
+                      class="block hover:bg-gray-100 dark:hover:bg-gray-200 rounded transition-colors duration-150">
                       <div class="flex px-4 space-x-4">
                         <div class="relative flex-shrink-0">
                           <span class="inline-block p-2 overflow-visible rounded-full
-                          {% if log.viewed %}
-                            bg-green-100 text-green-700
-                          {% else %}
-                            bg-yellow-100 text-yellow-700
-                          {% endif %}">
+                            {% if log.viewed %}
+                              bg-green-100 text-green-700
+                            {% else %}
+                              bg-yellow-100 text-yellow-700
+                            {% endif %}">
                             <svg class="w-7 h-7" xmlns="http://www.w3.org/2000/svg" fill="none"
                                 viewBox="0 0 24 24" stroke="currentColor">
                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

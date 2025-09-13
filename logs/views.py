@@ -31,7 +31,6 @@ def list(request):
 
     return render(request, 'log/list.html', {
         'logs': logs,
-        'logs_page': logs_page,
         'page_obj': page_obj,
         'user': request.user,
         'date_query': date_query,
@@ -63,3 +62,20 @@ def getLogException(request, id):
         log.save()
 
     return Response({"exception": log.exception}, status=status.HTTP_200_OK)
+
+@login_required(login_url='/auth/login/')
+def listOne(request, id):
+    logs = Log.objects.order_by('-created_at')  
+    logs_page = Log.objects.order_by('-created_at')
+    hasUnread = logs.filter(viewed=False).exists()
+    logs = logs[:12]
+    form_culture_vegetable = CultureVegetableForm()
+    page_obj = logs_page.filter(id=id)
+
+    return render(request, 'log/list.html', {
+        'logs': logs,
+        'page_obj': page_obj,
+        'user': request.user,
+        'form_culture_vegetable': form_culture_vegetable,
+        'has_unread': hasUnread
+    })
