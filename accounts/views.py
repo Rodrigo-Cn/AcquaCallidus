@@ -1,12 +1,12 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login as auth_login, update_session_auth_hash
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from django.db import transaction
-from .models import UserImage
-import hashlib
 import os
 import time
+import hashlib
+from django.contrib import messages
+from django.db import transaction
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import authenticate, login as auth_login, update_session_auth_hash
+from .models import UserImage
 
 def login(request):
     if request.method == 'GET':

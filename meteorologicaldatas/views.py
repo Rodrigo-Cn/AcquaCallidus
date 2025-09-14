@@ -1,18 +1,17 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from culturesvegetables.forms import CultureVegetableForm
-from django.utils.dateparse import parse_date
-from django.core.paginator import Paginator
-from django.urls import reverse
-from .models import MeteorologicalData
-from .services import saveTodayWeather
+from datetime import date
+from django.shortcuts import render
 from django.contrib import messages
 from django.utils.timezone import now
-from datetime import date
+from django.utils.dateparse import parse_date
+from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
+from django.urls import reverse
+from culturesvegetables.forms import CultureVegetableForm
 from geolocations.models import Geolocation
 from logs.models import Log
 from .models import MeteorologicalData
-
+from .services import saveTodayWeather
+from django.shortcuts import redirect, get_object_or_404
 
 @login_required(login_url='/auth/login/')
 def listForGeolocation(request):

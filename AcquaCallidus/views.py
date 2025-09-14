@@ -1,15 +1,14 @@
 from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
 from django.utils.timezone import now
-from django.db.models.functions import TruncMonth
+from django.contrib.auth.decorators import login_required
+from django.db.models import Count
+from datetime import timedelta
+from collections import OrderedDict
 from logs.models import Log
-from irrigationvolumes.models import IrrigationVolume
 from geolocations.models import Geolocation
+from irrigationvolumes.models import IrrigationVolume
 from culturesvegetables.models import CultureVegetable
 from culturesvegetables.forms import CultureVegetableForm
-from django.db.models import Count
-from collections import OrderedDict
-from datetime import timedelta
 
 portugueseMonths = {
     1: "Janeiro", 2: "Fevereiro", 3: "Março", 4: "Abril",
