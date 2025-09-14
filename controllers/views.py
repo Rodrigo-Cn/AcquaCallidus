@@ -26,6 +26,7 @@ from django.urls import reverse
 from django.db.models import Q
 import random
 import string
+import json
 
 @login_required(login_url='/auth/login/')
 def listController(request):
@@ -431,12 +432,12 @@ class ControllerOnAPI(APIView):
             5: irrigationVolume.phase_maturation,
         }
 
-        irrigationVolumeFase = phaseMap.get(controller.phase_vegetable)
-        if irrigationVolumeFase is None:
+        irrigationVolumePhase = phaseMap.get(controller.phase_vegetable)
+        if irrigationVolumePhase is None:
             raise ValueError(f"Fase {controller.phase_vegetable} inválida.")
 
         return IrrigationController.objects.create(
-            total_liters=(irrigationVolumeFase * valve.irrigation_radius) * valve.plants_number,
+            total_liters=(irrigationVolumePhase * valve.irrigation_radius) * valve.plants_number,
             plants_number=valve.plants_number,
             irrigation_radius=valve.irrigation_radius,
             phase_vegetable=controller.phase_vegetable,
@@ -456,7 +457,6 @@ class ControllerOnAPI(APIView):
 class ControllerOffAPI(APIView):
     def post(self, request, *args, **kwargs):
         try:
-            now_sp = timezone.now().astimezone(pytzTimezone("America/Sao_Paulo"))
             controllerId = request.data.get("controllerId")
             valveId = request.data.get("valveId")
             securityCode = request.data.get("securityCode")
@@ -584,5 +584,140 @@ class ControllerOffAPI(APIView):
         Log.objects.create(
             reference=reference,
             exception=exception,
+            created_at=timezone.now().astimezone(pytzTimezone("America/Sao_Paulo"))
+        )
+
+class ControllerUpdatePhase(APIView):
+    def post(self, request, *args, **kwargs):
+        try:
+            controllerId = request.data.get("controllerId")
+            valveId = request.data.get("valveId")
+            securityCode = request.data.get("securityCode")
+            controllerUuid = request.data.get("controllerUuid")
+            phaseVegetable = request.data.get("phaseVegetable")
+
+            self._updateAttemptController(controllerId)
+            
+            with transaction.atomic():
+                error = self._validateRequestData(controllerId, valveId, securityCode, controllerUuid)
+                if error:
+                    self._log_error("controller_update_phase", {"step": "validate_request", "request": request.data})
+                    return error
+
+                if not phaseVegetable:
+                    self._log_error("controller_update_phase", {
+                        "step": "validate_phase",
+                        "error": "Fase não informada",
+                        "request": request.data
+                    })
+                    return Response(
+                        {"success": False, "message": "É necessário informar a fase do vegetal."},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+
+                controller = self._getController(controllerId, controllerUuid, securityCode)
+                if isinstance(controller, Response):
+                    self._log_error("controller_update_phase", {"step": "get_controller", "controllerId": controllerId})
+                    return controller
+
+                valve = self._getValve(controller, valveId)
+                if isinstance(valve, Response):
+                    self._log_error("controller_update_phase", {"step": "get_valve", "valveId": valveId})
+                    return valve
+                
+                controller.phase_vegetable = phaseVegetable
+                controller.save(update_fields=["phase_vegetable"])
+
+            return Response(
+                {"success": True, "message": "Fase vegetal no controlador atualizada com sucesso."},
+                status=status.HTTP_200_OK
+            )
+
+        except Exception as e:
+            self._log_error("controller_update_phase", {
+                "step": "exception",
+                "error": str(e),
+                "request": request.data
+            })
+            return Response(
+                {"success": False, "message": "Ocorreu um erro interno no servidor."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+    def _validateRequestData(self, controllerId, valveId, securityCode, controllerUuid):
+        if not controllerId or not valveId or not securityCode or not controllerUuid:
+            return Response(
+                {"success": False, "message": "Dados de autenticação do controlador estão incorretos"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        return None
+
+    def _getController(self, controllerId, controllerUuid, securityCode):
+        try:
+            controller = Controller.objects.prefetch_related("valves").get(
+                id=controllerId,
+                uuid=controllerUuid,
+                security_code=securityCode
+            )
+            if not controller.active:
+                self._log_error("controller_update_phase", {
+                    "step": "get_controller",
+                    "controllerId": controllerId,
+                    "error": "Dispositivo desativado"
+                })
+                return Response(
+                    {"success": False, "message": "Dispositivo desativado!"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            if controller.attempts >= 5:
+                self._log_error("controller_update_phase", {
+                    "step": "get_controller",
+                    "controllerId": controllerId,
+                    "error": "Ocorreram várias tentativas de acessar o controlador"
+                })
+            return controller
+        except Controller.DoesNotExist:
+            self._log_error("controller_update_phase", {
+                "step": "get_controller",
+                "controllerId": controllerId,
+                "error": "Controlador não encontrado ou credenciais inválidas"
+            })
+            return Response(
+                {"success": False, "message": "Dados de autenticação do controlador estão incorretos"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+    def _updateAttemptController(self, controllerId):
+        try:
+            controller = Controller.objects.prefetch_related("valves").get(
+                id=controllerId,
+            )
+        except Controller.DoesNotExist:
+            return
+
+        if controller.attempts >= 5:
+            self._log_error("controller_update_phase", {
+                "step": "get_controller",
+                "controllerId": controllerId,
+                "error": "Ocorreram várias tentativas de acessar o controlador"
+            })
+
+        controller.attempts += 1
+        controller.save()
+
+    def _getValve(self, controller, valveId):
+        try:
+            return controller.valves.get(id=valveId)
+        except ValveController.DoesNotExist:
+            self._log_error("controller_update_phase", {"step": "get_valve", "valveId": valveId})
+            return Response(
+                {"success": False, "message": f"Válvula {valveId} não encontrada neste controlador."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+    def _log_error(self, reference, exception):
+        Log.objects.create(
+            reference=reference,
+            exception=json.dumps(exception, ensure_ascii=False),
             created_at=timezone.now().astimezone(pytzTimezone("America/Sao_Paulo"))
         )
