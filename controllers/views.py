@@ -206,24 +206,20 @@ def delete(request, id):
         return redirect(f"{reverse('controllers_list')}?page={pageNumber}")
     return redirect('controllers_list')
 
-from django.db import transaction
-from django.utils import timezone
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from pytz import timezone as pytzTimezone
-
-class ControllerAPI(APIView):
+class ControllerOnAPI(APIView):
     def post(self, request, *args, **kwargs):
         try:
+            now_sp = timezone.now().astimezone(pytzTimezone("America/Sao_Paulo"))
+            controllerId = request.data.get("controllerId")
+            valveId = request.data.get("valveId")
+            securityCode = request.data.get("securityCode")
+            controllerUuid = request.data.get("controllerUuid")
+            ipAdress = request.data.get("ipAdress")
+            today = now_sp.date()
+
+            self._updateAttemptController(controllerId)
+            
             with transaction.atomic():
-                now_sp = timezone.now().astimezone(pytzTimezone("America/Sao_Paulo"))
-                controllerId = request.data.get("controllerId")
-                valveId = request.data.get("valveId")
-                securityCode = request.data.get("securityCode")
-                controllerUuid = request.data.get("controllerUuid")
-                ipAdress = request.data.get("ipAdress")
-                today = now_sp.date()
 
                 error = self._validateRequestData(controllerId, valveId, securityCode, controllerUuid)
                 if error:
@@ -263,8 +259,8 @@ class ControllerAPI(APIView):
                     culturevegetable=controller.culturevegetable,
                     geolocation=controller.geolocation,
                     phase_vegetable=controller.phase_vegetable,
-                    created_at__date=today,
-                    valve_id=valve.id
+                    date=today,
+                    valvecontroller_id=valve.id
                 ).first()
 
                 if existingIrrigation:
@@ -278,11 +274,17 @@ class ControllerAPI(APIView):
                         status=status.HTTP_400_BAD_REQUEST
                     )
 
+                error = self._validateSingleValveActive(controller, valve)
+                if error:
+                    return error
+
                 irrigationController = self._createIrrigationController(controller, valve, irrigationVolume)
 
                 controller.status = True
                 controller.ip_address = ipAdress or "127.0.0.1"
-                controller.save(update_fields=["status", "ip_address"])
+                controller.last_irrigation = now_sp
+                controller.attempts = 0
+                controller.save(update_fields=["status", "ip_address", "last_irrigation", "attempts"])
 
                 valve.status = True
                 valve.last_irrigation = now_sp
@@ -307,6 +309,21 @@ class ControllerAPI(APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
+    def _validateSingleValveActive(self, controller, valve):
+        otherActiveValve = controller.valves.filter(status=True).exclude(id=valve.id).first()
+        if otherActiveValve:
+            self._log_error("controller_api_post_on", {
+                "step": "one_valve_at_time",
+                "controllerId": controller.id,
+                "valveId": otherActiveValve.id,
+                "message": "Já existe outra válvula ligada neste controlador."
+            })
+            return Response(
+                {"success": False, "message": "Só é permitido ligar uma válvula por vez neste controlador."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        return None
+
     def _validateRequestData(self, controllerId, valveId, securityCode, controllerUuid):
         if not controllerId or not valveId or not securityCode or not controllerUuid:
             return Response(
@@ -323,16 +340,50 @@ class ControllerAPI(APIView):
                 security_code=securityCode
             )
             if not controller.active:
+                self._log_error("controller_api_post_on", {
+                    "step": "get_controller",
+                    "controllerId": controllerId,
+                    "error": "Dispositivo desativado"
+                })
                 return Response(
                     {"success": False, "message": "Dispositivo desativado!"},
                     status=status.HTTP_400_BAD_REQUEST
                 )
+            if controller.attempts >= 5:
+                self._log_error("controller_api_post_on", {
+                    "step": "get_controller",
+                    "controllerId": controllerId,
+                    "error": "Ocorreram várias tentativas de acessar o controlador"
+                })
             return controller
         except Controller.DoesNotExist:
+            self._log_error("controller_api_post_on", {
+                "step": "get_controller",
+                "controllerId": controllerId,
+                "error": "Controlador não encontrado ou credenciais inválidas"
+            })
             return Response(
                 {"success": False, "message": "Dados de autenticação do controlador estão incorretos"},
                 status=status.HTTP_400_BAD_REQUEST
             )
+
+    def _updateAttemptController(self, controllerId):
+        try:
+            controller = Controller.objects.prefetch_related("valves").get(
+                id=controllerId,
+            )
+        except Controller.DoesNotExist:
+            return
+
+        if controller.attempts >= 5:
+            self._log_error("controller_api_post_on", {
+                "step": "get_controller",
+                "controllerId": controllerId,
+                "error": "Ocorreram várias tentativas de acessar o controlador"
+            })
+
+        controller.attempts += 1
+        controller.save()
 
     def _getValve(self, controller, valveId):
         try:
@@ -392,8 +443,142 @@ class ControllerAPI(APIView):
             controller=controller,
             culturevegetable=controller.culturevegetable,
             geolocation=controller.geolocation,
-            valve=valve 
+            valvecontroller=valve 
         )
+
+    def _log_error(self, reference, exception):
+        Log.objects.create(
+            reference=reference,
+            exception=exception,
+            created_at=timezone.now().astimezone(pytzTimezone("America/Sao_Paulo"))
+        )
+
+class ControllerOffAPI(APIView):
+    def post(self, request, *args, **kwargs):
+        try:
+            now_sp = timezone.now().astimezone(pytzTimezone("America/Sao_Paulo"))
+            controllerId = request.data.get("controllerId")
+            valveId = request.data.get("valveId")
+            securityCode = request.data.get("securityCode")
+            controllerUuid = request.data.get("controllerUuid")
+
+            self._updateAttemptController(controllerId)
+            
+            with transaction.atomic():
+                error = self._validateRequestData(controllerId, valveId, securityCode, controllerUuid)
+                if error:
+                    self._log_error("controller_api_post_off", {"step": "validate_request", "request": request.data})
+                    return error
+
+                controller = self._getController(controllerId, controllerUuid, securityCode)
+                if isinstance(controller, Response):
+                    self._log_error("controller_api_post_off", {"step": "get_controller", "controllerId": controllerId})
+                    return controller
+
+                valve = self._getValve(controller, valveId)
+                if isinstance(valve, Response):
+                    self._log_error("controller_api_post_off", {"step": "get_valve", "valveId": valveId})
+                    return valve
+
+                if not valve.status:
+                    return Response(
+                        {"success": False, "message": "A válvula já está desligada."},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+
+                valve.status = False
+                valve.save(update_fields=["status"])
+
+                if controller.valves.count() == valve.order:
+                    controller.status = False
+                    controller.save(update_fields=["status"])
+                
+            return Response(
+                {"success": True, "message": "Válvula desligada com sucesso."},
+                status=status.HTTP_200_OK
+            )
+
+        except Exception as e:
+            self._log_error("controller_api_post_off", {
+                "step": "exception",
+                "error": str(e),
+                "request": request.data
+            })
+            return Response(
+                {"success": False, "message": "Ocorreu um erro interno no servidor."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+    def _validateRequestData(self, controllerId, valveId, securityCode, controllerUuid):
+        if not controllerId or not valveId or not securityCode or not controllerUuid:
+            return Response(
+                {"success": False, "message": "Dados de autenticação do controlador estão incorretos"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        return None
+
+    def _getController(self, controllerId, controllerUuid, securityCode):
+        try:
+            controller = Controller.objects.prefetch_related("valves").get(
+                id=controllerId,
+                uuid=controllerUuid,
+                security_code=securityCode
+            )
+            if not controller.active:
+                self._log_error("controller_api_post_off", {
+                    "step": "get_controller",
+                    "controllerId": controllerId,
+                    "error": "Dispositivo desativado"
+                })
+                return Response(
+                    {"success": False, "message": "Dispositivo desativado!"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            if controller.attempts >= 5:
+                self._log_error("controller_api_post_off", {
+                    "step": "get_controller",
+                    "controllerId": controllerId,
+                    "error": "Ocorreram várias tentativas de acessar o controlador"
+                })
+            return controller
+        except Controller.DoesNotExist:
+            self._log_error("controller_api_post_off", {
+                "step": "get_controller",
+                "controllerId": controllerId,
+                "error": "Controlador não encontrado ou credenciais inválidas"
+            })
+            return Response(
+                {"success": False, "message": "Dados de autenticação do controlador estão incorretos"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+    def _updateAttemptController(self, controllerId):
+        try:
+            controller = Controller.objects.prefetch_related("valves").get(
+                id=controllerId,
+            )
+        except Controller.DoesNotExist:
+            return
+
+        if controller.attempts >= 5:
+            self._log_error("controller_api_post_off", {
+                "step": "get_controller",
+                "controllerId": controllerId,
+                "error": "Ocorreram várias tentativas de acessar o controlador"
+            })
+
+        controller.attempts += 1
+        controller.save()
+
+    def _getValve(self, controller, valveId):
+        try:
+            return controller.valves.get(id=valveId)
+        except ValveController.DoesNotExist:
+            self._log_error("controller_api_post_off", {"step": "get_valve", "valveId": valveId})
+            return Response(
+                {"success": False, "message": f"Válvula {valveId} não encontrada neste controlador."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
     def _log_error(self, reference, exception):
         Log.objects.create(

@@ -82,8 +82,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 const deleteBtn = document.createElement("button");
                 deleteBtn.type = "button";
                 deleteBtn.className =
-                    "remove-valve bg-red-500 text-white w-10 h-10 rounded-full hover:bg-red-600 flex items-center justify-center";
-                deleteBtn.innerHTML = "×";
+                    "remove-valve bg-red-500 text-white w-8 h-8 rounded-full hover:bg-red-600 flex items-center justify-center p-0 leading-none";
+                deleteBtn.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" 
+                    viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                        d="M6 18L18 6M6 6l12 12" />
+                </svg>`;
+
                 v.appendChild(deleteBtn);
 
                 deleteBtn.addEventListener("click", () => {

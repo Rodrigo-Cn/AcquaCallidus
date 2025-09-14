@@ -24,7 +24,7 @@ class Controller(models.Model):
         (5, 'Maturação'),
     ]
 
-    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, null=True)
+    uuid = models.UUIDField(default=uuid.uuid4, unique=True, null=True)
 
     name = models.CharField(max_length=60)
 
@@ -38,6 +38,10 @@ class Controller(models.Model):
     )
 
     ip_address = models.GenericIPAddressField(null=True, blank=True)
+
+    last_irrigation = models.DateField(null=True, blank=True)
+
+    attempts = models.IntegerField(default=0)
 
     phase_vegetable = models.PositiveSmallIntegerField(
         choices=PHASE_CHOICES_VEGETABLE,
@@ -148,7 +152,7 @@ class IrrigationController(models.Model):
         null=True
     )
     
-    valveController = models.ForeignKey(
+    valvecontroller = models.ForeignKey(
         ValveController,
         on_delete=models.SET_NULL,
         null=True,
@@ -157,6 +161,13 @@ class IrrigationController(models.Model):
     
     geolocation = models.ForeignKey(
         Geolocation,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
+
+    culturevegetable = models.ForeignKey(
+        CultureVegetable,
         on_delete=models.SET_NULL,
         null=True,
         blank=True
