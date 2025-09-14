@@ -10,4 +10,5 @@ urlpatterns = [
     path('<int:id>/', views.edit, name='get_controller'),
     path("api/valve/on/", views.ControllerOnAPI.as_view(), name="controller_api_post_on"),
     path("api/valve/off/", views.ControllerOffAPI.as_view(), name="controller_api_post_off"),
+    path("api/update/vegetablephase/", views.ControllerUpdatePhase.as_view(), name="controller_api_update_phase"),
 ]

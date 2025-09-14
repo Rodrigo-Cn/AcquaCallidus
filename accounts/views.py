@@ -4,6 +4,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db import transaction
 from .models import UserImage
+import hashlib
+import os
+import time
 
 def login(request):
     if request.method == 'GET':
@@ -27,18 +30,25 @@ def uploadProfileImage(request):
     if request.method == "POST" and "image" in request.FILES:
         try:
             img = request.FILES["image"]
+            ext = os.path.splitext(img.name)[1]
 
-            existing = UserImage.objects.filter(user=request.user).first()
-            if existing:
-                existing.image.delete(save=False)
-                existing.delete()
+            hash_name = hashlib.sha256(
+                (str(time.time()) + img.name).encode("utf-8")
+            ).hexdigest()[:20]
+            img.name = f"{hash_name}{ext}"
 
-            UserImage.objects.create(user=request.user, image=img)
+            with transaction.atomic():
+                existing = UserImage.objects.filter(user=request.user).first()
+                if existing:
+                    existing.image.delete(save=False)
+                    existing.delete()
+
+                UserImage.objects.create(user=request.user, image=img)
 
             messages.success(request, "Foto de perfil salva com sucesso!")
 
         except Exception as e:
-            messages.error(request, "Erro ao salvar foto de perfil")
+            messages.error(request, f"Erro ao salvar foto de perfil: {e}")
 
     elif request.method == "POST":
         messages.error(request, "Nenhuma imagem enviada!")
