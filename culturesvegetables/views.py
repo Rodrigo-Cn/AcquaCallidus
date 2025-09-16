@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.db import transaction
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
@@ -12,6 +13,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from logs.models import Log
+from logs.services import logError
 from .models import CultureVegetable
 from .forms import CultureVegetableForm, CultureVegetableEditForm
 from .serializers import CultureVegetableSerializer
@@ -50,22 +52,20 @@ def list(request):
 @require_POST
 @login_required(login_url='/auth/login/')
 def store(request):
-    todayWithHour = timezone.now().astimezone(pytzTimezone("America/Sao_Paulo"))
-
     try:
-        form = CultureVegetableForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Cultura cadastrada com sucesso!")
-            return redirect('culturevegetable_list')
-        messages.error(request, "Dados inválidos! Verifique os campos.")
-        return redirect(request.META.get('HTTP_REFERER', 'culturevegetable_list'))
+        with transaction.atomic():
+            form = CultureVegetableForm(request.POST)
+            if form.is_valid():
+                form.save()
+                messages.success(request, "Cultura cadastrada com sucesso!")
+                return redirect('culturevegetable_list')
+            messages.error(request, "Dados inválidos! Verifique os campos.")
+            return redirect(request.META.get('HTTP_REFERER', 'culturevegetable_list'))
     except Exception as e:
-        Log.objects.create(
-            reference="create_culturevegetable_controller",
-            exception={"error": str(e)},
-            created_at=todayWithHour
-        )
+        logError("create_culturevegetable_view", {
+            "step": "exception",
+            "error": str(e),
+        })
         messages.error(request, "Ocorreu um erro ao criar a cultura!")
         return redirect(request.META.get('HTTP_REFERER', 'culturevegetable_list'))
     
@@ -84,17 +84,22 @@ def delete(request, id):
 
     if request.method == "POST":
         try:
-            cultureVegetable = CultureVegetable.objects.get(id=id)
-            cultureVegetable.delete()
-            messages.success(request, "Cultura vegetal deletada com sucesso.")
+            with transaction.atomic():
+                cultureVegetable = CultureVegetable.objects.get(id=id)
+                cultureVegetable.delete()
+                messages.success(request, "Cultura vegetal deletada com sucesso.")
         except CultureVegetable.DoesNotExist:
             messages.error(request, "Cultura vegetal não encontrada.")
-        except Exception:
+        except Exception as e:
+            logError("delete_culturevegetable_view", {
+                "step": "exception",
+                "error": str(e),
+            })
             messages.error(request, "Erro ao deletar cultura vegetal")
     else:
         messages.error(request, "Método não permitido.")
 
-    if pageNumber and nameQuery :
+    if pageNumber and nameQuery:
         return redirect(f"{reverse('culturevegetable_list')}?name={nameQuery}&page={pageNumber}")   
     elif pageNumber:
         return redirect(f"{reverse('culturevegetable_list')}?page={pageNumber}")
@@ -107,19 +112,24 @@ def update(request, id):
 
     try:
         if request.method == "POST":
-            cultureVegetable = get_object_or_404(CultureVegetable, id=id)
-            form = CultureVegetableForm(request.POST, instance=cultureVegetable)
-            if form.is_valid():
-                form.save()
-                messages.success(request, f"Cultura vegetal {cultureVegetable.name} atualizado(a) com sucesso.")
-            else:
-                messages.error(request, "Erro na atualização da cultura vegetal. Verifique os campos e tente novamente.")
+            with transaction.atomic():
+                cultureVegetable = get_object_or_404(CultureVegetable, id=id)
+                form = CultureVegetableForm(request.POST, instance=cultureVegetable)
+                if form.is_valid():
+                    form.save()
+                    messages.success(request, f"Cultura vegetal {cultureVegetable.name} atualizado(a) com sucesso.")
+                else:
+                    messages.error(request, "Erro na atualização da cultura vegetal. Verifique os campos e tente novamente.")
         else:
             messages.error(request, "Método não permitido.")
-    except Exception:
+    except Exception as e:
+        logError("update_culturevegetable_view", {
+            "step": "exception",
+            "error": str(e),
+        })
         messages.error(request, "Ocorreu um erro ao atualizar a cultura vegetal")
 
-    if pageNumber and nameQuery :
+    if pageNumber and nameQuery:
         return redirect(f"{reverse('culturevegetable_list')}?name={nameQuery}&page={pageNumber}")   
     elif pageNumber:
         return redirect(f"{reverse('culturevegetable_list')}?page={pageNumber}")

@@ -10,7 +10,7 @@ function prepareModal() {
   }
 
   const confirmButton = document.getElementById('confirm-button');
-  confirmButton.href = `/irrigationvolumes/create/${geolocationId}/${cultureId}/`;
+  confirmButton.href = `/irrigationvolumes/store/${geolocationId}/${cultureId}/`;
 
   showModal();
 }

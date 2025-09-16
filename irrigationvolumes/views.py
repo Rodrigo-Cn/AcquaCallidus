@@ -10,14 +10,23 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .models import IrrigationVolume
 from geolocations.models import Geolocation
 from logs.models import Log
+from logs.services import logError
 from culturesvegetables.models import CultureVegetable
 from meteorologicaldatas.models import MeteorologicalData
 from culturesvegetables.forms import CultureVegetableForm
 from .services import calculateReferenceEvapotranspiration
-
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.shortcuts import redirect
+from django.urls import reverse
+from django.utils import timezone
+from django.db import transaction
+from pytz import timezone as pytzTimezone
+from .models import IrrigationVolume, CultureVegetable, MeteorologicalData
+from .services import calculateReferenceEvapotranspiration
 
 @login_required(login_url='/auth/login/')
-def createIrrigationVolume(request, geolocationId, cultureId):
+def storeIrrigationVolume(request, geolocationId, cultureId):
     if not geolocationId or not cultureId:
         messages.error(request, "Geolocalização ou cultura não informada!")
         return redirect(f'{reverse("irrigationvolume_list_cultures")}?culture_id={cultureId or ""}')
@@ -50,6 +59,10 @@ def createIrrigationVolume(request, geolocationId, cultureId):
             exception={"error": "Cultura vegetal não encontrada, ID:" . cultureId},
             created_at=now_sp
         )
+        logError("store_irrigationvolume_view", {
+            "step": "exception",
+            "error": "Cultura vegetal não encontrada, ID:" . cultureId
+        })
         messages.error(request, "Cultura vegetal não encontrada.")
         return redirect(f'{reverse("irrigationvolume_list_cultures")}?culture_id={cultureId}')
 
@@ -62,18 +75,27 @@ def createIrrigationVolume(request, geolocationId, cultureId):
         messages.error(request, "Dados meteorológicos de hoje não encontrados para essa geolocalização.")
         return redirect(f'{reverse("irrigationvolume_list_cultures")}?culture_id={cultureId}')
 
-    IrrigationVolume.objects.create(
-        phase_initial=eto * cultureVegetable.phase_initial_kc,
-        phase_vegetative=eto * cultureVegetable.phase_vegetative_kc,
-        phase_flowering=eto * cultureVegetable.phase_flowering_kc,
-        phase_fruiting=eto * cultureVegetable.phase_fruiting_kc,
-        phase_maturation=eto * cultureVegetable.phase_maturation_kc,
-        culturevegetable=cultureVegetable,
-        meteorologicaldata=meteorologicalData,
-        date=today,
-    )
+    try:
+        with transaction.atomic():
+            IrrigationVolume.objects.create(
+                phase_initial=eto * cultureVegetable.phase_initial_kc,
+                phase_vegetative=eto * cultureVegetable.phase_vegetative_kc,
+                phase_flowering=eto * cultureVegetable.phase_flowering_kc,
+                phase_fruiting=eto * cultureVegetable.phase_fruiting_kc,
+                phase_maturation=eto * cultureVegetable.phase_maturation_kc,
+                culturevegetable=cultureVegetable,
+                meteorologicaldata=meteorologicalData,
+                date=today,
+            )
+        messages.success(request, "Volumes de irrigação gerados com sucesso!")
 
-    messages.success(request, "Volumes de irrigação gerados com sucesso!")
+    except Exception as e:
+        logError("store_irrigationvolume_view", {
+            "step": "exception",
+            "error": str(e),
+        })
+        messages.error(request, "Ocorreu um erro ao gerar os volumes de irrigação.")
+
     return redirect(f'{reverse("irrigationvolume_list_cultures")}?culture_id={cultureId}')
 
 @login_required(login_url='/auth/login/')
@@ -148,18 +170,22 @@ def delete(request, irrigationVolumeId):
         culture_id = request.GET.get('culture_id', '')
         page_number = request.GET.get('page', '')
 
-        irrigation_volume = get_object_or_404(IrrigationVolume, id=irrigationVolumeId)
-        culture_name = irrigation_volume.culturevegetable.name
-        city_name = f"{irrigation_volume.geolocation} - {irrigation_volume.state}"
+        with transaction.atomic():
+            irrigation_volume = get_object_or_404(IrrigationVolume, id=irrigationVolumeId)
+            culture_name = irrigation_volume.culturevegetable.name
+            city_name = f"{irrigation_volume.geolocation} - {irrigation_volume.state}"
 
-        irrigation_volume.delete()
-        
+            irrigation_volume.delete()
+
         messages.success(
             request,
             f"Volumes de irrigação de hoje para {culture_name} em {city_name} deletados com sucesso!"
         )
     except Exception as e:
+        logError("delete_irrigationvolume_view", {
+            "step": "exception",
+            "error": str(e),
+        })
         messages.error(request, "Ocorreu um erro ao deletar os volumes de irrigação.")
 
     return redirect(f'{reverse("irrigationvolume_list_cultures")}?culture_id={culture_id}&page={page_number}')
-

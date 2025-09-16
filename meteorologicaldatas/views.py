@@ -1,4 +1,5 @@
 from datetime import date
+from django.db import transaction
 from django.shortcuts import render
 from django.contrib import messages
 from django.utils.timezone import now
@@ -9,6 +10,7 @@ from django.urls import reverse
 from culturesvegetables.forms import CultureVegetableForm
 from geolocations.models import Geolocation
 from logs.models import Log
+from logs.services import logError
 from .models import MeteorologicalData
 from .services import saveTodayWeather
 from django.shortcuts import redirect, get_object_or_404
@@ -48,7 +50,6 @@ def listForGeolocation(request):
         'has_unread': hasUnread
     })
 
-
 @login_required(login_url='/auth/login/')
 def listForDate(request):
     logs = Log.objects.order_by('-created_at') 
@@ -80,37 +81,65 @@ def listForDate(request):
     })
 
 @login_required(login_url='/auth/login/')
-def createForGeolocation(request, geolocationId):
+def storeForGeolocation(request, geolocationId):
     if not geolocationId:
         messages.error(request, "Geolocalização não selecionada!")
         return redirect(f'{reverse("meteorologicaldata_list_geolocation")}?geolocation_id={geolocationId}')
-    
-    today = now().date()
-    already_exists = MeteorologicalData.objects.filter(geolocation_id=geolocationId, date=today).exists()
 
-    if already_exists:
-        messages.warning(request, "Os dados meteorológicos de hoje já existem para essa geolocalização.")
-    else:
-        response = saveTodayWeather(geolocationId)
-        if response.get("success"):
-            messages.success(request, response.get("message", "Dados meteorológicos de hoje gerados com sucesso!"))
-        else:
-            messages.error(request, response.get("message", "Ocorreu um erro ao gerar os dados meteorológicos!"))
+    try:
+        with transaction.atomic():
+            already_exists = MeteorologicalData.objects.filter(
+                geolocation_id=geolocationId,
+                date=now().date()
+            ).exists()
+
+            if already_exists:
+                messages.warning(
+                    request,
+                    "Os dados meteorológicos de hoje já existem para essa geolocalização."
+                )
+            else:
+                response = saveTodayWeather(geolocationId)
+                if response.get("success"):
+                    messages.success(
+                        request,
+                        response.get("message", "Dados meteorológicos de hoje gerados com sucesso!")
+                    )
+                else:
+                    messages.error(
+                        request,
+                        response.get("message", "Ocorreu um erro ao gerar os dados meteorológicos!")
+                    )
+
+    except Exception as e:
+        logError("store_meteorologicaldata_view", {
+            "step": "exception",
+            "error": str(e),
+        })
+        messages.error(request, "Erro inesperado ao criar dados meteorológicos.")
 
     return redirect(f'{reverse("meteorologicaldata_list_geolocation")}?geolocation_id={geolocationId}')
-    
+
+
 @login_required(login_url='/auth/login/')
 def deleteForGeolocation(request, meteorologicalDataId):
     try:
-        meteorologicalData = get_object_or_404(MeteorologicalData, id=meteorologicalDataId)
-        geolocationId = meteorologicalData.geolocation_id
-        geolocation = meteorologicalData.geolocation.city + ' - ' + meteorologicalData.geolocation.state
-        meteorologicalData.delete()
+        with transaction.atomic():
+            meteorologicalData = get_object_or_404(MeteorologicalData, id=meteorologicalDataId)
+            geolocationId = meteorologicalData.geolocation_id
+            geolocation = f"{meteorologicalData.geolocation.city} - {meteorologicalData.geolocation.state}"
+            meteorologicalData.delete()
+
         messages.success(
             request,
             f"Dados meteorológicos de hoje para {geolocation} deletados com sucesso!"
         )
+
     except Exception as e:
+        logError("delete_meteorologicaldata_view", {
+            "step": "exception",
+            "error": str(e),
+        })
         messages.error(request, "Ocorreu um erro ao deletar os dados meteorológicos.")
 
-    return redirect(f'{reverse("meteorologicaldata_list_geolocation")}?geolocation_id={geolocationId}')
+    return redirect(f'{reverse("meteorologicaldata_list_geolocation")}?geolocation_id={geolocationId or ""}')

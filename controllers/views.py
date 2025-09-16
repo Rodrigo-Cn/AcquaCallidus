@@ -91,35 +91,40 @@ def generateSecurityCode(length=40):
 def storeController(request):
     if request.method == "POST":
         try:
-            controller = Controller.objects.create(
-                name=request.POST.get("name"),
-                device=request.POST.get("device"),
-                ip_address=request.POST.get("ip_address"),
-                phase_vegetable=request.POST.get("phase_vegetable"),
-                active=bool(request.POST.get("active")),                
-                last_irrigation=parse_date(request.POST.get("last_irrigation")) if request.POST.get("last_irrigation") else None,
-                culturevegetable=CultureVegetable.objects.filter(id=request.POST.get("culturevegetable")).first() if request.POST.get("culturevegetable") else None,
-                geolocation=Geolocation.objects.filter(id=request.POST.get("geolocation")).first() if request.POST.get("geolocation") else None,
-                security_code=generateSecurityCode(20)
-            )
+            with transaction.atomic():
+                controller = Controller.objects.create(
+                    name=request.POST.get("name"),
+                    device=request.POST.get("device"),
+                    ip_address=request.POST.get("ip_address"),
+                    phase_vegetable=request.POST.get("phase_vegetable"),
+                    active=bool(request.POST.get("active")),                
+                    last_irrigation=parse_date(request.POST.get("last_irrigation")) if request.POST.get("last_irrigation") else None,
+                    culturevegetable=CultureVegetable.objects.filter(id=request.POST.get("culturevegetable")).first() if request.POST.get("culturevegetable") else None,
+                    geolocation=Geolocation.objects.filter(id=request.POST.get("geolocation")).first() if request.POST.get("geolocation") else None,
+                    security_code=generateSecurityCode(20)
+                )
 
-            for i in range(1, 5):
-                plants = request.POST.get(f"valves[{i}][plants]")
-                radius = request.POST.get(f"valves[{i}][radius]")
-                if plants and radius:
-                    ValveController.objects.create(
-                        plants_number=plants,
-                        irrigation_radius=radius,
-                        controller=controller,
-                        order=i,
-                    )
+                for i in range(1, 5):
+                    plants = request.POST.get(f"valves[{i}][plants]")
+                    radius = request.POST.get(f"valves[{i}][radius]")
+                    if plants and radius:
+                        ValveController.objects.create(
+                            plants_number=plants,
+                            irrigation_radius=radius,
+                            controller=controller,
+                            order=i,
+                        )
 
             messages.success(request, "Controlador criado com sucesso")
             return redirect("controllers_list")
+
         except Exception as e:
+            logError("store_controller_view", {
+                "step": "exception",
+                "error": str(e),
+            })
             messages.error(request, "Erro ao salvar controlador")
             return redirect("controllers_list")
-
 
     messages.info(request, "Método incorreto.")
     return redirect("controllers_list")
@@ -136,47 +141,52 @@ def edit(request, id):
 def update(request, id):
     if request.method == "POST":
         try:
-            controller = get_object_or_404(Controller, id=id)
+            with transaction.atomic():
+                controller = get_object_or_404(Controller, id=id)
 
-            controller.name = request.POST.get("name")
-            controller.device = request.POST.get("device")
-            controller.ip_address = request.POST.get("ip_address")
-            controller.phase_vegetable = request.POST.get("phase_vegetable")
-            controller.active = bool(request.POST.get("active"))
-            controller.last_irrigation = parse_date(request.POST.get("last_irrigation")) if request.POST.get("last_irrigation") else None
-            controller.culturevegetable = CultureVegetable.objects.filter(id=request.POST.get("culturevegetable")).first() if request.POST.get("culturevegetable") else None
-            controller.geolocation = Geolocation.objects.filter(id=request.POST.get("geolocation")).first() if request.POST.get("geolocation") else None
-            controller.save()
+                controller.name = request.POST.get("name")
+                controller.device = request.POST.get("device")
+                controller.ip_address = request.POST.get("ip_address")
+                controller.phase_vegetable = request.POST.get("phase_vegetable")
+                controller.active = bool(request.POST.get("active"))
+                controller.last_irrigation = parse_date(request.POST.get("last_irrigation")) if request.POST.get("last_irrigation") else None
+                controller.culturevegetable = CultureVegetable.objects.filter(id=request.POST.get("culturevegetable")).first() if request.POST.get("culturevegetable") else None
+                controller.geolocation = Geolocation.objects.filter(id=request.POST.get("geolocation")).first() if request.POST.get("geolocation") else None
+                controller.save()
 
-            existing_valves_ids = [] 
-            for i in range(1, 5):
-                valve_id = request.POST.get(f"valves[{i}][id]")
-                plants = request.POST.get(f"valves[{i}][plants]")
-                radius = request.POST.get(f"valves[{i}][radius]")
+                existing_valves_ids = [] 
+                for i in range(1, 5):
+                    valve_id = request.POST.get(f"valves[{i}][id]")
+                    plants = request.POST.get(f"valves[{i}][plants]")
+                    radius = request.POST.get(f"valves[{i}][radius]")
 
-                if plants and radius:
-                    if valve_id:  
-                        valve = ValveController.objects.filter(id=valve_id, controller=controller).first()
-                        if valve:
-                            valve.plants_number = plants
-                            valve.irrigation_radius = radius
-                            valve.save()
+                    if plants and radius:
+                        if valve_id:  
+                            valve = ValveController.objects.filter(id=valve_id, controller=controller).first()
+                            if valve:
+                                valve.plants_number = plants
+                                valve.irrigation_radius = radius
+                                valve.save()
+                                existing_valves_ids.append(valve.id)
+                        else:
+                            valve = ValveController.objects.create(
+                                plants_number=plants,
+                                irrigation_radius=radius,
+                                controller=controller,
+                                active=True
+                            )
                             existing_valves_ids.append(valve.id)
-                    else:
-                        valve = ValveController.objects.create(
-                            plants_number=plants,
-                            irrigation_radius=radius,
-                            controller=controller,
-                            active=True
-                        )
-                        existing_valves_ids.append(valve.id)
 
-            ValveController.objects.filter(controller=controller).exclude(id__in=existing_valves_ids).delete()
+                ValveController.objects.filter(controller=controller).exclude(id__in=existing_valves_ids).delete()
 
             messages.success(request, "Controlador editado com sucesso")
             return redirect("controllers_list")
 
         except Exception as e:
+            logError("update_controller_view", {
+                "step": "exception",
+                "error": str(e),
+            })
             messages.error(request, "Erro ao editar controlador")
             return redirect("controllers_list")
 
@@ -190,17 +200,22 @@ def delete(request, id):
 
     if request.method == "POST":
         try:
-            controller = Controller.objects.get(id=id)
-            controller.delete()
+            with transaction.atomic():
+                controller = Controller.objects.get(id=id)
+                controller.delete()
             messages.success(request, "Controlador deletado com sucesso.")
         except Controller.DoesNotExist:
             messages.error(request, "Controlador não encontrado.")
         except Exception as e:
+            logError("delete_controller_view", {
+                "step": "exception",
+                "error": str(e),
+            })
             messages.error(request, "Erro ao deletar controlador")
     else:
         messages.error(request, "Método não permitido.")
 
-    if pageNumber and nameQuery :
+    if pageNumber and nameQuery:
         return redirect(f"{reverse('controllers_list')}?name={nameQuery}&page={pageNumber}")   
     elif pageNumber:
         return redirect(f"{reverse('controllers_list')}?page={pageNumber}")
@@ -223,17 +238,17 @@ class ControllerOnAPI(APIView):
 
                 error = self._validateRequestData(controllerId, valveId, securityCode, controllerUuid)
                 if error:
-                    logError("controller_api_post_on", {"step": "validate_request", "request": request.data})
+                    logError("post_on_controller_api", {"step": "validate_request", "request": request.data})
                     return error
 
                 controller = self._getController(controllerId, controllerUuid, securityCode)
                 if isinstance(controller, Response):
-                    logError("controller_api_post_on", {"step": "get_controller", "controllerId": controllerId})
+                    logError("post_on_controller_api", {"step": "get_controller", "controllerId": controllerId})
                     return controller
 
                 valve = self._getValve(controller, valveId)
                 if isinstance(valve, Response):
-                    logError("controller_api_post_on", {"step": "get_valve", "valveId": valveId})
+                    logError("post_on_controller_api", {"step": "get_valve", "valveId": valveId})
                     return valve
 
                 irrigationVolume = IrrigationVolume.objects.filter(
@@ -245,7 +260,7 @@ class ControllerOnAPI(APIView):
                 if not irrigationVolume:
                     irrigationVolume = self._storeIrrigationVolume(controller)
                     if irrigationVolume is None:
-                        logError("controller_api_post_on", {
+                        logError("post_on_controller_api", {
                             "step": "create_irrigationvolume",
                             "error": "Cultura vegetal não encontrada"
                         })
@@ -264,7 +279,7 @@ class ControllerOnAPI(APIView):
                 ).first()
 
                 if existingIrrigation:
-                    logError("controller_api_post_on", {
+                    logError("post_on_controller_api", {
                         "step": "duplicate_irrigation",
                         "valveId": valve.id,
                         "message": "Já existe irrigação registrada para esta válvula hoje."
@@ -299,7 +314,7 @@ class ControllerOnAPI(APIView):
                 )
 
         except Exception as e:
-            logError("controller_api_post_on", {
+            logError("post_on_controller_api", {
                 "step": "exception",
                 "error": str(e),
                 "request": request.data
@@ -312,7 +327,7 @@ class ControllerOnAPI(APIView):
     def _validateSingleValveActive(self, controller, valve):
         otherActiveValve = controller.valves.filter(status=True).exclude(id=valve.id).first()
         if otherActiveValve:
-            logError("controller_api_post_on", {
+            logError("post_on_controller_api", {
                 "step": "one_valve_at_time",
                 "controllerId": controller.id,
                 "valveId": otherActiveValve.id,
@@ -340,7 +355,7 @@ class ControllerOnAPI(APIView):
                 security_code=securityCode
             )
             if not controller.active:
-                logError("controller_api_post_on", {
+                logError("post_on_controller_api", {
                     "step": "get_controller",
                     "controllerId": controllerId,
                     "error": "Dispositivo desativado"
@@ -350,14 +365,14 @@ class ControllerOnAPI(APIView):
                     status=status.HTTP_400_BAD_REQUEST
                 )
             if controller.attempts >= 5:
-                logError("controller_api_post_on", {
+                logError("post_on_controller_api", {
                     "step": "get_controller",
                     "controllerId": controllerId,
                     "error": "Ocorreram várias tentativas de acessar o controlador"
                 })
             return controller
         except Controller.DoesNotExist:
-            logError("controller_api_post_on", {
+            logError("post_on_controller_api", {
                 "step": "get_controller",
                 "controllerId": controllerId,
                 "error": "Controlador não encontrado ou credenciais inválidas"
@@ -376,7 +391,7 @@ class ControllerOnAPI(APIView):
             return
 
         if controller.attempts >= 5:
-            logError("controller_api_post_on", {
+            logError("post_on_controller_api", {
                 "step": "get_controller",
                 "controllerId": controllerId,
                 "error": "Ocorreram várias tentativas de acessar o controlador"
@@ -389,7 +404,7 @@ class ControllerOnAPI(APIView):
         try:
             return controller.valves.get(id=valveId)
         except ValveController.DoesNotExist:
-            logError("controller_api_post_on", {"step": "get_valve", "valveId": valveId})
+            logError("post_on_controller_api", {"step": "get_valve", "valveId": valveId})
             return Response(
                 {"success": False, "message": f"Válvula {valveId} não encontrada neste controlador."},
                 status=status.HTTP_400_BAD_REQUEST
@@ -399,7 +414,7 @@ class ControllerOnAPI(APIView):
         today = timezone.now().astimezone(pytzTimezone("America/Sao_Paulo")).date()
         calculateEtoResult = calculateReferenceEvapotranspiration(controller.geolocation.id)
         if not calculateEtoResult.get("success", False):
-            logError("controller_api_post_on", {"step": "calculate_eto", "error": "Falha ao calcular Eto"})
+            logError("post_on_controller_api", {"step": "calculate_eto", "error": "Falha ao calcular Eto"})
             return None
 
         try:
@@ -408,7 +423,7 @@ class ControllerOnAPI(APIView):
                 geolocation_id=controller.geolocation.id
             )
         except MeteorologicalData.DoesNotExist:
-            logError("controller_api_post_on", {"step": "meteorological_data", "error": "Dados meteorológicos não encontrados"})
+            logError("post_on_controller_api", {"step": "meteorological_data", "error": "Dados meteorológicos não encontrados"})
             return None
 
         return IrrigationVolume.objects.create(
@@ -459,17 +474,17 @@ class ControllerOffAPI(APIView):
             with transaction.atomic():
                 error = self._validateRequestData(controllerId, valveId, securityCode, controllerUuid)
                 if error:
-                    logError("controller_api_post_off", {"step": "validate_request", "request": request.data})
+                    logError("post_off_controller_api", {"step": "validate_request", "request": request.data})
                     return error
 
                 controller = self._getController(controllerId, controllerUuid, securityCode)
                 if isinstance(controller, Response):
-                    logError("controller_api_post_off", {"step": "get_controller", "controllerId": controllerId})
+                    logError("post_off_controller_api", {"step": "get_controller", "controllerId": controllerId})
                     return controller
 
                 valve = self._getValve(controller, valveId)
                 if isinstance(valve, Response):
-                    logError("controller_api_post_off", {"step": "get_valve", "valveId": valveId})
+                    logError("post_off_controller_api", {"step": "get_valve", "valveId": valveId})
                     return valve
 
                 if not valve.status:
@@ -491,7 +506,7 @@ class ControllerOffAPI(APIView):
             )
 
         except Exception as e:
-            logError("controller_api_post_off", {
+            logError("post_off_controller_api", {
                 "step": "exception",
                 "error": str(e),
                 "request": request.data
@@ -517,7 +532,7 @@ class ControllerOffAPI(APIView):
                 security_code=securityCode
             )
             if not controller.active:
-                logError("controller_api_post_off", {
+                logError("post_off_controller_api", {
                     "step": "get_controller",
                     "controllerId": controllerId,
                     "error": "Dispositivo desativado"
@@ -527,14 +542,14 @@ class ControllerOffAPI(APIView):
                     status=status.HTTP_400_BAD_REQUEST
                 )
             if controller.attempts >= 5:
-                logError("controller_api_post_off", {
+                logError("post_off_controller_api", {
                     "step": "get_controller",
                     "controllerId": controllerId,
                     "error": "Ocorreram várias tentativas de acessar o controlador"
                 })
             return controller
         except Controller.DoesNotExist:
-            logError("controller_api_post_off", {
+            logError("post_off_controller_api", {
                 "step": "get_controller",
                 "controllerId": controllerId,
                 "error": "Controlador não encontrado ou credenciais inválidas"
@@ -553,7 +568,7 @@ class ControllerOffAPI(APIView):
             return
 
         if controller.attempts >= 5:
-            logError("controller_api_post_off", {
+            logError("post_off_controller_api", {
                 "step": "get_controller",
                 "controllerId": controllerId,
                 "error": "Ocorreram várias tentativas de acessar o controlador"
@@ -566,7 +581,7 @@ class ControllerOffAPI(APIView):
         try:
             return controller.valves.get(id=valveId)
         except ValveController.DoesNotExist:
-            logError("controller_api_post_off", {"step": "get_valve", "valveId": valveId})
+            logError("post_off_controller_api", {"step": "get_valve", "valveId": valveId})
             return Response(
                 {"success": False, "message": f"Válvula {valveId} não encontrada neste controlador."},
                 status=status.HTTP_400_BAD_REQUEST
@@ -586,11 +601,11 @@ class ControllerUpdatePhase(APIView):
             with transaction.atomic():
                 error = self._validateRequestData(controllerId, valveId, securityCode, controllerUuid)
                 if error:
-                    logError("controller_update_phase", {"step": "validate_request", "request": request.data})
+                    logError("update_phase_controller_api", {"step": "validate_request", "request": request.data})
                     return error
 
                 if not phaseVegetable:
-                    logError("controller_update_phase", {
+                    logError("update_phase_controller_api", {
                         "step": "validate_phase",
                         "error": "Fase não informada",
                         "request": request.data
@@ -602,12 +617,12 @@ class ControllerUpdatePhase(APIView):
 
                 controller = self._getController(controllerId, controllerUuid, securityCode)
                 if isinstance(controller, Response):
-                    logError("controller_update_phase", {"step": "get_controller", "controllerId": controllerId})
+                    logError("update_phase_controller_api", {"step": "get_controller", "controllerId": controllerId})
                     return controller
 
                 valve = self._getValve(controller, valveId)
                 if isinstance(valve, Response):
-                    logError("controller_update_phase", {"step": "get_valve", "valveId": valveId})
+                    logError("update_phase_controller_api", {"step": "get_valve", "valveId": valveId})
                     return valve
                 
                 controller.phase_vegetable = phaseVegetable
@@ -619,7 +634,7 @@ class ControllerUpdatePhase(APIView):
             )
 
         except Exception as e:
-            logError("controller_update_phase", {
+            logError("update_phase_controller_api", {
                 "step": "exception",
                 "error": str(e),
                 "request": request.data
@@ -645,7 +660,7 @@ class ControllerUpdatePhase(APIView):
                 security_code=securityCode
             )
             if not controller.active:
-                logError("controller_update_phase", {
+                logError("update_phase_controller_api", {
                     "step": "get_controller",
                     "controllerId": controllerId,
                     "error": "Dispositivo desativado"
@@ -655,14 +670,14 @@ class ControllerUpdatePhase(APIView):
                     status=status.HTTP_400_BAD_REQUEST
                 )
             if controller.attempts >= 5:
-                logError("controller_update_phase", {
+                logError("update_phase_controller_api", {
                     "step": "get_controller",
                     "controllerId": controllerId,
                     "error": "Ocorreram várias tentativas de acessar o controlador"
                 })
             return controller
         except Controller.DoesNotExist:
-            logError("controller_update_phase", {
+            logError("update_phase_controller_api", {
                 "step": "get_controller",
                 "controllerId": controllerId,
                 "error": "Controlador não encontrado ou credenciais inválidas"
@@ -681,7 +696,7 @@ class ControllerUpdatePhase(APIView):
             return
 
         if controller.attempts >= 5:
-            logError("controller_update_phase", {
+            logError("update_phase_controller_api", {
                 "step": "get_controller",
                 "controllerId": controllerId,
                 "error": "Ocorreram várias tentativas de acessar o controlador"
@@ -694,7 +709,7 @@ class ControllerUpdatePhase(APIView):
         try:
             return controller.valves.get(id=valveId)
         except ValveController.DoesNotExist:
-            logError("controller_update_phase", {"step": "get_valve", "valveId": valveId})
+            logError("update_phase_controller_api", {"step": "get_valve", "valveId": valveId})
             return Response(
                 {"success": False, "message": f"Válvula {valveId} não encontrada neste controlador."},
                 status=status.HTTP_400_BAD_REQUEST

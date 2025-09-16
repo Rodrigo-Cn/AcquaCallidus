@@ -1221,7 +1221,7 @@
                 <button onclick=" closeModalGeolocation()" class="text-2xl font-bold text-gray-500 hover:text-red-500">&times;</button>
               </div>
 
-              <form id="locationForm" class="p-4 space-y-4" method="POST" action="{% url 'create_geolocation' %}" onsubmit="handleSubmit(event)">
+              <form id="locationForm" class="p-4 space-y-4" method="POST" action="{% url 'store_geolocation' %}" onsubmit="handleSubmit(event)">
                 {% csrf_token %}
                 <div>
                   <label for="city" class="block font-medium">Cidade</label>

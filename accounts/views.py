@@ -7,6 +7,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login as auth_login, update_session_auth_hash
 from .models import UserImage
+from logs.services import logError
 
 def login(request):
     if request.method == 'GET':
@@ -48,7 +49,11 @@ def uploadProfileImage(request):
             messages.success(request, "Foto de perfil salva com sucesso!")
 
         except Exception as e:
-            messages.error(request, f"Erro ao salvar foto de perfil: {e}")
+            logError("update_accounts_profile_image_accounts_view", {
+                "step": "exception",
+                "error": str(e),
+            })
+            messages.error(request, f"Erro ao salvar foto de perfil")
 
     elif request.method == "POST":
         messages.error(request, "Nenhuma imagem enviada!")
@@ -60,21 +65,26 @@ def uploadProfileImage(request):
 def updateUser(request):
     if request.method == "POST":
         try:
-            username = request.POST.get("username")
-            email = request.POST.get("email")
+            with transaction.atomic():
+                username = request.POST.get("username")
+                email = request.POST.get("email")
 
-            user = request.user
+                user = request.user
 
-            if username:
-                user.username = username
-            if email:
-                user.email = email
+                if username:
+                    user.username = username
+                if email:
+                    user.email = email
 
-            user.save()
+                user.save()
 
             messages.success(request, "Perfil atualizado com sucesso!")
 
         except Exception as e:
+            logError("update_accounts_view", {
+                "step": "exception",
+                "error": str(e),
+            })
             messages.error(request, "Ocorreu um erro ao atualizar perfil")
 
         return redirect(request.META.get("HTTP_REFERER", "/"))
@@ -107,10 +117,13 @@ def changePassword(request):
                 user.set_password(newPassword)
                 user.save()
                 update_session_auth_hash(request, user)
-                messages.success(request, "Senha atualizada com sucesso!")
+            messages.success(request, "Senha atualizada com sucesso!")
 
         except Exception as e:
-            transaction.set_rollback(True)
+            logError("change_password_accounts_view", {
+                "step": "exception",
+                "error": str(e),
+            })
             messages.error(request, "Ocorreu um erro ao atualizar a senha.")
 
         return redirect(request.META.get("HTTP_REFERER", "/"))

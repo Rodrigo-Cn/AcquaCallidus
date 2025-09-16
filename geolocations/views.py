@@ -1,18 +1,18 @@
 from django.contrib import messages
 from django.db.models import Q
-from django.utils import timezone
+from django.db import transaction
 from django.urls import reverse
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
-from pytz import timezone as pytzTimezone
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from logs.models import Log
+from logs.services import logError
 from .models import Geolocation
 from culturesvegetables.forms import CultureVegetableForm
 from .serializers import GeolocationSerializer
@@ -47,9 +47,7 @@ def list(request):
 
 @require_POST
 @login_required(login_url='/auth/login/')
-def create(request):
-    todayWithHour = timezone.now().astimezone(pytzTimezone("America/Sao_Paulo"))
-
+def store(request):
     try:
         city = request.POST.get('city')
         state = request.POST.get('state')
@@ -60,22 +58,22 @@ def create(request):
             messages.error(request, "Todos os campos são obrigatórios.")
             return redirect(request.META.get('HTTP_REFERER', '/'))
 
-        Geolocation.objects.create(
-            city=city,
-            state=state,
-            latitude=latitude,
-            longitude=longitude
-        )
+        with transaction.atomic():
+            Geolocation.objects.create(
+                city=city,
+                state=state,
+                latitude=latitude,
+                longitude=longitude
+            )
 
         messages.success(request, "Geolocalização cadastrada com sucesso!")
         return redirect(request.META.get('HTTP_REFERER', '/'))
 
     except Exception as e:
-        Log.objects.create(
-            reference="create_geolocation_controller",
-            exception={"error": str(e)},
-            created_at=todayWithHour
-        )
+        logError("store_geolocation_view", {
+            "step": "exception",
+            "error": str(e),
+        })
         messages.error(request, "Ocorreu um erro ao salvar a geolocalização.")
         return redirect(request.META.get('HTTP_REFERER', '/'))
 
@@ -94,12 +92,17 @@ def delete(request, id):
 
     if request.method == "POST":
         try:
-            geolocation = Geolocation.objects.get(id=id)
-            geolocation.delete()
-            messages.success(request, "Geolocalização deletada com sucesso.")
+            with transaction.atomic():
+                geolocation = Geolocation.objects.get(id=id)
+                geolocation.delete()
+                messages.success(request, "Geolocalização deletada com sucesso.")
         except Geolocation.DoesNotExist:
             messages.error(request, "Geolocalização não encontrada.")
-        except Exception:
+        except Exception as e:
+            logError("delete_geolocation_view", {
+                "step": "exception",
+                "error": str(e),
+            })
             messages.error(request, "Erro ao deletar geolocalização")
     else:
         messages.error(request, "Método não permitido.")
@@ -117,29 +120,34 @@ def update(request, id):
 
     try:
         if request.method == "POST":
-            geolocation = get_object_or_404(Geolocation, id=id)
+            with transaction.atomic():
+                geolocation = get_object_or_404(Geolocation, id=id)
 
-            city = request.POST.get('city')
-            state = request.POST.get('state')
-            latitude = request.POST.get('latitude')
-            longitude = request.POST.get('longitude')
+                city = request.POST.get('city')
+                state = request.POST.get('state')
+                latitude = request.POST.get('latitude')
+                longitude = request.POST.get('longitude')
 
-            if not all([city, state, latitude, longitude]):
-                messages.error(request, "Todos os campos são obrigatórios.")
-            else:
-                geolocation.city = city
-                geolocation.state = state
-                geolocation.latitude = latitude
-                geolocation.longitude = longitude
-                geolocation.save()
+                if not all([city, state, latitude, longitude]):
+                    messages.error(request, "Todos os campos são obrigatórios.")
+                else:
+                    geolocation.city = city
+                    geolocation.state = state
+                    geolocation.latitude = latitude
+                    geolocation.longitude = longitude
+                    geolocation.save()
 
-                messages.success(
-                    request,
-                    f"Geolocalização {geolocation.city} - {geolocation.state} atualizada com sucesso."
-                )
+                    messages.success(
+                        request,
+                        f"Geolocalização {geolocation.city} - {geolocation.state} atualizada com sucesso."
+                    )
         else:
             messages.error(request, "Método não permitido.")
-    except Exception:
+    except Exception as e:
+        logError("update_geolocation_view", {
+            "step": "exception",
+            "error": str(e),
+        })
         messages.error(request, "Ocorreu um erro ao atualizar a geolocalização")
 
     if pageNumber and nameQuery:
@@ -152,9 +160,21 @@ def update(request, id):
 @authentication_classes([SessionAuthentication])
 @permission_classes([IsAuthenticated])
 def favorite(request, id):
-    Geolocation.objects.filter(favorite=True).update(favorite=False)
-    geolocation = get_object_or_404(Geolocation, id=id)
-    geolocation.favorite = True
-    geolocation.save()
+    try:
+        with transaction.atomic():
+            Geolocation.objects.filter(favorite=True).update(favorite=False)
+            geolocation = get_object_or_404(Geolocation, id=id)
+            geolocation.favorite = True
+            geolocation.save()
 
-    return Response(status=204)
+        return Response(status=204)
+
+    except Exception as e:
+        logError("favorite_geolocation_view", {
+            "step": "exception",
+            "error": str(e),
+        })
+        return Response(
+            {"error": "Ocorreu um erro ao atualizar o favorito."},
+            status=500
+        )
