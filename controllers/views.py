@@ -591,7 +591,6 @@ class ControllerUpdatePhase(APIView):
     def post(self, request, *args, **kwargs):
         try:
             controllerId = request.data.get("controllerId")
-            valveId = request.data.get("valveId")
             securityCode = request.data.get("securityCode")
             controllerUuid = request.data.get("controllerUuid")
             phaseVegetable = request.data.get("phaseVegetable")
@@ -599,7 +598,7 @@ class ControllerUpdatePhase(APIView):
             self._updateAttemptController(controllerId)
             
             with transaction.atomic():
-                error = self._validateRequestData(controllerId, valveId, securityCode, controllerUuid)
+                error = self._validateRequestData(controllerId, securityCode, controllerUuid)
                 if error:
                     logError("update_phase_controller_api", {"step": "validate_request", "request": request.data})
                     return error
@@ -620,11 +619,6 @@ class ControllerUpdatePhase(APIView):
                     logError("update_phase_controller_api", {"step": "get_controller", "controllerId": controllerId})
                     return controller
 
-                valve = self._getValve(controller, valveId)
-                if isinstance(valve, Response):
-                    logError("update_phase_controller_api", {"step": "get_valve", "valveId": valveId})
-                    return valve
-                
                 controller.phase_vegetable = phaseVegetable
                 controller.save(update_fields=["phase_vegetable"])
 
@@ -644,8 +638,8 @@ class ControllerUpdatePhase(APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
-    def _validateRequestData(self, controllerId, valveId, securityCode, controllerUuid):
-        if not controllerId or not valveId or not securityCode or not controllerUuid:
+    def _validateRequestData(self, controllerId, securityCode, controllerUuid):
+        if not controllerId or not securityCode or not controllerUuid:
             return Response(
                 {"success": False, "message": "Dados de autenticação do controlador estão incorretos"},
                 status=status.HTTP_400_BAD_REQUEST
@@ -689,7 +683,7 @@ class ControllerUpdatePhase(APIView):
 
     def _updateAttemptController(self, controllerId):
         try:
-            controller = Controller.objects.prefetch_related("valves").get(
+            controller = Controller.objects.get(
                 id=controllerId,
             )
         except Controller.DoesNotExist:
@@ -704,13 +698,3 @@ class ControllerUpdatePhase(APIView):
 
         controller.attempts += 1
         controller.save()
-
-    def _getValve(self, controller, valveId):
-        try:
-            return controller.valves.get(id=valveId)
-        except ValveController.DoesNotExist:
-            logError("update_phase_controller_api", {"step": "get_valve", "valveId": valveId})
-            return Response(
-                {"success": False, "message": f"Válvula {valveId} não encontrada neste controlador."},
-                status=status.HTTP_400_BAD_REQUEST
-            )

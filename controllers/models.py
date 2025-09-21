@@ -60,6 +60,14 @@ class Controller(models.Model):
 
     last_irrigation = models.DateField(null=True, blank=True)
 
+    signal_strength = models.IntegerField(
+        validators=[MinValueValidator(-100), MaxValueValidator(0)],
+        help_text="Potência do sinal Wi-Fi em dBm (ex: -40 forte, -90 fraco)",
+        null=True,
+        blank=True,
+        default=0
+    )
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     culturevegetable = models.ForeignKey(
