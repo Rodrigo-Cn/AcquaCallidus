@@ -153,16 +153,10 @@ class IrrigationController(models.Model):
         null=True
     )
 
-    controller = models.ForeignKey(
-        Controller,
-        on_delete=models.SET_NULL,
-        related_name='irrigations', 
-        null=True
-    )
-    
     valvecontroller = models.ForeignKey(
         ValveController,
         on_delete=models.SET_NULL,
+        related_name="irrigations",
         null=True,
         blank=True
     )

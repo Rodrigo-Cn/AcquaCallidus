@@ -1,10 +1,12 @@
 import random
 import string
+import math
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.db.models import Q
+from django.db.models import Sum
 from django.core.paginator import Paginator
 from django.utils import timezone
 from django.utils.dateparse import parse_date
@@ -67,6 +69,61 @@ def listController(request):
     })
 
 @login_required(login_url='/auth/login/')
+def irrigationsForValveList(request, id):
+    logs = Log.objects.order_by('-created_at')
+    hasUnread = logs.filter(viewed=False).exists()
+    logs = logs[:12]
+    formCultureVegetable = CultureVegetableForm()
+    geolocations = Geolocation.objects.all()
+    culturesVegetables = CultureVegetable.objects.all()
+    valve = get_object_or_404(ValveController, id=id)
+    valveList = valve.irrigations.all()
+
+    dateQuery = request.GET.get('date', '')
+    if dateQuery:
+        parsedDate = parse_date(dateQuery)
+        if parsedDate:
+            valveList = valveList.filter(date=parsedDate)
+
+    valveList = valveList.order_by('-date')
+    paginator = Paginator(valveList, 30)
+    pageNumber = request.GET.get('page')
+    pageObj = paginator.get_page(pageNumber)
+
+    totals = valveList.aggregate(
+        totalLiters=Sum('total_liters'),
+        totalPlants=Sum('plants_number'),
+        totalRadius=Sum('irrigation_radius')
+    )
+
+    totalLiters = totals['totalLiters'] or 0
+    totalPlants = totals['totalPlants'] or 0
+    totalArea = 0
+
+    for irrigation in valveList:
+        if irrigation.irrigation_radius:
+            totalArea += math.pi * (irrigation.irrigation_radius ** 2)
+
+    return render(
+        request,
+        'controller/irrigationcontroller/listforvalve.html',
+        context={
+            'user': request.user,
+            'logs': logs,
+            'page_obj': pageObj,
+            'form_culture_vegetable': formCultureVegetable,
+            'has_unread': hasUnread,
+            'geolocations': geolocations,
+            'cultures_vegetables': culturesVegetables,
+            'valve': valve,
+            'date_query': dateQuery,
+            'total_liters': totalLiters,
+            'total_plants': totalPlants,
+            'total_area': round(totalArea, 2),
+        }
+    )
+
+@login_required(login_url='/auth/login/')
 def irrigationsControllersList(request, id):
     logs = Log.objects.order_by('-created_at')
     hasUnread = logs.filter(viewed=False).exists()
@@ -74,15 +131,34 @@ def irrigationsControllersList(request, id):
     formCulturevegetable = CultureVegetableForm()
     geolocations = Geolocation.objects.all()
     culturesVegetables = CultureVegetable.objects.all()
+    valve = get_object_or_404(ValveController, id=id)
+    valveList = valve.irrigations.all()
 
-    return render(request, 'controller/irrigationcontroller/list.html', context={
-        'user': request.user,
-        'logs': logs,
-        'form_culture_vegetable': formCulturevegetable,
-        'has_unread': hasUnread,
-        'geolocations': geolocations,
-        'cultures_vegetables': culturesVegetables
-    })
+    dateQuery = request.GET.get('date', '')
+    if dateQuery:
+        parsedDate = parse_date(dateQuery)
+        if parsedDate:
+            valveList = valveList.filter(date=parsedDate)
+
+    valveList = valveList.order_by('-date')
+    paginator = Paginator(valveList, 15)
+    pageNumber = request.GET.get('page')
+    pageObj = paginator.get_page(pageNumber)
+
+    return render(
+        request,
+        'controller/irrigationcontroller/listforvalve.html',
+        context={
+            'user': request.user,
+            'logs': logs,
+            'page_obj': pageObj,
+            'form_culture_vegetable': formCulturevegetable,
+            'has_unread': hasUnread,
+            'geolocations': geolocations,
+            'cultures_vegetables': culturesVegetables,
+            'valve': valve,
+        }
+    )
 
 def generateSecurityCode(length=40):
     return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
@@ -498,7 +574,8 @@ class ControllerOffAPI(APIView):
 
                 if controller.valves.count() == valve.order:
                     controller.status = False
-                    controller.save(update_fields=["status"])
+                    controller.attempts = 0
+                    controller.save(update_fields=["status", "attempts"])
                 
             return Response(
                 {"success": True, "message": "Válvula desligada com sucesso."},
@@ -620,7 +697,8 @@ class ControllerUpdatePhase(APIView):
                     return controller
 
                 controller.phase_vegetable = phaseVegetable
-                controller.save(update_fields=["phase_vegetable"])
+                controller.attempts = 0
+                controller.save(update_fields=["phase_vegetable", "attempts"])
 
             return Response(
                 {"success": True, "message": "Fase vegetal no controlador atualizada com sucesso."},

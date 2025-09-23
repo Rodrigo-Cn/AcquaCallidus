@@ -147,7 +147,7 @@
               <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center space-x-3">
                   <div class="p-2 bg-blue-100 rounded-xl">
-                    <i data-lucide="cpu" class="w-6 h-6 text-sky-600"></i>
+                    <i data-lucide="cpu" class="w-6 h-6 text-sky-700"></i>
                   </div>
                   <div>
                     <h2 class="text-lg font-bold text-gray-800">{{ controller.name }}</h2>
@@ -166,25 +166,26 @@
               </div>
               <div class="absolute top-16 right-4 flex flex-col items-center gap-2">
                 <button onclick="toggleSecret(this)" 
-                  class="text-sky-500 hover:text-sky-800 transition p-2 rounded-xl hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-300">
+                        class="text-sky-700 hover:text-sky-900 transition p-2 rounded-xl hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-300">
                   <i data-lucide="eye" class="w-4 h-4"></i>
                 </button>
                 <button onclick="openDeviceCodeController(this)" 
-                  data-code="{{ controller.code }}"
-                  class="text-sky-500 hover:text-sky-800 transition p-2 rounded-xl hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-300">
+                        data-code="{{ controller.code }}"
+                        class="text-sky-700 hover:text-sky-900 transition p-2 rounded-xl hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-300">
                   <i id="code-icon" data-lucide="code-xml" class="w-4 h-4"></i>
                 </button>
-                <button class="text-sky-500 hover:text-sky-800 transition p-2 rounded-xl hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-300">
+                <button class="text-sky-700 hover:text-sky-900 transition p-2 rounded-xl hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-300">
                   <i data-lucide="droplet" class="w-4 h-4"></i>
                 </button>
-                <button onclick="editController({{ controller.id }})" class="text-sky-500 hover:text-sky-800 transition p-2 rounded-xl hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-300">
+                <button onclick="editController({{ controller.id }})" 
+                        class="text-sky-700 hover:text-sky-900 transition p-2 rounded-xl hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-300">
                   <i data-lucide="edit" class="w-4 h-4"></i>
                 </button>
-                <button class="text-red-600 transition p-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-300" onclick="openDeleteControllerModal({{ controller.id }})">
+                <button class="text-red-600 transition p-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-300" 
+                        onclick="openDeleteControllerModal({{ controller.id }})">
                   <i data-lucide="trash-2" class="w-4 h-4"></i>
                 </button>
               </div>
-
               <div class="space-y-3 text-gray-700 text-sm">
                 <div class="flex items-center">
                   <i data-lucide="lock" class="w-5 h-5 mr-2 text-gray-500"></i>
@@ -254,7 +255,7 @@
                   <div class="grid grid-cols-3 gap-3">
                     {% for valve in controller.valves_fixed %}
                       {% if valve %}
-                        <a href="/irrigationscontroller/{{ valve.id }}/" data-valve="{{ forloop.counter }}" onclick=""
+                        <a href="/controllers/irrigationscontroller/{{ valve.id }}/" data-valve="{{ forloop.counter }}" onclick=""
                           class="flex flex-col items-center bg-green-50 rounded-xl p-3 shadow-sm hover:shadow-lg transition-transform transform hover:scale-105 w-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-300">
                           {% if valve.status %}
                             <i data-lucide="droplet" class="w-6 h-6 text-blue-600"></i>
@@ -443,7 +444,7 @@
       <div class="relative bg-white shadow-2xl rounded-2xl w-full max-w-4xl mx-auto p-6 overflow-y-auto max-h-[95vh]">
 
         <div class="flex justify-between items-center border-b pb-4 mb-6">
-          <h2 class="text-xl font-bold text-gray-800">Cadastro de Controlador</h2>
+          <h2 class="text-xl font-bold text-gray-800">Cadastrar Controlador</h2>
           <button id="closePopupController" class="text-gray-500 hover:text-gray-800 text-2xl font-bold">&times;</button>
         </div>
 
@@ -519,7 +520,7 @@
             <label class="block text-sm font-semibold text-gray-700 mb-2">Válvulas</label>
             <div id="popup-valve-container" class="space-y-3"></div>
             <button type="button" id="popup-add-valve" 
-              class="mt-3 flex items-center justify-center w-10 h-10 bg-sky-600 text-white rounded-full hover:bg-sky-700 transition">
+              class="mt-3 flex items-center justify-center w-10 h-10 bg-sky-700 text-white rounded-full hover:bg-sky-800 transition">
               +
             </button>
             <p class="text-xs text-gray-500 mt-1">Máximo de 3 válvulas por controlador</p>
@@ -527,8 +528,8 @@
 
           <div class="flex justify-end pt-4">
             <button type="submit"
-              class="w-full sm:w-auto px-6 py-3 text-white text-base font-medium bg-sky-600 rounded-xl shadow-md 
-                     hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-300 transition">
+              class="w-full sm:w-auto px-6 py-3 text-white text-base font-medium bg-sky-700 rounded-xl shadow-md 
+                     hover:bg-sky-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-300 transition">
               Salvar
             </button>
           </div>
