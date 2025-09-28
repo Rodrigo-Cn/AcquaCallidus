@@ -18,6 +18,7 @@ from rest_framework.decorators import api_view, authentication_classes, permissi
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import SessionAuthentication
 from pytz import timezone as pytzTimezone
+from django.utils.timezone import now
 from logs.models import Log
 from logs.services import logError
 from geolocations.models import Geolocation
@@ -102,7 +103,7 @@ def irrigationsForValveList(request, id):
 
     for irrigation in valveList:
         if irrigation.irrigation_radius:
-            totalArea += math.pi * (irrigation.irrigation_radius ** 2)
+            totalArea += irrigation.irrigation_radius
 
     return render(
         request,
@@ -120,6 +121,7 @@ def irrigationsForValveList(request, id):
             'total_liters': totalLiters,
             'total_plants': totalPlants,
             'total_area': round(totalArea, 2),
+            "today": now().date()
         }
     )
 
@@ -296,6 +298,35 @@ def delete(request, id):
     elif pageNumber:
         return redirect(f"{reverse('controllers_list')}?page={pageNumber}")
     return redirect('controllers_list')
+
+@login_required(login_url='/auth/login/')
+def deleteIrrigationController(request, id):
+    dateQuery = request.GET.get('date', '')
+    pageNumber = request.GET.get('page')
+
+    if request.method == "POST":
+        try:
+            with transaction.atomic():
+                irrigation = IrrigationController.objects.get(id=id)
+                valveId = irrigation.valvecontroller.id
+                irrigation.delete()
+                messages.success(request, "Irrigação de hoje deletada com sucesso.")
+        except IrrigationController.DoesNotExist:
+            messages.error(request, "Irrigação não encontrada.")
+        except Exception as e:
+            logError("delete_irrigationcontroller_view", {
+                "step": "exception",
+                "error": str(e),
+            })
+            messages.error(request, "Erro ao deletar irrigação")
+    else:
+        messages.error(request, "Método não permitido.")
+
+    if pageNumber and dateQuery:
+        return redirect(f"{reverse('irrigationscontrollers_list', args=[valveId])}?date={dateQuery}&page={pageNumber}")   
+    elif pageNumber:
+        return redirect(f"{reverse('irrigationscontrollers_list', args=[valveId])}?page={pageNumber}")
+    return redirect(reverse('irrigationscontrollers_list', args=[valveId]))
 
 class ControllerOnAPI(APIView):
     def post(self, request, *args, **kwargs):
@@ -776,3 +807,133 @@ class ControllerUpdatePhase(APIView):
 
         controller.attempts += 1
         controller.save()
+
+class ControllerConnect(APIView):
+    def post(self, request, *args, **kwargs):
+        try:
+            controllerId = request.data.get("controllerId")
+            securityCode = request.data.get("securityCode")
+            controllerUuid = request.data.get("controllerUuid")
+            ipAddress = request.data.get("ipAddress")
+            signalStrength = request.data.get("signalStrength")
+
+            self._updateAttemptController(controllerId)
+            
+            with transaction.atomic():
+                error = self._validateRequestData(controllerId, securityCode, controllerUuid)
+                if error:
+                    logError("update_connect_controller_api", {
+                        "step": "validate_request",
+                        "request": request.data
+                    })
+                    return error
+
+                if not ipAddress:
+                    logError("update_connect_controller_api", {
+                        "step": "validate_ip",
+                        "error": "ip não informado",
+                        "request": request.data
+                    })
+                    return Response(
+                        {"success": False, "message": "É necessário informar o IP do controlador."},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+
+                if not signalStrength:
+                    logError("update_connect_controller_api", {
+                        "step": "validate_signal",
+                        "error": "força do sinal não informada",
+                        "request": request.data
+                    })
+                    return Response(
+                        {"success": False, "message": "É necessário informar a força do sinal."},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+
+                controller = self._getController(controllerId, controllerUuid, securityCode)
+                if isinstance(controller, Response):
+                    logError("update_connect_controller_api", {
+                        "step": "get_controller",
+                        "controllerId": controllerId
+                    })
+                    return controller
+
+                controller.ip_address = ipAddress
+                controller.signal_strength = signalStrength
+                controller.attempts = 0
+                controller.save(update_fields=["ip_address", "signal_strength", "attempts"])
+
+            return Response(
+                {"success": True, "message": "Controlador atualizado com sucesso."},
+                status=status.HTTP_200_OK
+            )
+
+        except Exception as e:
+            logError("update_connect_controller_api", {
+                "step": "exception",
+                "error": str(e),
+                "request": request.data
+            })
+            return Response(
+                {"success": False, "message": "Ocorreu um erro interno no servidor."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+    def _validateRequestData(self, controllerId, securityCode, controllerUuid):
+        if not controllerId or not securityCode or not controllerUuid:
+            return Response(
+                {"success": False, "message": "Dados de autenticação do controlador estão incorretos"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        return None
+
+    def _getController(self, controllerId, controllerUuid, securityCode):
+        try:
+            controller = Controller.objects.prefetch_related("valves").get(
+                id=controllerId,
+                uuid=controllerUuid,
+                security_code=securityCode
+            )
+            if not controller.active:
+                logError("update_connect_controller_api", {
+                    "step": "get_controller",
+                    "controllerId": controllerId,
+                    "error": "Dispositivo desativado"
+                })
+                return Response(
+                    {"success": False, "message": "Dispositivo desativado!"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            if controller.attempts >= 5:
+                logError("update_connect_controller_api", {
+                    "step": "get_controller",
+                    "controllerId": controllerId,
+                    "error": "Ocorreram várias tentativas de acessar o controlador"
+                })
+            return controller
+        except Controller.DoesNotExist:
+            logError("update_connect_controller_api", {
+                "step": "get_controller",
+                "controllerId": controllerId,
+                "error": "Controlador não encontrado ou credenciais inválidas"
+            })
+            return Response(
+                {"success": False, "message": "Dados de autenticação do controlador estão incorretos"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+    def _updateAttemptController(self, controllerId):
+        try:
+            controller = Controller.objects.get(id=controllerId)
+        except Controller.DoesNotExist:
+            return
+
+        if controller.attempts >= 5:
+            logError("update_connect_controller_api", {
+                "step": "get_controller",
+                "controllerId": controllerId,
+                "error": "Ocorreram várias tentativas de acessar o controlador"
+            })
+
+        controller.attempts += 1
+        controller.save(update_fields=["attempts"])
