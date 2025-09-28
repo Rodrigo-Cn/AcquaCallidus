@@ -130,35 +130,48 @@ def irrigationsControllersList(request, id):
     logs = Log.objects.order_by('-created_at')
     hasUnread = logs.filter(viewed=False).exists()
     logs = logs[:12]
-    formCulturevegetable = CultureVegetableForm()
+    formCultureVegetable = CultureVegetableForm()
     geolocations = Geolocation.objects.all()
     culturesVegetables = CultureVegetable.objects.all()
-    valve = get_object_or_404(ValveController, id=id)
-    valveList = valve.irrigations.all()
+    controller = get_object_or_404(Controller, id=id)
+    controllerList = controller.irrigations.all()
 
-    dateQuery = request.GET.get('date', '')
-    if dateQuery:
-        parsedDate = parse_date(dateQuery)
-        if parsedDate:
-            valveList = valveList.filter(date=parsedDate)
-
-    valveList = valveList.order_by('-date')
-    paginator = Paginator(valveList, 15)
+    controllerList = controllerList.order_by('-date')
+    paginator = Paginator(controllerList, 60)
     pageNumber = request.GET.get('page')
     pageObj = paginator.get_page(pageNumber)
 
+    totals = controllerList.aggregate(
+        totalLiters=Sum('total_liters'),
+        totalPlants=Sum('plants_number'),
+        totalRadius=Sum('irrigation_radius')
+    )
+
+    totalLiters = totals['totalLiters'] or 0
+    totalPlants = totals['totalPlants'] or 0
+    totalArea = 0
+
+    for irrigation in controllerList:
+        if irrigation.irrigation_radius:
+            totalArea += irrigation.irrigation_radius
+
     return render(
         request,
-        'controller/irrigationcontroller/listforvalve.html',
+        'controller/irrigationcontroller/listforcontroller.html',
         context={
             'user': request.user,
             'logs': logs,
             'page_obj': pageObj,
-            'form_culture_vegetable': formCulturevegetable,
+            'form_culture_vegetable': formCultureVegetable,
             'has_unread': hasUnread,
             'geolocations': geolocations,
             'cultures_vegetables': culturesVegetables,
-            'valve': valve,
+            'controller': controller,
+            'valves': controller.valves.all(),
+            'total_liters': totalLiters,
+            'total_plants': totalPlants,
+            'total_area': round(totalArea, 2),
+            "today": now().date()
         }
     )
 

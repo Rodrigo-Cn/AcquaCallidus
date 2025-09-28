@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
-{% block title %}Irrigações por Controlador{% endblock %}
+{% block title %}Irrigações por Válvula{% endblock %}
 {% block content %}
 <script src="{% static 'js/controller/irrigationcontroller/delete.js' %}"></script>
 <div class="antialiased font-sans min-h-[800px] bg-gray-200 pb-32">
@@ -16,7 +16,8 @@
         </h2>
         <div class="w-full sm:w-auto flex justify-start sm:justify-end">
           <a
-            href="/controllers/"
+            href="#"
+            onclick="if (document.referrer) { history.back(); } else { window.location.href='/controllers/'; }"
             class="inline-flex items-center gap-2 px-3 sm:px-4 py-2 text-sm sm:text-base font-medium 
                   text-white bg-sky-700 border border-sky-700 rounded-xl shadow-sm 
                   hover:bg-sky-800 hover:border-sky-800 focus:outline-none 
@@ -216,10 +217,18 @@
     </div>
     <div class="flex flex-col items-center text-center">
       <div class="flex items-center justify-center w-10 h-10 rounded-full bg-green-100 mb-1.5">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" 
-             stroke-width="2" stroke="currentColor" class="w-5 h-5 text-green-600">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 22V10"/>
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 14c-4-2-6-5-6-8 3 0 6 1.5 6 4"/>
+        <svg xmlns="http://www.w3.org/2000/svg" 
+            fill="none" 
+            viewBox="0 0 24 24" 
+            stroke-width="2" 
+            stroke="currentColor" 
+            stroke-linecap="round" 
+            stroke-linejoin="round"
+            class="w-5 h-5 text-green-600"
+            aria-hidden="true">
+          <path d="M12 22V10"/>
+          <path d="M12 14c-4-2-6-5-6-8 3 0 6 1.5 6 4"/>
+          <path d="M12 14c4-2 6-5 6-8 -3 0 -6 1.5 -6 4"/>
         </svg>
       </div>
       <p class="text-xs font-medium text-gray-500">Plantas Irrigadas</p>

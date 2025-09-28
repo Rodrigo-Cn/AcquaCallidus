@@ -41,7 +41,7 @@ def storeIrrigationVolume(request, geolocationId, cultureId):
     ).exists()
 
     if already_exists:
-        messages.warning(request, "O volume de irrigação de hoje já foi gerado para essa cultura e cidade.")
+        messages.warning(request, "Os volumes de irrigação de hoje já foram gerados para essa cultura e cidade.")
         return redirect(f'{reverse("irrigationvolume_list_cultures")}?culture_id={cultureId}')
 
     calculateEtoResult = calculateReferenceEvapotranspiration(geolocationId)
