@@ -71,7 +71,7 @@
           </div>
           <button
             type="submit"
-            class="p-2.5 ms-2 text-sm font-medium text-white bg-sky-500 rounded-full border border-sky-500 hover:bg-sky-600 focus:ring-4 focus:outline-none focus:ring-sky-300"
+            class="p-2.5 ms-2 text-sm font-medium text-white bg-sky-500 dark:bg-sky-700 rounded-full border border-sky-500 dark:border-sky-700 hover:bg-sky-600 dark:hover:bg-sky-800 focus:ring-4 focus:outline-none focus:ring-sky-300 dark:focus:ring-sky-900"
           >
             <svg
               class="w-4 h-4"
@@ -113,7 +113,7 @@
           <div class="flex justify-end p-4 bg-gray-50 rounded-b-lg">
             <button
               id="ok-modal-btn"
-              class="bg-sky-500 text-white px-4 py-2 rounded-lg hover:bg-sky-600 focus:outline-none focus:ring-2 focus:ring-sky-400"
+              class="dark:bg-sky-700 text-white px-4 py-2 rounded-lg hover:dark:bg-sky-800 focus:outline-none focus:ring-2 focus:ring-sky-400"
             >
               OK
             </button>
@@ -129,7 +129,7 @@
             class="bg-gradient-to-br from-white to-sky-50 rounded-2xl shadow-xl p-8 border border-sky-200 h-full flex flex-col"
           >
             <div class="flex flex-col items-center justify-center text-center flex-grow">
-              <div class="mb-4 text-sky-500">
+              <div class="mb-4 dark:text-sky-800">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -175,8 +175,8 @@
                 <button
                   type="button"
                   onclick="prepareModal()"
-                  class="mt-4 inline-flex items-center justify-center px-3 py-3 font-semibold text-white bg-sky-500 rounded-full shadow-lg
-                        transition-transform transform hover:scale-105 hover:bg-sky-600 focus:outline-none focus:ring-4 focus:ring-sky-300 w-auto max-w-[180px] mx-auto"
+                  class="mt-4 inline-flex items-center justify-center px-3 py-3 font-semibold text-white dark:bg-sky-700 rounded-full shadow-lg
+                        transition-transform transform hover:scale-105 hover:dark:bg-sky-800 focus:outline-none focus:ring-4 focus:ring-sky-500 w-auto max-w-[180px] mx-auto"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-white-600" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.1-.3 2.13-.82 3.01l1.46 1.46C19.41 14.35 20 13.23 20 12c0-4.42-3.58-8-8-8zm-6 6c0-1.1.3-2.13.82-3.01L5.36 5.53C4.59 6.65 4 7.77 4 9c0 4.42 3.58 8 8 8v3l4-4-4-4v3c-3.31 0-6-2.69-6-6z"/>
@@ -204,7 +204,7 @@
                 <div class="w-28 h-28 rounded-full bg-sky-100 flex items-center justify-center">
                   <svg xmlns="http://www.w3.org/2000/svg"
                       fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                      stroke="currentColor" class="w-14 h-14 text-sky-600">
+                      stroke="currentColor" class="w-14 h-14 dark:text-sky-700">
                     <path stroke-linecap="round" stroke-linejoin="round"
                           d="M4.5 12.75l6 6 9-13.5" />
                   </svg>
@@ -217,13 +217,13 @@
 
               <div class="flex justify-center gap-4 mt-4">
                 <a href="#" id="confirm-button"
-                  class="text-white bg-sky-600 hover:bg-sky-700 focus:ring-4 focus:outline-none 
+                  class="text-white dark:bg-sky-700 hover:dark:bg-sky-800 focus:ring-4 focus:outline-none 
                         focus:ring-sky-300 font-medium rounded-lg text-sm px-5 py-2.5">
                   Confirmar
                 </a>
                 <button type="button"
                   class="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 
-                        rounded-lg hover:bg-gray-100 hover:text-blue-600 focus:outline-none 
+                        rounded-lg hover:bg-gray-100 hover:text-black-600 focus:outline-none 
                         focus:ring-2 focus:ring-gray-200"
                   onclick="hideModal()">
                   Cancelar
@@ -252,7 +252,7 @@
               <div class="flex justify-end p-4 bg-gray-50 rounded-b-lg">
                 <button
                   id="ok-modal-btn"
-                  class="bg-sky-500 text-white px-4 py-2 rounded-lg hover:bg-sky-600 focus:outline-none focus:ring-2 focus:ring-sky-400"
+                  class="dark:bg-sky-700 text-white px-4 py-2 rounded-lg hover:dark:bg-sky-800 focus:outline-none focus:ring-2 focus:ring-sky-500"
                 >
                   OK
                 </button>
@@ -290,13 +290,13 @@
               <div>
                 <h2 class="text-2xl font-extrabold text-gray-700 italic tracking-tight">{{ irrigationvolume.culturevegetable.name }}</h2>
                 <p class="text-sm text-gray-500 italic mt-1 flex items-center gap-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-sky-500" viewBox="0 0 24 24" fill="currentColor">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 dark:text-sky-700" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 2C8.14 2 5 5.14 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.86-3.14-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/>
                   </svg>
                   <strong>{{ irrigationvolume.meteorologicaldata.geolocation.city }} - {{ irrigationvolume.meteorologicaldata.geolocation.state }}</strong>
                 </p>
                 <p class="text-sm text-gray-500 italic flex items-center gap-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-sky-500" viewBox="0 0 24 24" fill="currentColor">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 dark:text-sky-700" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-1.99.9-1.99 2L3 20c0 1.1.89 2 1.99 2H19c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/>
                   </svg>
                   <strong>{{ irrigationvolume.date }}</strong>

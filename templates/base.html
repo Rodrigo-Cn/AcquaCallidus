@@ -1204,7 +1204,7 @@
                     {% csrf_token %}
                     {{ form_culture_vegetable.as_p }}
                     <button type="submit"
-                      class="w-full text-white bg-sky-500 hover:bg-sky-600 focus:ring-4 focus:outline-none focus:ring-sky-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+                      class="w-full text-white dark:bg-sky-700 hover:dark:bg-sky-800 focus:ring-4 focus:outline-none focus:ring-sky-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
                       Salvar
                     </button>
                   </form>
@@ -1221,7 +1221,7 @@
                 <button onclick=" closeModalGeolocation()" class="text-2xl font-bold text-gray-500 hover:text-red-500">&times;</button>
               </div>
 
-              <form id="locationForm" class="p-4 space-y-4" method="POST" action="{% url 'store_geolocation' %}" onsubmit="handleSubmit(event)">
+              <form id="locationForm" class="p-2 space-y-4" method="POST" action="{% url 'store_geolocation' %}" onsubmit="handleSubmit(event)">
                 {% csrf_token %}
                 <div>
                   <label for="city" class="block font-medium">Cidade</label>
@@ -1262,7 +1262,7 @@
                 </div>
 
                 <button id="submitBtn" type="submit"
-                  class="w-full bg-sky-500 text-white rounded-lg py-2 hover:bg-sky-600 transition flex justify-center items-center gap-2">
+                  class="w-full dark:bg-sky-700 text-white rounded-lg py-2 hover:dark:bg-sky-800 transition flex justify-center items-center gap-2">
                   <svg id="submitLoadingSpinner" class="hidden animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
@@ -1335,7 +1335,7 @@
                         <input id="profile_photo" type="file" name="image" accept="image/*" class="hidden" />
                         <button
                           type="submit"
-                          class="inline-flex items-center gap-2 bg-sky-600 text-white font-medium rounded-lg px-6 py-2 hover:bg-sky-500 transition"
+                          class="inline-flex items-center gap-2 dark:bg-sky-700 text-white font-medium rounded-lg px-6 py-2 hover:dark:bg-sky-800 transition"
                         >
                           Salvar
                         </button>
@@ -1398,7 +1398,7 @@
                             stroke-width="1.5"
                             stroke-linecap="round"
                             stroke-linejoin="round"
-                            class="h-7 w-7 text-sky-600">
+                            class="h-7 w-7 dark:text-sky-700">
                           <title>Cadeado</title>
                           <rect x="4" y="10" width="16" height="11" rx="2.5" ry="2.5"/>
                           <path d="M8 10V7a4 4 0 0 1 8 0v3"/>
@@ -1412,7 +1412,7 @@
                   <div class="flex justify-center pt-4">
                     <button
                       type="submit"
-                      class="inline-flex items-center gap-2 bg-sky-600 text-white font-medium rounded-lg px-6 py-2 hover:bg-sky-500 transition w-full sm:w-auto"
+                      class="inline-flex items-center gap-2 dark:bg-sky-700 text-white font-medium rounded-lg px-6 py-2 hover:dark:bg-sky-800 transition w-full sm:w-auto"
                     >
                       Salvar Alterações
                     </button>
@@ -1443,7 +1443,7 @@
                 onclick="event.stopPropagation()"
               >
                 <div class="flex items-center justify-center gap-2 mb-5">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-sky-600" fill="none" viewBox="0 0 256 256" stroke="currentColor" stroke-width="3">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 dark:text-sky-700" fill="none" viewBox="0 0 256 256" stroke="currentColor" stroke-width="3">
                       <circle cx="128" cy="128" r="96"/>
                       <path d="M128 24 L146 36 L126 40 Z" fill="currentColor" stroke="none"/>
                       <rect x="92" y="116" width="72" height="68" rx="12" />
@@ -1480,7 +1480,7 @@
                     <input type="password" name="confirm_password" placeholder="****************" required class="w-full mt-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-sky-400 focus:outline-none" />
                   </div>
                   <div class="flex justify-center pt-4">
-                    <button type="submit" class="inline-flex items-center gap-2 bg-sky-600 text-white font-medium rounded-lg px-6 py-2 hover:bg-sky-500 transition w-full sm:w-auto">
+                    <button type="submit" class="inline-flex items-center gap-2 dark:bg-sky-700 text-white font-medium rounded-lg px-6 py-2 hover:dark:bg-sky-800 transition w-full sm:w-auto">
                       Atualizar Senha
                     </button>
                   </div>

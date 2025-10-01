@@ -165,21 +165,22 @@ def listForDate(request):
         'has_unread': hasUnread
     })
 
+@login_required(login_url='/auth/login/')
 def delete(request, irrigationVolumeId):
     try:
-        culture_id = request.GET.get('culture_id', '')
-        page_number = request.GET.get('page', '')
+        cultureId = request.GET.get('culture_id', '')
+        pageNumber = request.GET.get('page', '')
 
         with transaction.atomic():
-            irrigation_volume = get_object_or_404(IrrigationVolume, id=irrigationVolumeId)
-            culture_name = irrigation_volume.culturevegetable.name
-            city_name = f"{irrigation_volume.geolocation} - {irrigation_volume.state}"
+            irrigationVolume = get_object_or_404(IrrigationVolume, id=irrigationVolumeId)
+            cultureName = irrigationVolume.culturevegetable.name
+            cityName = f"{irrigationVolume.meteorologicaldata.geolocation.city} - {irrigationVolume.meteorologicaldata.geolocation.state}"
 
-            irrigation_volume.delete()
+            irrigationVolume.delete()
 
         messages.success(
             request,
-            f"Volumes de irrigação de hoje para {culture_name} em {city_name} deletados com sucesso!"
+            f"Volumes de irrigação de hoje para {cultureName} em {cityName} deletados com sucesso!"
         )
     except Exception as e:
         logError("delete_irrigationvolume_view", {
@@ -188,4 +189,4 @@ def delete(request, irrigationVolumeId):
         })
         messages.error(request, "Ocorreu um erro ao deletar os volumes de irrigação.")
 
-    return redirect(f'{reverse("irrigationvolume_list_cultures")}?culture_id={culture_id}&page={page_number}')
+    return redirect(f'{reverse("irrigationvolume_list_cultures")}?culture_id={cultureId}&page={pageNumber}')

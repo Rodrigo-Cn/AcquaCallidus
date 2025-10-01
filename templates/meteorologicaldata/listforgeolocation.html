@@ -40,7 +40,7 @@
           </div>
           <button
             type="submit"
-            class="p-2.5 ms-2 text-sm font-medium text-white bg-sky-500 rounded-full border border-sky-500 hover:bg-sky-600 focus:ring-4 focus:outline-none focus:ring-sky-300"
+            class="p-2.5 ms-2 text-sm font-medium text-white bg-sky-500 dark:bg-sky-700 rounded-full border border-sky-500 dark:border-sky-700 hover:bg-sky-600 dark:hover:bg-sky-800 focus:ring-4 focus:outline-none focus:ring-sky-300 dark:focus:ring-sky-900"
           >
             <svg
               class="w-4 h-4"
@@ -68,7 +68,7 @@
           {% if not has_today_data and geolocation_id %}
               <div class="bg-gradient-to-br from-sky-50 to-gray-100 rounded-2xl shadow-xl p-1 border border-gray-200 h-full">
                 <div class="flex flex-col items-center justify-center h-full text-center">
-                  <div class="mb-4 text-sky-500">
+                  <div class="mb-4 dark:text-sky-700">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                         stroke-width="1.5" stroke="currentColor" class="w-16 h-16">
                       <path stroke-linecap="round" stroke-linejoin="round"
@@ -83,7 +83,7 @@
                   <button
                     data-modal-target="generate-modal"
                     data-modal-toggle="generate-modal"
-                    class="inline-flex items-center justify-center px-6 py-3 font-semibold text-white bg-sky-500 rounded-full shadow-lg transition-transform transform hover:scale-105 hover:bg-sky-600 focus:outline-none focus:ring-4 focus:ring-sky-300"
+                    class="inline-flex items-center justify-center px-6 py-3 font-semibold text-white dark:bg-sky-700 rounded-full shadow-lg transition-transform transform hover:scale-105 hover:dark:bg-sky-800 focus:outline-none focus:ring-4 focus:ring-sky-300"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-white-600" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.1-.3 2.13-.82 3.01l1.46 1.46C19.41 14.35 20 13.23 20 12c0-4.42-3.58-8-8-8zm-6 6c0-1.1.3-2.13.82-3.01L5.36 5.53C4.59 6.65 4 7.77 4 9c0 4.42 3.58 8 8 8v3l4-4-4-4v3c-3.31 0-6-2.69-6-6z"/>
@@ -112,7 +112,7 @@
                 <div class="w-28 h-28 rounded-full bg-sky-100 flex items-center justify-center">
                   <svg xmlns="http://www.w3.org/2000/svg"
                       fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                      stroke="currentColor" class="w-14 h-14 text-sky-600">
+                      stroke="currentColor" class="w-14 h-14 dark:text-sky-700">
                     <path stroke-linecap="round" stroke-linejoin="round"
                           d="M4.5 12.75l6 6 9-13.5" />
                   </svg>
@@ -127,7 +127,7 @@
                 {% if geolocation_id %}
                   <a href="{% url 'meteorologicaldata_store' geolocation_id %}"
                     id="confirm-button"
-                    class="text-white bg-sky-600 hover:bg-sky-700 focus:ring-4 focus:outline-none 
+                    class="text-white dark:bg-sky-700 hover:dark:bg-sky-800 focus:ring-4 focus:outline-none 
                             focus:ring-sky-300 font-medium rounded-lg text-sm px-5 py-2.5"
                     onclick="handleConfirmClick(event)">
                     Confirmar
@@ -135,7 +135,7 @@
                 {% endif %}
                 <button type="button"
                   class="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 
-                        rounded-lg hover:bg-gray-100 hover:text-blue-600 focus:outline-none 
+                        rounded-lg hover:bg-gray-100 hover:text-black-600 focus:outline-none 
                         focus:ring-2 focus:ring-gray-200"
                   data-modal-hide="generate-modal">
                   Cancelar

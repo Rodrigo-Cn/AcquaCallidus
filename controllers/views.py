@@ -37,6 +37,7 @@ def listController(request):
     logs = logs[:12]
     geolocations = Geolocation.objects.all()
     culturesVegetables = CultureVegetable.objects.all()
+    wifi = request.user.wifi_data.first()
 
     nameQuery = request.GET.get('name', '')
     formCulturevegetable = CultureVegetableForm()
@@ -66,7 +67,8 @@ def listController(request):
         'form_culture_vegetable': formCulturevegetable,
         'has_unread': hasUnread,
         'geolocations': geolocations,
-        'cultures_vegetables': culturesVegetables
+        'cultures_vegetables': culturesVegetables,
+        'wifi': wifi,
     })
 
 @login_required(login_url='/auth/login/')

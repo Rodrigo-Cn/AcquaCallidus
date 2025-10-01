@@ -8,4 +8,5 @@ urlpatterns = [
     path('image/profile/', views.uploadProfileImage, name='upload_profile_image'),
     path('update/', views.updateUser, name='update_user'),
     path('update/password', views.changePassword, name='change_password'),
+    path('update/wifi', views.updateWifi, name='update_wifi'),
 ]

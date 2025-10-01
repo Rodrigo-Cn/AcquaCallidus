@@ -15,6 +15,7 @@
 <script src="{% static 'js/controller/delete.js' %}"></script>
 <script src="{% static 'js/controller/modal.js' %}"></script>
 <script src="{% static 'js/controller/code.js' %}"></script>
+<script src="{% static 'js/controller/wifi.js' %}"></script>
 <script src="{% static 'css/controller/style.css' %}"></script>
 <link
   href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css"
@@ -108,10 +109,115 @@
               />
             </svg>
             <span class="sr-only">Adicionar</span>
-          </button>
+            <button
+              type="button"
+              id="openWifiModal"
+              class="flex justify-center items-center p-2.5 ms-2 text-sm font-medium text-white bg-sky-500 dark:bg-sky-700 rounded-full border border-sky-500 dark:border-sky-700 hover:bg-sky-600 dark:hover:bg-sky-800 focus:ring-4 focus:outline-none focus:ring-sky-300 dark:focus:ring-sky-900"
+              id="openPopupController"
+            >
+              <svg
+                class="w-4 h-4"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+                aria-hidden="true"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M5.636 8.636a9 9 0 0112.728 0M2.05 5.05a13 13 0 0119.9 0M8.464 12.464a5 5 0 016.072 0M12 16h.01"
+                />
+              </svg>
+              <span class="sr-only">Adicionar Wi-Fi</span>
+            </button>
         </form>
       </div>
 
+      <div id="wifiModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden">
+        <div class="bg-white w-full max-w-md rounded-xl shadow-lg p-6">
+          <h2 id="wifiModalTitle" class="text-gray-800 text-xl font-semibold mb-4">
+            {% if wifi %}
+              Atualizar à Rede Wi-Fi
+            {% else %}
+              Cadastrar à Rede Wi-Fi
+            {% endif %}
+          </h2>
+
+          <form id="wifiForm" action="{% url 'update_wifi' %}" method="POST" class="space-y-4">
+            {% csrf_token %}
+            
+            <div>
+              <label for="ssid" class="block text-gray-700 font-medium mb-1">Nome da Rede (SSID)</label>
+              <input
+                type="text"
+                id="ssid"
+                name="ssid"
+                required
+                class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-sky-500 text-gray-800"
+                placeholder="Ex: Minha Rede"
+                value="{{ wifi.ssid|default:'' }}"
+              />
+            </div>
+
+            <div class="flex items-center gap-2">
+              <input 
+                type="checkbox" 
+                id="openNetwork" 
+                name="is_public" 
+                class="h-4 w-4"
+                {% if wifi.is_public %}checked{% endif %}
+              />
+              <label for="openNetwork" class="text-gray-700">Rede aberta (sem senha)</label>
+            </div>
+
+            <div id="passwordWrapper" {% if wifi.is_public %}class="hidden"{% endif %}>
+              <label for="password" class="block text-gray-700 font-medium mb-1">Senha</label>
+              <div class="relative">
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  class="w-full px-4 py-2 border rounded-lg text-gray-800 pr-10"
+                  placeholder="Digite a senha"
+                  value="{{ wifi.password|default:'' }}"
+                />
+                <button 
+                  type="submit" 
+                  id="togglePassword" 
+                  class="absolute inset-y-0 right-0 px-3 flex items-center text-gray-500" 
+                  title="Mostrar senha">
+                  <svg id="eyeOpen" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                  <svg id="eyeClosed" xmlns="http://www.w3.org/2000/svg" 
+                    class="w-5 h-5 hidden" fill="none" viewBox="0 0 24 24" 
+                    stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.269-2.943-9.543-7a9.958 9.958 0 012.249-3.93m3.226-2.568A9.956 9.956 0 0112 5c4.478 0 8.269 2.943 9.543 7a9.953 9.953 0 01-4.043 5.197M9.88 9.88a3 3 0 104.24 4.24M3 3l18 18" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-4">
+              <button 
+                type="button" 
+                id="closeWifiModal" 
+                class="px-4 py-2 rounded-lg bg-gray-300 hover:bg-gray-400 text-gray-800">
+                Cancelar
+              </button>
+              <button
+                type="submit" 
+                class="px-4 py-2 rounded-lg dark:bg-sky-700 hover:dark:bg-sky-800 text-white font-semibold flex items-center gap-2">
+                Salvar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+      
       <div
         id="alert-modal"
         class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden"
