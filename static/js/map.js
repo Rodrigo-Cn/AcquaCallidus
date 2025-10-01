@@ -92,6 +92,13 @@ async function geocodeCityState(city, state) {
 document.addEventListener('DOMContentLoaded', () => {
   const cityInput = document.getElementById('city');
   const stateInput = document.getElementById('state');
+  const modal = document.getElementById("modal");
+
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) {
+      closeModalGeolocation();
+    }
+  });
 
   const handleKey = (e) => {
     if (e.key === 'Enter') {

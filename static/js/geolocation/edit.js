@@ -10,6 +10,12 @@ function openEditModal(id) {
   modal.classList.remove("hidden");
   modal.classList.add("flex");
 
+  modal.addEventListener("click", function (event) {
+    if (event.target === modal) {
+      closeEditModal();
+    }
+  }, { once: true });
+
   const urlParams = new URLSearchParams(window.location.search);
   const nameQuery = urlParams.get("name");
   const pageNumber = urlParams.get('page') || 1;
