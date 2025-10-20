@@ -57,7 +57,7 @@ def store(request):
             form = CultureVegetableForm(request.POST)
             if form.is_valid():
                 form.save()
-                messages.success(request, "Cultura cadastrada com sucesso!")
+                messages.success(request, "Tipo de vegetal cadastrado com sucesso!")
                 return redirect('culturevegetable_list')
             messages.error(request, "Dados inválidos! Verifique os campos.")
             return redirect(request.META.get('HTTP_REFERER', 'culturevegetable_list'))
@@ -66,7 +66,7 @@ def store(request):
             "step": "exception",
             "error": str(e),
         })
-        messages.error(request, "Ocorreu um erro ao criar a cultura!")
+        messages.error(request, "Ocorreu um erro ao criar o tipo de vegetal!")
         return redirect(request.META.get('HTTP_REFERER', 'culturevegetable_list'))
     
 @api_view(['GET'])
@@ -87,15 +87,15 @@ def delete(request, id):
             with transaction.atomic():
                 cultureVegetable = CultureVegetable.objects.get(id=id)
                 cultureVegetable.delete()
-                messages.success(request, "Cultura vegetal deletada com sucesso.")
+                messages.success(request, "Tipo de vegetal deletado com sucesso.")
         except CultureVegetable.DoesNotExist:
-            messages.error(request, "Cultura vegetal não encontrada.")
+            messages.error(request, "Tipo de vegetal não encontrado.")
         except Exception as e:
             logError("delete_culturevegetable_view", {
                 "step": "exception",
                 "error": str(e),
             })
-            messages.error(request, "Erro ao deletar cultura vegetal")
+            messages.error(request, "Erro ao deletar o tipo de vegetal")
     else:
         messages.error(request, "Método não permitido.")
 
@@ -117,9 +117,9 @@ def update(request, id):
                 form = CultureVegetableForm(request.POST, instance=cultureVegetable)
                 if form.is_valid():
                     form.save()
-                    messages.success(request, f"Cultura vegetal {cultureVegetable.name} atualizado(a) com sucesso.")
+                    messages.success(request, f"Tipo de vegetal {cultureVegetable.name} atualizado(a) com sucesso.")
                 else:
-                    messages.error(request, "Erro na atualização da cultura vegetal. Verifique os campos e tente novamente.")
+                    messages.error(request, "Erro na atualização do tipo de vegetal. Verifique os campos e tente novamente.")
         else:
             messages.error(request, "Método não permitido.")
     except Exception as e:
@@ -127,7 +127,7 @@ def update(request, id):
             "step": "exception",
             "error": str(e),
         })
-        messages.error(request, "Ocorreu um erro ao atualizar a cultura vegetal")
+        messages.error(request, "Ocorreu um erro ao atualizar o tipo de vegetal")
 
     if pageNumber and nameQuery:
         return redirect(f"{reverse('culturevegetable_list')}?name={nameQuery}&page={pageNumber}")   

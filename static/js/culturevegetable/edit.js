@@ -41,6 +41,6 @@ function openEditCultureModal(id) {
       editCultureModal.show();
     })
     .catch(error => {
-      alert("Erro ao carregar cultura vegetal para edição.");
+      alert("Erro ao carregar tipo de vegetal para edição.");
     });
 }

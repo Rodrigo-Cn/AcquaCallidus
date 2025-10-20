@@ -31,10 +31,10 @@ def getOrCreateIrrigationVolume(geolocationId: int, cultureId: int):
         except CultureVegetable.DoesNotExist:
             Log.objects.create(
                 reference="get_irrigationvolume_service",
-                exception={"error": "Cultura não encontrada"},
+                exception={"error": "Tipo de vegetal não encontrado"},
                 created_at=todayWithHour
             )
-            return {"success": False, "error": "Cultura não encontrada"}
+            return {"success": False, "error": "Tipo de vegetal não encontrado"}
 
         try:
             meteorologicalData = MeteorologicalData.objects.get(

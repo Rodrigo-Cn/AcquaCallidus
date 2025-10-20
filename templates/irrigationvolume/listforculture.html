@@ -20,7 +20,7 @@
       <div class="flex items-center">
         <div class="relative">
           <h2 class="text-2xl font-semibold leading-tight text-gray-800 pr-6">
-            Volumes para Irrigação por Cultura (Kc)
+            Volumes para Irrigação por Tipo de Vegetal (Kc)
           </h2>
           <div class="absolute bottom-0 right-0 group">
             <button
@@ -61,7 +61,7 @@
         >
           <div class="relative w-full">
             <select id="culture-select" name="culture_id">
-              <option value="">Selecione a cultura</option>
+              <option value="">Selecione o tipo de vegetal</option>
               {% for culturevegetable in culturesvegetables %}
                 <option value="{{ culturevegetable.id }}" {% if culture_id|stringformat:"s" == culturevegetable.id|stringformat:"s" %}selected{% endif %}>
                   {{ culturevegetable.name }}
@@ -301,7 +301,7 @@
                   </svg>
                   <strong>{{ irrigationvolume.date }}</strong>
                 </p>
-                <p class="text-sm text-gray-500 italic mt-1">Estágios de Desenvolvimento</p>
+                <p class="text-sm text-gray-500 italic mt-1">Estádios de Desenvolvimento</p>
               </div>
 
               <div class="text-5xl text-emerald-500">

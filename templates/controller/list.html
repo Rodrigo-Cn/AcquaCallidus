@@ -335,7 +335,7 @@
                     <i data-lucide="package" class="w-5 h-5 mr-2 text-yellow-600"></i> 
                   {% endif %}
                   <p>
-                    <strong>Cultura:</strong> {{ controller.culturevegetable.name }} 
+                    <strong>Tipo de Vegetal:</strong> {{ controller.culturevegetable.name }} 
                     {% if controller.phase_vegetable == 1 %}
                       (Fase Inicial)
                     {% elif controller.phase_vegetable == 2 %}
@@ -492,7 +492,7 @@
 
       <h2 id="modalTitle" class="text-xl font-bold mb-3 text-gray-900">Confirmação de exclusão</h2>
       <p id="modalDesc" class="text-gray-700 mb-6 leading-relaxed text-sm">
-        Tem certeza que deseja deletar esta cultura vegetal? Esta ação não poderá ser desfeita.
+        Tem certeza que deseja deletar este tipo de vegetal? Esta ação não poderá ser desfeita.
       </p>
       <div class="flex justify-center gap-3">
         <button
@@ -602,7 +602,7 @@
             </div>
 
             <div>
-              <label for="culturaControlador" class="block text-sm font-semibold text-gray-700 mb-1">Cultura</label>
+              <label for="culturaControlador" class="block text-sm font-semibold text-gray-700 mb-1">Tipo de Vegetal</label>
               <select id="culturaControlador" name="culturevegetable" required class="select2-popup" data-placeholder="Selecione uma cultura">
                 <option></option>
                 {% for culture_vegetable in cultures_vegetables %}

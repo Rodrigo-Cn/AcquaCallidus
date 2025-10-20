@@ -384,7 +384,7 @@ class ControllerOnAPI(APIView):
                     if irrigationVolume is None:
                         logError("post_on_controller_api", {
                             "step": "create_irrigationvolume",
-                            "error": "Cultura vegetal não encontrada"
+                            "error": "Tipo de vegetal não encontrado"
                         })
                         return Response(
                             {"success": False, "message": "Falha ao gerar volume de irrigação."},

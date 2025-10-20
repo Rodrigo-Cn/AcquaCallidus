@@ -28,7 +28,7 @@ from .services import calculateReferenceEvapotranspiration
 @login_required(login_url='/auth/login/')
 def storeIrrigationVolume(request, geolocationId, cultureId):
     if not geolocationId or not cultureId:
-        messages.error(request, "Geolocalização ou cultura não informada!")
+        messages.error(request, "Geolocalização ou tipo de vegetal não informado!")
         return redirect(f'{reverse("irrigationvolume_list_cultures")}?culture_id={cultureId or ""}')
     
     today = timezone.now().astimezone(pytzTimezone("America/Sao_Paulo")).date()
@@ -41,7 +41,7 @@ def storeIrrigationVolume(request, geolocationId, cultureId):
     ).exists()
 
     if already_exists:
-        messages.warning(request, "Os volumes de irrigação de hoje já foram gerados para essa cultura e cidade.")
+        messages.warning(request, "Os volumes de irrigação de hoje já foram gerados para esse tipo de vegetal e cidade.")
         return redirect(f'{reverse("irrigationvolume_list_cultures")}?culture_id={cultureId}')
 
     calculateEtoResult = calculateReferenceEvapotranspiration(geolocationId)
@@ -56,14 +56,14 @@ def storeIrrigationVolume(request, geolocationId, cultureId):
     except CultureVegetable.DoesNotExist:
         Log.objects.create(
             reference="create_irrigationvolume_view",
-            exception={"error": "Cultura vegetal não encontrada, ID:" . cultureId},
+            exception={"error": "Tipo de vegetal não encontrado, ID:" . cultureId},
             created_at=now_sp
         )
         logError("store_irrigationvolume_view", {
             "step": "exception",
-            "error": "Cultura vegetal não encontrada, ID:" . cultureId
+            "error": "Tipo de vegetal não encontrado, ID:" . cultureId
         })
-        messages.error(request, "Cultura vegetal não encontrada.")
+        messages.error(request, "Tipo de vegetal não encontrado.")
         return redirect(f'{reverse("irrigationvolume_list_cultures")}?culture_id={cultureId}')
 
     try:
