@@ -9,6 +9,7 @@
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/vs2015.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
 <script src="{% static 'js/controller/secret-code.js' %}"></script>
@@ -301,21 +302,19 @@
                   </p>
                 </div>
 
-              <div class="flex items-center">
-                {% if controller.signal_strength >= -50 %}
-                  <i data-lucide="wifi" class="w-5 h-5 mr-2 text-green-500"></i> 
-                {% elif controller.signal_strength >= -65 %}
-                  <i data-lucide="wifi-2" class="w-5 h-5 mr-2 text-green-400"></i>
-                {% elif controller.signal_strength >= -75 %}
-                  <i data-lucide="wifi-1" class="w-5 h-5 mr-2 text-yellow-500"></i>
-                {% elif controller.signal_strength %}
-                  <i data-lucide="wifi-off" class="w-5 h-5 mr-2 text-red-500"></i>
-                {% else %}
-                  <i data-lucide="wifi-off" class="w-5 h-5 mr-2 text-gray-400"></i>
-                {% endif %}
-                
-                <p><strong>IP:</strong> {{ controller.ip_address }}</p>
-              </div>
+                <div class="flex items-center">
+                  {% if controller.signal_strength|add:0 >= -50 %}
+                    <i class="fa-solid fa-wifi text-green-500 mr-2"></i>
+                  {% elif controller.signal_strength|add:0 >= -65 %}
+                    <i class="fa-solid fa-wifi text-green-400 mr-2"></i>
+                  {% elif controller.signal_strength|add:0 >= -75 %}
+                    <i class="fa-solid fa-wifi text-yellow-500 mr-2"></i>
+                  {% else %}
+                    <i class="fa-solid fa-wifi-slash text-red-500 mr-2"></i>
+                  {% endif %}
+                  
+                  <p><strong>IP:</strong> {{ controller.ip_address }}</p>
+                </div>
 
                 <div class="flex items-center">
                   <i data-lucide="map-pin" class="w-5 h-5 mr-2 text-gray-500"></i>
@@ -369,18 +368,14 @@
                             <i data-lucide="droplet" class="w-6 h-6 text-red-600"></i>
                           {% endif %}
                           <p class="text-xs mt-1 font-semibold text-green-700">Válvula {{ forloop.counter }}</p>
-                          <span class="text-[11px] text-green-600">Ativa</span>
+                          {% if valve.status %}
+                            <span class="text-[11px] text-green-600">Irrigando</span>
+                          {% else %}
+                            <span class="text-[11px] text-red-600">Desativada</span>
+                          {% endif %}
                           <span class="text-[10px] text-gray-700 mt-1">Plantas: {{ valve.plants_number }}</span>
                           <span class="text-[10px] text-gray-700 mt-1"><strong>Área:</strong> {{ valve.irrigation_radius }} m²</span>
                         </a>
-                      {% else %}
-                        <div class="flex flex-col items-center bg-red-50 rounded-xl p-3 shadow-sm w-full opacity-70 cursor-not-allowed">
-                          <i data-lucide="droplet" class="w-6 h-6 text-red-600"></i>
-                          <p class="text-xs mt-1 font-semibold text-red-700">Válvula {{ forloop.counter }}</p>
-                          <span class="text-[11px] text-red-600">Inativa</span>
-                          <span class="text-[10px] text-gray-500 mt-1">Plantas: 0</span>
-                          <span class="text-[10px] text-gray-500 mt-1"><strong>Área:</strong> 0 m²</span>
-                        </div>
                       {% endif %}
                     {% endfor %}
                   </div>
@@ -612,8 +607,8 @@
             </div>
 
             <div>
-              <label for="geoControlador" class="block text-sm font-semibold text-gray-700 mb-1">Geolocalização</label>
-              <select id="geoControlador" name="geolocation" required class="select2-popup" data-placeholder="Selecione uma geolocalização">
+              <label for="geoControlador" class="block text-sm font-semibold text-gray-700 mb-1">Propriedade</label>
+              <select id="geoControlador" name="geolocation" required class="select2-popup" data-placeholder="Selecione uma propriedade">
                 <option></option>
                 {% for geolocation in geolocations %}
                   <option value="{{ geolocation.id }}">{{ geolocation.city }} - {{ geolocation.state }}</option>

@@ -71,7 +71,7 @@ function openEditModal(id) {
     })
     .catch(error => {
       console.error(error);
-      alert("Erro ao carregar geolocalização para edição.");
+      alert("Erro ao carregar propriedade para edição.");
     });
 }
 

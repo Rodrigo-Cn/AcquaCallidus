@@ -83,7 +83,7 @@ def listForDate(request):
 @login_required(login_url='/auth/login/')
 def storeForGeolocation(request, geolocationId):
     if not geolocationId:
-        messages.error(request, "Geolocalização não selecionada!")
+        messages.error(request, "Propriedade não selecionada!")
         return redirect(f'{reverse("meteorologicaldata_list_geolocation")}?geolocation_id={geolocationId}')
 
     try:
@@ -96,7 +96,7 @@ def storeForGeolocation(request, geolocationId):
             if already_exists:
                 messages.warning(
                     request,
-                    "Os dados meteorológicos de hoje já existem para essa geolocalização."
+                    "Os dados meteorológicos de hoje já existem para essa propriedade."
                 )
             else:
                 response = saveTodayWeather(geolocationId)

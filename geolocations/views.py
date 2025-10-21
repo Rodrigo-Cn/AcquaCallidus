@@ -66,7 +66,7 @@ def store(request):
                 longitude=longitude
             )
 
-        messages.success(request, "Geolocalização cadastrada com sucesso!")
+        messages.success(request, "Propriedade cadastrada com sucesso!")
         return redirect(request.META.get('HTTP_REFERER', '/'))
 
     except Exception as e:
@@ -74,7 +74,7 @@ def store(request):
             "step": "exception",
             "error": str(e),
         })
-        messages.error(request, "Ocorreu um erro ao salvar a geolocalização.")
+        messages.error(request, "Ocorreu um erro ao salvar a propriedade.")
         return redirect(request.META.get('HTTP_REFERER', '/'))
 
 @api_view(['GET'])
@@ -95,15 +95,15 @@ def delete(request, id):
             with transaction.atomic():
                 geolocation = Geolocation.objects.get(id=id)
                 geolocation.delete()
-                messages.success(request, "Geolocalização deletada com sucesso.")
+                messages.success(request, "Propriedade deletada com sucesso.")
         except Geolocation.DoesNotExist:
-            messages.error(request, "Geolocalização não encontrada.")
+            messages.error(request, "Propriedade não encontrada.")
         except Exception as e:
             logError("delete_geolocation_view", {
                 "step": "exception",
                 "error": str(e),
             })
-            messages.error(request, "Erro ao deletar geolocalização")
+            messages.error(request, "Erro ao deletar propriedade")
     else:
         messages.error(request, "Método não permitido.")
 
@@ -139,7 +139,7 @@ def update(request, id):
 
                     messages.success(
                         request,
-                        f"Geolocalização {geolocation.city} - {geolocation.state} atualizada com sucesso."
+                        f"Propriedade {geolocation.city} - {geolocation.state} atualizada com sucesso."
                     )
         else:
             messages.error(request, "Método não permitido.")
@@ -148,7 +148,7 @@ def update(request, id):
             "step": "exception",
             "error": str(e),
         })
-        messages.error(request, "Ocorreu um erro ao atualizar a geolocalização")
+        messages.error(request, "Ocorreu um erro ao atualizar a propriedade")
 
     if pageNumber and nameQuery:
         return redirect(f"{reverse('geolocation_list')}?name={nameQuery}&page={pageNumber}")

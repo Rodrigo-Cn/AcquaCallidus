@@ -14,10 +14,10 @@ def saveTodayWeather(geolocationId):
         now_brazil = timezone.now()
         Log.objects.create(
             reference="request_meteorologicaldata_services",
-            exception={"error": "Geolocalização não encontrada"},
+            exception={"error": "Propriedade não encontrada"},
             created_at=now_brazil
         )
-        return {"message": "Geolocalização não encontrada", "success": False}
+        return {"message": "Propriedade não encontrada", "success": False}
 
     now_brazil = timezone.now()
 

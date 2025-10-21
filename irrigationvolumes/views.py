@@ -28,7 +28,7 @@ from .services import calculateReferenceEvapotranspiration
 @login_required(login_url='/auth/login/')
 def storeIrrigationVolume(request, geolocationId, cultureId):
     if not geolocationId or not cultureId:
-        messages.error(request, "Geolocalização ou tipo de vegetal não informado!")
+        messages.error(request, "Propriedade ou tipo de vegetal não informado!")
         return redirect(f'{reverse("irrigationvolume_list_cultures")}?culture_id={cultureId or ""}')
     
     today = timezone.now().astimezone(pytzTimezone("America/Sao_Paulo")).date()
@@ -72,7 +72,7 @@ def storeIrrigationVolume(request, geolocationId, cultureId):
             geolocation_id=geolocationId
         )
     except MeteorologicalData.DoesNotExist:
-        messages.error(request, "Dados meteorológicos de hoje não encontrados para essa geolocalização.")
+        messages.error(request, "Dados meteorológicos de hoje não encontrados para essa propriedade.")
         return redirect(f'{reverse("irrigationvolume_list_cultures")}?culture_id={cultureId}')
 
     try:

@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
-{% block title %}Geolocalizações{% endblock %}
+{% block title %}Propriedades{% endblock %}
 {% block content %}
 <link
   rel="stylesheet"
@@ -21,8 +21,8 @@
 <div class="antialiased font-sans min-h-[800px] bg-gray-100">
   <div class="container mx-auto py-4 px-4 sm:px-8">
     <div class="py-8">
-      <h2 class="text-3xl font-bold text-gray-900 mb-6 text-left">
-        Geolocalizações
+      <h2 class="text-2xl font-semibold leading-tight text-gray-800">
+        Propriedades
       </h2>
 
       <div class="mt-6 mb-9 flex sm:flex-row flex-col">
@@ -358,7 +358,7 @@
         Confirmação de exclusão
       </h2>
       <p id="modalDesc" class="text-gray-700 mb-6 leading-relaxed text-sm">
-        Tem certeza que deseja deletar esta geolocalização? Esta ação não
+        Tem certeza que deseja deletar esta propriedade? Esta ação não
         poderá ser desfeita.
       </p>
       <div class="flex justify-center gap-3">
@@ -382,7 +382,7 @@
   <div id="modal-edit" class="hidden fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50">
     <div class="bg-white rounded-lg shadow-lg w-full max-w-xl">
       <div class="flex justify-between items-center p-4 border-b">
-        <h2 class="text-lg font-semibold">Editar Geolocalização</h2>
+        <h2 class="text-lg font-semibold">Editar Propriedade</h2>
         <button onclick="closeEditModal()" class="text-2xl font-bold text-gray-500 hover:text-red-500">&times;</button>
       </div>
 
@@ -432,7 +432,7 @@
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
           </svg>
-          <span id="btnText-edit">Salvar Geolocalização</span>
+          <span id="btnText-edit">Salvar Propriedade</span>
         </button>
       </form>
     </div>
