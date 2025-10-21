@@ -59,11 +59,11 @@ class CultureVegetableForm(forms.ModelForm):
         ]
         labels = {
             'name': 'Nome',
-            'phase_initial_kc': 'KC Germinação',
-            'phase_vegetative_kc': 'KC Vegetativo',
-            'phase_flowering_kc': 'KC Florescimento',
-            'phase_fruiting_kc': 'KC Frutificação',
-            'phase_maturation_kc': 'KC Maturação',
+            'phase_initial_kc': 'KC Germinação (0-60 dias)',
+            'phase_vegetative_kc': 'KC Vegetativo (60–150 dias)',
+            'phase_flowering_kc': 'KC Florescimento (150–220 dias)',
+            'phase_fruiting_kc': 'KC Frutificação (220–300 dias)',
+            'phase_maturation_kc': 'KC Maturação (300 – 400 dias)',
         }
         widgets = {
             'name': forms.TextInput(attrs={
@@ -116,7 +116,6 @@ class CultureVegetableEditForm(forms.ModelForm):
         required=True,
         validators=[validate_single_emoji],
         label="Emoji",
-        help_text="Escolha um único emoji (ex.: 🌽, 🍌, 🥕).",
         widget=forms.TextInput(attrs={
             "id": "emoji_edit",
             "placeholder": "🌱",
@@ -146,11 +145,11 @@ class CultureVegetableEditForm(forms.ModelForm):
         ]
         labels = {
             'name': 'Nome',
-            'phase_initial_kc': 'KC Germinação',
-            'phase_vegetative_kc': 'KC Vegetativo',
-            'phase_flowering_kc': 'KC Florescimento',
-            'phase_fruiting_kc': 'KC Frutificação',
-            'phase_maturation_kc': 'KC Maturação',
+            'phase_initial_kc': 'KC Germinação (0-60 dias)',
+            'phase_vegetative_kc': 'KC Vegetativo (60–150 dias)',
+            'phase_flowering_kc': 'KC Florescimento (150–220 dias)',
+            'phase_fruiting_kc': 'KC Frutificação (220–300 dias)',
+            'phase_maturation_kc': 'KC Maturação (300 – 400 dias)',
         }
         widgets = {
             'name': forms.TextInput(attrs={
