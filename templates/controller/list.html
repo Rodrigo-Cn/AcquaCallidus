@@ -17,6 +17,7 @@
 <script src="{% static 'js/controller/modal.js' %}"></script>
 <script src="{% static 'js/controller/code.js' %}"></script>
 <script src="{% static 'js/controller/wifi.js' %}"></script>
+<script src="{% static 'js/controller/reload-controllers.js' %}"></script>
 <script src="{% static 'css/controller/style.css' %}"></script>
 <link
   href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css"
@@ -250,7 +251,7 @@
       {% if page_obj %}
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-12 mb-12">
           {% for controller in page_obj %}
-            <div class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-6 relative flex flex-col border border-gray-100">
+            <div class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-6 relative flex flex-col border border-gray-100 controller-card" data-controller-id="{{ controller.id }}">
               <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center space-x-3">
                   <div class="p-2 bg-blue-100 rounded-xl">
@@ -262,13 +263,13 @@
                   </div>
                 </div>
                 {% if controller.status %}
-                  <span class="text-[11px] font-bold px-3 py-1 rounded-full text-white bg-green-600 shadow">
-                    Online
-                  </span>
-                {% else %}  
-                  <span class="text-[11px] font-bold px-3 py-1 rounded-full text-white bg-gray-400 shadow">
-                    Offline
-                  </span>
+                <span class="controller-status text-[11px] font-bold px-3 py-1 rounded-full text-white bg-green-600 shadow">
+                  Online
+                </span>
+                {% else %}
+                <span class="controller-status text-[11px] font-bold px-3 py-1 rounded-full text-white bg-gray-400 shadow">
+                  Offline
+                </span>
                 {% endif %}
               </div>
               <div class="absolute top-16 right-4 flex flex-col items-center gap-2">
@@ -323,29 +324,31 @@
 
                 <div class="flex items-center">
                   {% if controller.phase_vegetable == 1 %}
-                    <i data-lucide="sprout" class="w-5 h-5 mr-2 text-green-600"></i> 
+                    <i data-lucide="sprout" class="controller-phase-icon w-5 h-5 mr-2 text-green-600"></i> 
                   {% elif controller.phase_vegetable == 2 %}
-                    <i data-lucide="leaf" class="w-5 h-5 mr-2 text-green-600"></i> 
+                    <i data-lucide="leaf" class="controller-phase-icon w-5 h-5 mr-2 text-green-600"></i> 
                   {% elif controller.phase_vegetable == 3 %}
-                    <i data-lucide="flower" class="w-5 h-5 mr-2 text-pink-500"></i> 
+                    <i data-lucide="flower" class="controller-phase-icon w-5 h-5 mr-2 text-pink-500"></i> 
                   {% elif controller.phase_vegetable == 4 %}
-                    <i data-lucide="apple" class="w-5 h-5 mr-2 text-red-500"></i> 
+                    <i data-lucide="apple" class="controller-phase-icon w-5 h-5 mr-2 text-red-500"></i> 
                   {% elif controller.phase_vegetable == 5 %}
-                    <i data-lucide="package" class="w-5 h-5 mr-2 text-yellow-600"></i> 
+                    <i data-lucide="package" class="controller-phase-icon w-5 h-5 mr-2 text-yellow-600"></i> 
                   {% endif %}
                   <p>
-                    <strong>Tipo de Vegetal:</strong> {{ controller.culturevegetable.name }} 
-                    {% if controller.phase_vegetable == 1 %}
-                      (Fase Inicial)
-                    {% elif controller.phase_vegetable == 2 %}
-                      (Fase Vegetativa)
-                    {% elif controller.phase_vegetable == 3 %}
-                      (Fase de Floração)
-                    {% elif controller.phase_vegetable == 4 %}
-                      (Fase de Frutificação)
-                    {% elif controller.phase_vegetable == 5 %}
-                      (Fase de Maturação)
-                    {% endif %}
+                    <strong>Tipo de Vegetal:</strong> {{ controller.culturevegetable.name }}
+                    <span class="controller-phase-text">
+                      {% if controller.phase_vegetable == 1 %}
+                        (Fase Inicial)
+                      {% elif controller.phase_vegetable == 2 %}
+                        (Fase Vegetativa)
+                      {% elif controller.phase_vegetable == 3 %}
+                        (Fase de Floração)
+                      {% elif controller.phase_vegetable == 4 %}
+                        (Fase de Frutificação)
+                      {% elif controller.phase_vegetable == 5 %}
+                        (Fase de Maturação)
+                      {% endif %}
+                    </span>
                   </p>
                 </div>
 
@@ -361,7 +364,7 @@
                     {% for valve in controller.valves_fixed %}
                       {% if valve %}
                         <a href="/controllers/irrigationscontroller/{{ valve.id }}/" data-valve="{{ forloop.counter }}" onclick=""
-                          class="flex flex-col items-center bg-green-50 rounded-xl p-3 shadow-sm hover:shadow-lg transition-transform transform hover:scale-105 w-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-300">
+                          data-valve-id="{{ valve.id }}" class="flex flex-col items-center bg-green-50 rounded-xl p-3 shadow-sm hover:shadow-lg transition-transform transform hover:scale-105 w-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-300 valve-item">
                           {% if valve.status %}
                             <i data-lucide="droplet" class="w-6 h-6 text-blue-600"></i>
                           {% else %}
@@ -369,9 +372,9 @@
                           {% endif %}
                           <p class="text-xs mt-1 font-semibold text-green-700">Válvula {{ forloop.counter }}</p>
                           {% if valve.status %}
-                            <span class="text-[11px] text-green-600">Irrigando</span>
+                            <span class="valve-status-text text-[11px] text-green-600">Irrigando</span>
                           {% else %}
-                            <span class="text-[11px] text-red-600">Desativada</span>
+                            <span class="valve-status-text text-[11px] text-red-600">Desativada</span>
                           {% endif %}
                           <span class="text-[10px] text-gray-700 mt-1">Plantas: {{ valve.plants_number }}</span>
                           <span class="text-[10px] text-gray-700 mt-1"><strong>Área:</strong> {{ valve.irrigation_radius }} m²</span>

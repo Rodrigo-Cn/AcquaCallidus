@@ -11,6 +11,7 @@ from django.core.paginator import Paginator
 from django.utils import timezone
 from django.utils.dateparse import parse_date
 from django.urls import reverse
+from django.http import JsonResponse
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
@@ -70,6 +71,33 @@ def listController(request):
         'cultures_vegetables': culturesVegetables,
         'wifi': wifi,
     })
+
+@login_required(login_url='/auth/login/')
+def getControllerStatus(request):
+    pageNumber = request.GET.get('page', 1)
+    nameQuery = request.GET.get('name', '')
+
+    controllers = Controller.objects.prefetch_related('valves').all().order_by('created_at')
+
+    if nameQuery:
+        controllers = controllers.filter(Q(name__icontains=nameQuery))
+
+    paginator = Paginator(controllers, 9)
+    pageObj = paginator.get_page(pageNumber)
+
+    data = []
+    for controller in pageObj.object_list:
+        data.append({
+            'id': controller.id,
+            'status': controller.status,
+            'phaseVegetable': controller.phase_vegetable,
+            'valves': [
+                {'id': valve.id, 'status': valve.status}
+                for valve in controller.valves.all()
+            ]
+        })
+
+    return JsonResponse({'controllers': data})
 
 @login_required(login_url='/auth/login/')
 def irrigationsForValveList(request, id):
