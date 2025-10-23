@@ -1,6 +1,7 @@
 from django.db import models
 
 class Geolocation(models.Model):
+    property_name = models.CharField(max_length=255, default='Fazenda')
     city = models.CharField(max_length=255)
     state = models.CharField(max_length=255)
     latitude = models.FloatField()

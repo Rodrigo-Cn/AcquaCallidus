@@ -318,6 +318,18 @@
                 </div>
 
                 <div class="flex items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" 
+                      class="w-5 h-5 mr-2 text-gray-500" 
+                      viewBox="0 0 512 512" 
+                      fill="currentColor" 
+                      aria-hidden="true">
+                    <path d="M256 64c-8 0-16 2-22 6L96 176v224c0 26 22 48 48 48h224c26 0 48-22 48-48V176L278 70c-6-4-14-6-22-6zm0 48 128 96v192c0 8-8 16-16 16H144c-8 0-16-8-16-16V208l128-96z"/>
+                    <path d="M64 400c64-48 160-48 224 0 64-48 160-48 224 0v16H64v-16z" opacity="0.7"/>
+                  </svg>
+                  <p><strong>Propriedade:</strong> {{ controller.geolocation.property_name }}</p>
+                </div>
+
+                <div class="flex items-center">
                   <i data-lucide="map-pin" class="w-5 h-5 mr-2 text-gray-500"></i>
                   <p><strong>Localização:</strong> {{ controller.geolocation.city }} - {{ controller.geolocation.state }}</p>
                 </div>

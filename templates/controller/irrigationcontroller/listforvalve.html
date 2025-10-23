@@ -100,7 +100,7 @@
                     {{ irrigation.culturevegetable.name|default:"-" }}
                   </td>
                   <td class="px-4 py-3 border-b flex items-center gap-2">
-                    {{ irrigation.geolocation.city }} - {{ irrigation.geolocation.state }}
+                    {{ irrigation.geolocation.property_name }}
                     {% if irrigation.date == today %}
                       <button 
                         title="Deletar" 

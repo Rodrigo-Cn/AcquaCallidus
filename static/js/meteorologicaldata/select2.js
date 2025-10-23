@@ -22,7 +22,7 @@ $(document).ready(function () {
     });
 
     $("#geolocation-select").select2({
-    placeholder: "Selecione uma cidade",
+    placeholder: "Selecione uma propriedade",
     allowClear: true,
     });
 

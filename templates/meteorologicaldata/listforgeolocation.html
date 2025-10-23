@@ -30,10 +30,10 @@
         >
           <div class="relative w-full">
             <select id="geolocation-select" name="geolocation_id">
-              <option value="">Selecione a cidade</option>
+              <option value="">Selecione a propriedade</option>
               {% for geolocation in geolocations %}
                 <option value="{{ geolocation.id }}" {% if geolocation_id|stringformat:"s" == geolocation.id|stringformat:"s" %}selected{% endif %}>
-                  {{ geolocation.city }} - {{ geolocation.state }}
+                  {{ geolocation.property_name }}
                 </option>
               {% endfor %}
             </select>
@@ -147,11 +147,12 @@
           {% for meteorologicaldata in page_obj %}
             <div class="bg-white rounded-2xl shadow-lg p-4 border border-gray-200">
 
-              <div class="flex items-center justify-between mb-4">
+              <div class="flex items-start justify-between mb-4">
                 <div>
                   <h2 class="text-xl font-semibold text-gray-800">
-                    Clima: {{ meteorologicaldata.geolocation.city }} - {{ meteorologicaldata.geolocation.state }}
+                    Clima: {{ meteorologicaldata.geolocation.property_name }}
                   </h2>
+                  <p class="text-sm text-gray-500">Cidade: {{ meteorologicaldata.geolocation.city }} - {{ meteorologicaldata.geolocation.state }}</p>
                   <p class="text-sm text-gray-500">Data: {{ meteorologicaldata.date }}</p>
                 </div>
                 <div class="flex items-center gap-2 text-3xl">

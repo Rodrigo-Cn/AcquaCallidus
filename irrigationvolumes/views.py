@@ -174,13 +174,13 @@ def delete(request, irrigationVolumeId):
         with transaction.atomic():
             irrigationVolume = get_object_or_404(IrrigationVolume, id=irrigationVolumeId)
             cultureName = irrigationVolume.culturevegetable.name
-            cityName = f"{irrigationVolume.meteorologicaldata.geolocation.city} - {irrigationVolume.meteorologicaldata.geolocation.state}"
+            farmName = irrigationVolume.meteorologicaldata.geolocation.property_name
 
             irrigationVolume.delete()
 
         messages.success(
             request,
-            f"Volumes de irrigação de hoje para {cultureName} em {cityName} deletados com sucesso!"
+            f"Volumes de irrigação de hoje para {cultureName} em {farmName} deletados com sucesso!"
         )
     except Exception as e:
         logError("delete_irrigationvolume_view", {

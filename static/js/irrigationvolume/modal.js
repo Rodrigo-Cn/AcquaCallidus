@@ -5,7 +5,7 @@ function prepareModal() {
   const cultureId = cultureInput.value;
 
   if (!geolocationId) {
-    openModal("Por favor, selecione uma cidade.");
+    openModal("Por favor, selecione uma propriedade.");
     return;
   }
 

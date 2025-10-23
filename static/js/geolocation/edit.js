@@ -37,6 +37,7 @@ function openEditModal(id) {
       document.querySelector("#state-edit").value = data.state || "";
       document.querySelector("#latitude-edit").value = data.latitude || "";
       document.querySelector("#longitude-edit").value = data.longitude || "";
+      document.querySelector("#property-name").value = data.property_name || "";
 
       if (!editMapInitialized) {
         editMap = L.map('map-edit').setView(

@@ -167,7 +167,7 @@
                     <option value="">Selecione a cidade</option>
                     {% for geolocation in geolocations %}
                       <option value="{{ geolocation.id }}" {% if geolocation_id|stringformat:"s" == geolocation.id|stringformat:"s" %}selected{% endif %}>
-                        {{ geolocation.city }} - {{ geolocation.state }}
+                        {{ geolocation.property_name }}
                       </option>
                     {% endfor %}
                   </select>
@@ -290,6 +290,17 @@
               <div>
                 <h2 class="text-2xl font-extrabold text-gray-700 italic tracking-tight">{{ irrigationvolume.culturevegetable.name }}</h2>
                 <p class="text-sm text-gray-500 italic mt-1 flex items-center gap-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" 
+                      class="h-4 w-4 text-sky-700 dark:text-sky-500" 
+                      viewBox="0 0 512 512" 
+                      fill="currentColor" 
+                      aria-hidden="true">
+                    <path d="M256 64c-8 0-16 2-22 6L96 176v224c0 26 22 48 48 48h224c26 0 48-22 48-48V176L278 70c-6-4-14-6-22-6zm0 48 128 96v192c0 8-8 16-16 16H144c-8 0-16-8-16-16V208l128-96z"/>
+                    <path d="M64 400c64-48 160-48 224 0 64-48 160-48 224 0v16H64v-16z" opacity="0.7"/>
+                  </svg>
+                  <strong>{{ irrigationvolume.meteorologicaldata.geolocation.property_name }}</strong>
+                </p>
+                <p class="text-sm text-gray-500 italic flex items-center gap-1">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 dark:text-sky-700" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 2C8.14 2 5 5.14 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.86-3.14-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/>
                   </svg>

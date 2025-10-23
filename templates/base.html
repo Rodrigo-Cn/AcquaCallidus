@@ -1224,6 +1224,42 @@
               <form id="locationForm" class="p-2 space-y-4" method="POST" action="{% url 'store_geolocation' %}" onsubmit="handleSubmit(event)">
                 {% csrf_token %}
                 <div>
+                  <label for="property_name" class="block font-medium">Nome da Propriedade</label>
+                  <div class="relative">
+                    <input
+                      placeholder="Fazenda..."
+                      type="text"
+                      id="property_name"
+                      name="property_name"
+                      class="w-full border rounded p-2 pr-10"
+                      required
+                      autocomplete="off"
+                    />
+                    <svg
+                      id="propertyNameLoadingSpinner"
+                      class="hidden animate-spin h-5 w-5 text-gray-500 absolute right-3 top-3"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        class="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        stroke-width="4"
+                      ></circle>
+                      <path
+                        class="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                      ></path>
+                    </svg>
+                  </div>
+                </div>
+
+                <div>
                   <label for="city" class="block font-medium">Cidade</label>
                   <div class="relative">
                     <input placeholder="Guanambi..." type="text" id="city" name="city" class="w-full border rounded p-2 pr-10" required autocomplete="off" />

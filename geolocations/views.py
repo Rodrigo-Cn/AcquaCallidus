@@ -29,7 +29,7 @@ def list(request):
 
     if nameQuery:
         geolocations = geolocations.filter(
-            Q(city__icontains=nameQuery) | Q(state__icontains=nameQuery)
+            Q(city__icontains=nameQuery) | Q(state__icontains=nameQuery) | Q(property_name__icontains=nameQuery)
         )
 
     paginator = Paginator(geolocations, 12)
@@ -53,6 +53,7 @@ def store(request):
         state = request.POST.get('state')
         latitude = request.POST.get('latitude')
         longitude = request.POST.get('longitude')
+        propertyName  = request.POST.get('property_name')
 
         if not all([city, state, latitude, longitude]):
             messages.error(request, "Todos os campos são obrigatórios.")
@@ -62,6 +63,7 @@ def store(request):
             Geolocation.objects.create(
                 city=city,
                 state=state,
+                property_name=propertyName,
                 latitude=latitude,
                 longitude=longitude
             )
@@ -122,11 +124,13 @@ def update(request, id):
         if request.method == "POST":
             with transaction.atomic():
                 geolocation = get_object_or_404(Geolocation, id=id)
+                lastName = geolocation.property_name
 
                 city = request.POST.get('city')
                 state = request.POST.get('state')
                 latitude = request.POST.get('latitude')
                 longitude = request.POST.get('longitude')
+                propertyName  = request.POST.get('property_name')
 
                 if not all([city, state, latitude, longitude]):
                     messages.error(request, "Todos os campos são obrigatórios.")
@@ -135,11 +139,12 @@ def update(request, id):
                     geolocation.state = state
                     geolocation.latitude = latitude
                     geolocation.longitude = longitude
+                    geolocation.property_name = propertyName
                     geolocation.save()
 
                     messages.success(
                         request,
-                        f"Propriedade {geolocation.city} - {geolocation.state} atualizada com sucesso."
+                        f"Propriedade {lastName} atualizada com sucesso."
                     )
         else:
             messages.error(request, "Método não permitido.")
