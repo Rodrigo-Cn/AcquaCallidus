@@ -75,7 +75,8 @@
               <tr class="bg-gray-100">
                 <th class="px-4 py-3 border-b text-gray-600 font-semibold uppercase tracking-wider">ID</th>
                 <th class="px-4 py-3 border-b text-gray-600 font-semibold uppercase tracking-wider">Data e Hora</th>
-                <th class="px-4 py-3 border-b text-gray-600 font-semibold uppercase tracking-wider">Litros Totais</th>
+                <th class="px-4 py-3 border-b text-gray-600 font-semibold uppercase tracking-wider">Irrigação Estimada</th>
+                <th class="px-4 py-3 border-b text-gray-600 font-semibold uppercase tracking-wider">Irrigação Realizada</th>
                 <th class="px-4 py-3 border-b text-gray-600 font-semibold uppercase tracking-wider">QTD Plantas</th>
                 <th class="px-4 py-3 border-b text-gray-600 font-semibold uppercase tracking-wider">Aréa (m²)</th>
                 <th class="px-4 py-3 border-b text-gray-600 font-semibold uppercase tracking-wider">Fase Vegetal</th>
@@ -91,6 +92,7 @@
                     {{ irrigation.date }} {{ irrigation.time|time:"H:i" }}
                   </td>
                   <td class="px-4 py-3 border-b">{{ irrigation.total_liters|floatformat:2 }} L(s)</td>
+                  <td class="px-4 py-3 border-b">{{ irrigation.irrigated_liters|floatformat:2 }} L(s)</td>
                   <td class="px-4 py-3 border-b">{{ irrigation.plants_number }}</td>
                   <td class="px-4 py-3 border-b">{{ irrigation.irrigation_radius }}</td>
                   <td class="px-4 py-3 border-b">
@@ -270,7 +272,7 @@
 
     <h2 id="modalTitle" class="text-xl font-bold mb-3 text-gray-900">Confirmação de exclusão</h2>
     <p id="modalDesc" class="text-gray-700 mb-6 leading-relaxed text-sm">
-      Tem certeza que deseja deletar esta irrigação do controlador? Esta ação não poderá ser desfeita.
+      Tem certeza que deseja deletar a última irrigação dessa válvula? Esta ação não poderá ser desfeita.
     </p>
     <div class="flex justify-center gap-3">
       <button

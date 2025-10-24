@@ -146,6 +146,8 @@ class IrrigationController(models.Model):
         help_text="Fase do cultivo no momento da irrigação"
     )
 
+    irrigated_liters = models.FloatField(null=True, blank=True, default=0)
+
     controller = models.ForeignKey(
         Controller,
         on_delete=models.SET_NULL,

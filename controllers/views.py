@@ -122,7 +122,7 @@ def irrigationsForValveList(request, id):
     pageObj = paginator.get_page(pageNumber)
 
     totals = valveList.aggregate(
-        totalLiters=Sum('total_liters'),
+        totalLiters=Sum('irrigated_liters'),
         totalPlants=Sum('plants_number'),
         totalRadius=Sum('irrigation_radius')
     )
@@ -151,7 +151,7 @@ def irrigationsForValveList(request, id):
             'total_liters': totalLiters,
             'total_plants': totalPlants,
             'total_area': round(totalArea, 2),
-            "today": now().date()
+            "today": timezone.localtime(timezone.now()).date()
         }
     )
 
@@ -172,7 +172,7 @@ def irrigationsControllersList(request, id):
     pageObj = paginator.get_page(pageNumber)
 
     totals = controllerList.aggregate(
-        totalLiters=Sum('total_liters'),
+        totalLiters=Sum('irrigated_liters'),
         totalPlants=Sum('plants_number'),
         totalRadius=Sum('irrigation_radius')
     )
@@ -618,6 +618,7 @@ class ControllerOffAPI(APIView):
             valveId = request.data.get("valveId")
             securityCode = request.data.get("securityCode")
             controllerUuid = request.data.get("controllerUuid")
+            irrigatedLiters = float(request.data.get("irrigatedLiters", 0))
 
             self._updateAttemptController(controllerId)
             
@@ -645,6 +646,20 @@ class ControllerOffAPI(APIView):
 
                 valve.status = False
                 valve.save(update_fields=["status"])
+
+                irrigation = IrrigationController.objects.filter(
+                    controller=controller,
+                    valvecontroller=valve
+                ).order_by('-id').first()
+
+                if irrigation:
+                    irrigation.irrigated_liters = irrigatedLiters
+                    irrigation.save(update_fields=["irrigated_liters"])
+                else:
+                    logError("post_off_controller_api", {
+                        "step": "update_irrigation",
+                        "error": f"Nenhum registro de irrigação encontrado para valve {valveId}"
+                    })
 
                 if controller.valves.count() == valve.order:
                     controller.status = False

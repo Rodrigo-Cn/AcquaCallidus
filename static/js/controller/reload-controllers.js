@@ -71,5 +71,5 @@ $(document).ready(function() {
   }
 
   updateControllers();
-  setInterval(updateControllers, 3000);
+  setInterval(updateControllers, 1000);
 });
