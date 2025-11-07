@@ -8,7 +8,8 @@ from django.db.models.functions import TruncMonth
 from django.shortcuts import render
 from django.utils.timezone import now
 from geolocations.models import Geolocation
-from irrigationvolumes.models import IrrigationVolume
+from controllers.models import IrrigationController
+from meteorologicaldatas.models import MeteorologicalData
 from logs.models import Log
 
 portugueseMonths = {
@@ -26,7 +27,7 @@ def home(request):
     geolocationFavorite = Geolocation.objects.filter(favorite=True).first()
 
     formCultureVegetable = CultureVegetableForm()
-    irrigationCount = IrrigationVolume.objects.count()
+    irrigationCount = IrrigationController.objects.count()
     geolocationCount = Geolocation.objects.count()
     cultureCount = CultureVegetable.objects.count()
 
@@ -59,7 +60,7 @@ def home(request):
 
     fromDateIrrigation = today - timedelta(days=210)
     irrigationPerMonth = (
-        IrrigationVolume.objects
+        IrrigationController.objects
         .filter(date__gte=fromDateIrrigation)
         .annotate(month=TruncMonth('date'))
         .values('month')
@@ -72,6 +73,27 @@ def home(request):
         if label in monthsIrrigation:
             monthsIrrigation[label] = item['count']
 
+    monthsMeteorological = OrderedDict()
+    for i in range(6, -1, -1):  
+        monthDate = (today.replace(day=1) - timedelta(days=30 * i)).replace(day=1)
+        label = portugueseMonths[monthDate.month]
+        monthsMeteorological[label] = 0
+
+    fromDateMeteorological = today - timedelta(days=210)
+    meteorologicalPerMonth = (
+        MeteorologicalData.objects
+        .filter(date__gte=fromDateMeteorological)
+        .annotate(month=TruncMonth('date'))
+        .values('month')
+        .annotate(count=Count('id'))
+        .order_by('month')
+    )
+
+    for item in meteorologicalPerMonth:
+        label = portugueseMonths[item['month'].month]
+        if label in monthsMeteorological:
+            monthsMeteorological[label] = item['count']
+
     return render(request, 'pages/home.html', context={
         'user': request.user,
         'logs': logs,
@@ -79,10 +101,12 @@ def home(request):
         'chart_data': list(months.values()),
         'chart_labels_irrigation': list(monthsIrrigation.keys()),
         'chart_data_irrigation': list(monthsIrrigation.values()),
+        'chart_labels_meteorological': list(monthsMeteorological.keys()),
+        'chart_data_meteorological': list(monthsMeteorological.values()),
         'irrigation_count': irrigationCount,
         'geolocation_count': geolocationCount,
         'culture_count': cultureCount,
         'form_culture_vegetable': formCultureVegetable,
         'has_unread': hasUnread,
-        'geolocation_favorite' : geolocationFavorite
+        'geolocation_favorite': geolocationFavorite,
     })

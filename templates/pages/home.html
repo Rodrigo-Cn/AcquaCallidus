@@ -201,8 +201,8 @@
                         <div class="p-5">
                             <canvas id="chartjs-meteorological-area" class="chartjs"></canvas>
                             <script>
-                                const meteoLabels = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho"];
-                                const meteoData = [10, 15, 12, 18, 14, 11, 16];
+                                const meteoLabels = {{ chart_labels_meteorological|safe }};
+                                const meteoData = {{ chart_data_meteorological|safe }};
 
                                 new Chart(document.getElementById("chartjs-meteorological-area"), {
                                     type: "bar",
