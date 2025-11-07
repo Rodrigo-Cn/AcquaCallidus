@@ -94,6 +94,28 @@ def home(request):
         if label in monthsMeteorological:
             monthsMeteorological[label] = item['count']
 
+    monthsLogs = OrderedDict()
+
+    for i in range(6, -1, -1): 
+        monthDate = (today.replace(day=1) - timedelta(days=30 * i)).replace(day=1)
+        label = portugueseMonths[monthDate.month]
+        monthsLogs[label] = 0
+
+    fromDateLogs = today - timedelta(days=210)
+    logsPerMonth = (
+        Log.objects
+        .filter(created_at__gte=fromDateLogs)
+        .annotate(month=TruncMonth('created_at'))
+        .values('month')
+        .annotate(count=Count('id'))
+        .order_by('month')
+    )
+
+    for item in logsPerMonth:
+        label = portugueseMonths[item['month'].month]
+        if label in monthsLogs:
+            monthsLogs[label] = item['count']
+
     return render(request, 'pages/home.html', context={
         'user': request.user,
         'logs': logs,
@@ -103,6 +125,8 @@ def home(request):
         'chart_data_irrigation': list(monthsIrrigation.values()),
         'chart_labels_meteorological': list(monthsMeteorological.keys()),
         'chart_data_meteorological': list(monthsMeteorological.values()),
+        'chart_labels_logs': list(monthsLogs.keys()),
+        'chart_data_logs': list(monthsLogs.values()),
         'irrigation_count': irrigationCount,
         'geolocation_count': geolocationCount,
         'culture_count': cultureCount,

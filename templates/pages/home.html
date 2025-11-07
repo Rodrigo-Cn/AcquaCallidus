@@ -163,27 +163,44 @@
                             <h5 class="font-bold uppercase text-gray-600">Logs de Erros</h5>
                         </div>
                         <div class="p-5">
-                            <canvas id="chartjs-7" class="chartjs" width="undefined" height="undefined"></canvas>
+                            <canvas id="chartjs-logs" class="chartjs"></canvas>
                             <script>
-                                const chartLabels = {{ chart_labels|safe }};
-                                const chartData = {{ chart_data|safe }};
+                                const logLabels = {{ chart_labels_logs|safe }};
+                                const logData = {{ chart_data_logs|safe }};
 
-                                new Chart(document.getElementById("chartjs-7"), {
+                                new Chart(document.getElementById("chartjs-logs"), {
                                     type: "bar",
                                     data: {
-                                        labels: chartLabels,
+                                        labels: logLabels,
                                         datasets: [{
-                                            label: "Logs por mês",
-                                            data: chartData,
-                                            borderColor: "rgb(255, 99, 132)",
-                                            backgroundColor: "rgba(255, 99, 132, 0.2)"
+                                            label: "Logs por Mês",
+                                            data: logData,
+                                            backgroundColor: "rgba(255, 99, 132, 0.7)",   
+                                            borderColor: "rgba(255, 99, 132, 1)",       
+                                            borderWidth: 1
                                         }]
                                     },
                                     options: {
                                         responsive: true,
                                         scales: {
                                             y: {
-                                                beginAtZero: true
+                                                beginAtZero: true,
+                                                title: {
+                                                    display: true,
+                                                    text: "Quantidade de Logs"
+                                                }
+                                            }
+                                        },
+                                        plugins: {
+                                            legend: {
+                                                position: 'top'
+                                            },
+                                            tooltip: {
+                                                callbacks: {
+                                                    label: function(context) {
+                                                        return context.parsed.y + " logs";
+                                                    }
+                                                }
                                             }
                                         }
                                     }
