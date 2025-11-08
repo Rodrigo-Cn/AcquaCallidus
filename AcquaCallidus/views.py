@@ -4,6 +4,7 @@ from culturesvegetables.forms import CultureVegetableForm
 from culturesvegetables.models import CultureVegetable
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count
+from django.db.models import Sum
 from django.db.models.functions import TruncMonth
 from django.shortcuts import render
 from django.utils.timezone import now
@@ -116,6 +117,27 @@ def home(request):
         if label in monthsLogs:
             monthsLogs[label] = item['count']
 
+    monthsVolume = OrderedDict()
+    for i in range(6, -1, -1):  
+        monthDate = (today.replace(day=1) - timedelta(days=30 * i)).replace(day=1)
+        label = portugueseMonths[monthDate.month]
+        monthsVolume[label] = 0
+
+    fromDateVolume = today - timedelta(days=210)
+    volumePerMonth = (
+        IrrigationController.objects
+        .filter(date__gte=fromDateVolume)
+        .annotate(month=TruncMonth('date'))
+        .values('month')
+        .annotate(total_liters=Sum('irrigated_liters'))
+        .order_by('month')
+    )
+
+    for item in volumePerMonth:
+        label = portugueseMonths[item['month'].month]
+        if label in monthsVolume:
+            monthsVolume[label] = round(item['total_liters'] or 0, 2)
+
     return render(request, 'pages/home.html', context={
         'user': request.user,
         'logs': logs,
@@ -127,6 +149,8 @@ def home(request):
         'chart_data_meteorological': list(monthsMeteorological.values()),
         'chart_labels_logs': list(monthsLogs.keys()),
         'chart_data_logs': list(monthsLogs.values()),
+        'chart_labels_volume': list(monthsVolume.keys()),
+        'chart_data_volume': list(monthsVolume.values()),
         'irrigation_count': irrigationCount,
         'geolocation_count': geolocationCount,
         'culture_count': cultureCount,

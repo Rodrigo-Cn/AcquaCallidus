@@ -78,15 +78,15 @@
                                 gradientBlue.addColorStop(0, "rgba(54, 162, 235, 0.4)");
                                 gradientBlue.addColorStop(1, "rgba(54, 162, 235, 0)");
 
-                                const volumeLabels = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho"];
-                                const volumeData = [1200, 1500, 1100, 1800, 1700, 1400, 1600];
+                                const volumeLabels = {{ chart_labels_volume|safe }};
+                                const volumeData = {{ chart_data_volume|safe }};
 
                                 new Chart(ctxVolume, {
                                     type: "line",
                                     data: {
                                         labels: volumeLabels,
                                         datasets: [{
-                                            label: "Volume (litros)",
+                                            label: "Volume (Litros)",
                                             data: volumeData,
                                             fill: true,
                                             backgroundColor: gradientBlue,
@@ -102,13 +102,20 @@
                                                 beginAtZero: true,
                                                 title: {
                                                     display: true,
-                                                    text: "Litros"
+                                                    text: "Litros Irrigados"
                                                 }
                                             }
                                         },
                                         plugins: {
                                             legend: {
                                                 position: 'top'
+                                            },
+                                            tooltip: {
+                                                callbacks: {
+                                                    label: function(context) {
+                                                        return context.parsed.y + " L";
+                                                    }
+                                                }
                                             }
                                         }
                                     }
