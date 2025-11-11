@@ -133,47 +133,37 @@ def changePassword(request):
 
 @login_required(login_url='/auth/login/')
 def updateWifi(request):
-    if request.method == "POST":
-        ssid = request.POST.get("ssid")
-        password = request.POST.get("password", "")
-        is_public = request.POST.get("is_public") == "on"
-
-        if not ssid:
-            messages.error(request, "O SSID é obrigatório.")
-            return redirect("controllers_list")
-
-        try:
-            with transaction.atomic():
-                wifi_data, created = WifiData.objects.get_or_create(
-                    user=request.user,
-                    ssid=ssid,
-                    defaults={
-                        "password": password if not is_public else None,
-                        "is_public": is_public,
-                    }
-                )
-
-                if not created:
-                    wifi_data.password = password if not is_public else None
-                    wifi_data.is_public = is_public
-                    wifi_data.save()
-
-            if created:
-                messages.success(request, f"Rede Wi-Fi '{ssid}' cadastrada com sucesso!")
-            else:
-                messages.success(request, f"Rede Wi-Fi '{ssid}' atualizada com sucesso!")
-
-        except Exception as e:
-            logError("update_wifi_view", {
-                "step": "exception",
-                "error": str(e),
-                "user_id": request.user.id,
-                "ssid": ssid,
-                "is_public": is_public,
-            })
-            messages.error(request, "Erro ao salvar a rede Wi-Fi.")
-
+    if request.method != "POST":
+        messages.error(request, "Método não permitido.")
         return redirect("controllers_list")
 
-    messages.error(request, "Método não permitido.")
+    ssid = request.POST.get("ssid")
+    password = request.POST.get("password", "")
+    is_public = request.POST.get("is_public") == "on"
+
+    if not ssid:
+        messages.error(request, "O SSID é obrigatório.")
+        return redirect("controllers_list")
+
+    try:
+        with transaction.atomic():
+            wifi_data, created = WifiData.objects.get_or_create(user=request.user)
+            wifi_data.ssid = ssid
+            wifi_data.password = None if is_public else password
+            wifi_data.is_public = is_public
+            wifi_data.save()
+
+        msg = f"Rede Wi-Fi '{ssid}' {'cadastrada' if created else 'atualizada'} com sucesso!"
+        messages.success(request, msg)
+
+    except Exception as e:
+        logError("update_wifi_view", {
+            "step": "exception",
+            "error": str(e),
+            "user_id": request.user.id,
+            "ssid": ssid,
+            "is_public": is_public,
+        })
+        messages.error(request, "Erro ao salvar a rede Wi-Fi.")
+
     return redirect("controllers_list")

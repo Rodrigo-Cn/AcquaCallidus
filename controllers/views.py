@@ -1,6 +1,7 @@
+import os
 import random
 import string
-import math
+from django.conf import settings
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -38,7 +39,7 @@ def listController(request):
     logs = logs[:12]
     geolocations = Geolocation.objects.all()
     culturesVegetables = CultureVegetable.objects.all()
-    wifi = request.user.wifi_data.first()
+    wifi = getattr(request.user, "wifi_data", None)
 
     nameQuery = request.GET.get('name', '')
     formCulturevegetable = CultureVegetableForm()
@@ -218,13 +219,15 @@ def storeController(request):
                     device=request.POST.get("device"),
                     ip_address=request.POST.get("ip_address"),
                     phase_vegetable=request.POST.get("phase_vegetable"),
-                    active=bool(request.POST.get("active")),                
+                    active=bool(request.POST.get("active")),
                     last_irrigation=parse_date(request.POST.get("last_irrigation")) if request.POST.get("last_irrigation") else None,
-                    culturevegetable=CultureVegetable.objects.filter(id=request.POST.get("culturevegetable")).first() if request.POST.get("culturevegetable") else None,
-                    geolocation=Geolocation.objects.filter(id=request.POST.get("geolocation")).first() if request.POST.get("geolocation") else None,
-                    security_code=generateSecurityCode(20)
+                    culturevegetable=CultureVegetable.objects.filter(id=request.POST.get("culturevegetable")).first(),
+                    geolocation=Geolocation.objects.filter(id=request.POST.get("geolocation")).first(),
+                    security_code=generateSecurityCode(20),
+                    signal_strength=-75
                 )
 
+                total_valves = 0
                 for i in range(1, 5):
                     plants = request.POST.get(f"valves[{i}][plants]")
                     radius = request.POST.get(f"valves[{i}][radius]")
@@ -235,8 +238,20 @@ def storeController(request):
                             controller=controller,
                             order=i,
                         )
+                        total_valves += 1
 
-            messages.success(request, "Controlador criado com sucesso")
+                try:
+                    espCode = generateEspCode(controller, total_valves, request.user)
+                    print(espCode)
+                    controller.code = espCode
+                    controller.save(update_fields=["code"])
+                except Exception as code_error:
+                    logError("store_controller_view", {
+                        "step": "code_generation_failed",
+                        "error": str(code_error)
+                    })
+
+            messages.success(request, f"Controlador criado com sucesso com {total_valves} válvula(s).")
             return redirect("controllers_list")
 
         except Exception as e:
@@ -249,6 +264,41 @@ def storeController(request):
 
     messages.info(request, "Método incorreto.")
     return redirect("controllers_list")
+
+def generateEspCode(controller, valvesCount, user):
+    if valvesCount not in [1, 2, 3]:
+        raise ValueError(f"Quantidade de válvulas inválida ({valvesCount}) — suportado apenas 1 a 3.")
+
+    templatePath = os.path.join(
+        settings.BASE_DIR, 'controllers', 'templates', f'esp_code_{valvesCount}.c'
+    )
+
+    if not os.path.exists(templatePath):
+        raise FileNotFoundError(f"Template ESP32 não encontrado para {valvesCount} válvulas")
+
+    with open(templatePath, 'r', encoding='utf-8') as file:
+        template = file.read()
+
+    template = template.replace("{", "{{").replace("}", "}}")
+    for var in ["ssid", "password", "baseUrl", "controllerId", "securityCode", "controllerUuid", "valveIds"]:
+        template = template.replace(f"{{{{{var}}}}}", f"{{{var}}}")
+
+    wifiData = getattr(user, "wifi_data", None)
+    ssid = wifiData.ssid if wifiData else "SeuWiFi"
+    password = wifiData.password if wifiData else "12345678"
+
+    valves = controller.valves.order_by('order')
+    valveIds = [v.id for v in valves]
+
+    return template.format(
+        controllerId=controller.id,
+        securityCode=controller.security_code,
+        controllerUuid=str(controller.uuid),
+        baseUrl="http://192.168.0.131:8000/",
+        ssid=ssid,
+        password=password,
+        valveIds=", ".join(map(str, valveIds))
+    )
 
 @api_view(['GET'])
 @authentication_classes([SessionAuthentication])

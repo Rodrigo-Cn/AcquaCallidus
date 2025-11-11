@@ -1,57 +1,57 @@
-let controllerIdToDelete = null;
+document.addEventListener('DOMContentLoaded', () => {
+  let controllerIdToDelete = null;
 
-function openDeleteControllerModal(id) {
-  controllerIdToDelete = id;
-  const modal = document.getElementById("deleteControllerModal");
-  const modalContent = modal.querySelector(".bg-white");
+  function openDeleteControllerModal(id) {
+    controllerIdToDelete = id;
+    const modal = document.getElementById("deleteControllerModal");
+    const modalContent = modal.querySelector(".bg-white");
 
-  modal.classList.remove("hidden", "opacity-0");
-  modal.classList.add("opacity-100");
-  modalContent.classList.add("scale-100");
-  modalContent.classList.remove("scale-95");
-}
+    modal.classList.remove("hidden", "opacity-0");
+    modal.classList.add("opacity-100");
+    modalContent.classList.add("scale-100");
+    modalContent.classList.remove("scale-95");
+  }
 
-function closeDeleteControllerModal() {
-  const modal = document.getElementById("deleteControllerModal");
-  const modalContent = modal.querySelector(".bg-white");
+  function closeDeleteControllerModal() {
+    const modal = document.getElementById("deleteControllerModal");
+    const modalContent = modal.querySelector(".bg-white");
 
-  modal.classList.remove("opacity-100");
-  modal.classList.add("opacity-0");
-  modalContent.classList.remove("scale-100");
-  modalContent.classList.add("scale-95");
+    modal.classList.remove("opacity-100");
+    modal.classList.add("opacity-0");
+    modalContent.classList.remove("scale-100");
+    modalContent.classList.add("scale-95");
 
-  setTimeout(() => {
-    modal.classList.add("hidden");
-    controllerIdToDelete = null;
-  }, 200);
-}
+    setTimeout(() => {
+      modal.classList.add("hidden");
+      controllerIdToDelete = null;
+    }, 200);
+  }
 
-function getCookie(name) {
-  let cookieValue = null;
-  if (document.cookie && document.cookie !== "") {
-    const cookies = document.cookie.split(";");
-    for (let cookie of cookies) {
-      cookie = cookie.trim();
-      if (cookie.startsWith(name + "=")) {
-        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-        break;
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== "") {
+      const cookies = document.cookie.split(";");
+      for (let cookie of cookies) {
+        cookie = cookie.trim();
+        if (cookie.startsWith(name + "=")) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
       }
     }
+    return cookieValue;
   }
-  return cookieValue;
-}
 
-document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById("cancelControllerModalBtnTop").addEventListener("click", closeDeleteControllerModal);
-  document.getElementById("cancelControllerModalBtnBottom").addEventListener("click", closeDeleteControllerModal);
+  document.getElementById("cancelControllerModalBtnTop")?.addEventListener("click", closeDeleteControllerModal);
+  document.getElementById("cancelControllerModalBtnBottom")?.addEventListener("click", closeDeleteControllerModal);
 
-  document.getElementById("deleteControllerModal").addEventListener("click", (e) => {
+  document.getElementById("deleteControllerModal")?.addEventListener("click", (e) => {
     if (e.target.id === "deleteControllerModal") {
       closeDeleteControllerModal();
     }
   });
 
-  document.getElementById("confirmDeleteControllerBtn").addEventListener("click", () => {
+  document.getElementById("confirmDeleteControllerBtn")?.addEventListener("click", () => {
     if (!controllerIdToDelete) return;
 
     const urlParams = new URLSearchParams(window.location.search);
@@ -79,4 +79,6 @@ document.addEventListener('DOMContentLoaded', () => {
     form.submit();
     closeDeleteControllerModal();
   });
+
+  window.openDeleteControllerModal = openDeleteControllerModal;
 });

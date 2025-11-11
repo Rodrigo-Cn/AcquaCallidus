@@ -10,7 +10,7 @@ class UserImage(models.Model):
         return f"Imagem de {self.user.username} ({self.id})"
 
 class WifiData(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="wifi_data")
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="wifi_data")
     ssid = models.CharField(max_length=100)
     password = models.CharField(max_length=255, blank=True, null=True)
     is_public = models.BooleanField(default=False)
